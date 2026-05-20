@@ -1,0 +1,1126 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Court — Tout se joue ici</title>
+<meta name="description" content="The Court · La plateforme française des sports de raquette. Tournois, partenaires, paiement, résultats — pour le joueur, le club, le juge-arbitre." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,30..100&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================================
+     THE COURT — Site vitrine standalone
+     DA Bandeja : crème, vert profond, or, mix Fraunces / Inter
+     ============================================================================ */
+  :root {
+    --cream-50:#f1ede5; --cream-100:#f8f6f0; --cream-200:#e5dfd3; --cream-300:#d8d2c5;
+    --off-white:#fbfaf6;
+    --court-50:#e9f1ec; --court-100:#d7e5dd; --court-300:#6ea58e;
+    --court-500:#2a8264; --court-600:#176b53; --court-700:#0f4c3a;
+    --court-800:#0b3a2c; --court-900:#082b21;
+    --gold-100:#f0e4c2; --gold-300:#e0c98a; --gold-500:#c9a24a; --gold-700:#9a7a32;
+    --ink-950:#15171a; --ink-700:#3a3f47; --ink-500:#5a6068; --ink-400:#7d838c;
+    --paper-200:#d8d2c5;
+    --shadow-sm: 0 1px 3px rgba(15,23,26,0.05), 0 1px 2px rgba(15,23,26,0.04);
+    --shadow-md: 0 6px 18px rgba(15,76,58,0.08);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  *,*::before,*::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--cream-50);
+    color: var(--ink-950);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0;
+  }
+  p { margin: 0; }
+  a { color: inherit; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+  .container-narrow { max-width: 880px; margin: 0 auto; padding: 0 28px; }
+
+  /* ============================================================================
+     NAV
+     ============================================================================ */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(241, 237, 229, 0.85);
+    backdrop-filter: saturate(140%) blur(12px);
+    border-bottom: 1px solid var(--cream-200);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; max-width: 1200px; margin: 0 auto;
+  }
+  .brand {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .brand .dot { color: var(--gold-500); }
+  .nav-links { display: flex; align-items: center; gap: 4px; }
+  .nav-links a {
+    text-decoration: none; font-size: 14px; font-weight: 500;
+    color: var(--ink-700); padding: 8px 14px; border-radius: 8px;
+    transition: background 200ms var(--ease), color 200ms var(--ease);
+  }
+  .nav-links a:hover { background: var(--cream-200); color: var(--ink-950); }
+  .nav-links a.cta {
+    background: var(--court-700); color: var(--cream-50);
+  }
+  .nav-links a.cta:hover { background: var(--court-600); color: var(--cream-50); }
+
+  @media (max-width: 760px) {
+    .nav-links a:not(.cta) { display: none; }
+  }
+
+  /* ============================================================================
+     HERO
+     ============================================================================ */
+  .hero { padding: 100px 0 80px; position: relative; overflow: hidden; }
+  .hero-content { max-width: 880px; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--court-700);
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--court-100); padding: 6px 12px; border-radius: 999px;
+  }
+  .eyebrow .pulse {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--court-600);
+  }
+  .hero h1 {
+    font-size: clamp(46px, 7vw, 96px);
+    margin-top: 28px;
+    line-height: 0.98;
+  }
+  .hero h1 .italic { font-style: italic; color: var(--court-700); }
+  .hero h1 .gold { color: var(--gold-500); }
+  .hero .lead {
+    font-size: 19px; max-width: 620px; margin-top: 28px;
+    color: var(--ink-700);
+  }
+  .hero-ctas { margin-top: 44px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px; border-radius: 10px;
+    font-size: 15px; font-weight: 500; text-decoration: none;
+    transition: all 200ms var(--ease);
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--court-700); color: var(--cream-50);
+  }
+  .btn-primary:hover { background: var(--court-600); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent; color: var(--ink-950);
+    border-color: var(--paper-200);
+  }
+  .btn-ghost:hover { background: var(--cream-200); }
+  .btn .arrow { transition: transform 200ms var(--ease); }
+  .btn:hover .arrow { transform: translateX(3px); }
+
+  /* Décor : trame géométrique évoquant un terrain de padel */
+  .hero-deco {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background-image:
+      linear-gradient(var(--cream-200) 1px, transparent 1px),
+      linear-gradient(90deg, var(--cream-200) 1px, transparent 1px);
+    background-size: 80px 80px;
+    background-position: 0 0;
+    opacity: 0.4;
+    mask-image: radial-gradient(ellipse at 70% 20%, black 0%, transparent 60%);
+    -webkit-mask-image: radial-gradient(ellipse at 70% 20%, black 0%, transparent 60%);
+  }
+
+  .hero-stats {
+    margin-top: 80px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    padding-top: 40px;
+    border-top: 1px solid var(--cream-200);
+  }
+  .stat-block .num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 44px; font-weight: 400;
+    color: var(--court-700);
+  }
+  .stat-block .label {
+    font-size: 13px; color: var(--ink-500); margin-top: 4px;
+  }
+
+  @media (max-width: 760px) {
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ============================================================================
+     SECTIONS GÉNÉRIQUES
+     ============================================================================ */
+  section { padding: 100px 0; }
+  section.dark {
+    background: var(--court-700);
+    color: var(--cream-50);
+  }
+  section.dark h2, section.dark h3 { color: var(--cream-50); }
+  section.cream-soft { background: var(--cream-100); }
+
+  .section-head { max-width: 760px; margin-bottom: 64px; }
+  .section-head .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--court-600);
+    margin-bottom: 16px;
+  }
+  section.dark .section-head .kicker { color: var(--gold-300); }
+  .section-head h2 {
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+  }
+  .section-head h2 .italic { font-style: italic; color: var(--court-700); }
+  section.dark .section-head h2 .italic { color: var(--gold-300); }
+  .section-head .sub {
+    margin-top: 20px; font-size: 17px;
+    color: var(--ink-700); max-width: 640px;
+  }
+  section.dark .section-head .sub { color: rgba(241, 237, 229, 0.75); }
+
+  /* ============================================================================
+     CONSTAT (problème)
+     ============================================================================ */
+  .constat {
+    border-top: 1px solid var(--cream-200);
+    padding-top: 100px;
+  }
+  .constat h2 {
+    font-size: clamp(32px, 4.5vw, 48px);
+    max-width: 920px;
+  }
+  .constat .grid {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+  }
+  .constat .item {
+    border-top: 2px solid var(--court-700);
+    padding-top: 20px;
+  }
+  .constat .item .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink-400);
+  }
+  .constat .item h3 { font-size: 22px; margin: 8px 0 12px; }
+  .constat .item p { color: var(--ink-700); font-size: 15px; }
+
+  @media (max-width: 760px) {
+    .constat .grid { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================================================
+     TROIS MONDES (rôles)
+     ============================================================================ */
+  .roles-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  }
+  .role-card {
+    background: var(--off-white); border: 1px solid var(--cream-200);
+    border-radius: 20px; padding: 36px 32px;
+    transition: transform 240ms var(--ease), box-shadow 240ms var(--ease);
+  }
+  .role-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+  .role-card .role-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--gold-500); letter-spacing: 0.1em;
+  }
+  .role-card h3 {
+    font-size: 32px; margin-top: 12px;
+  }
+  .role-card h3 .italic { font-style: italic; }
+  .role-card p {
+    margin-top: 16px; color: var(--ink-700); font-size: 15px;
+  }
+  .role-card ul {
+    margin: 24px 0 0; padding: 0; list-style: none;
+  }
+  .role-card ul li {
+    padding: 10px 0; border-bottom: 1px solid var(--cream-200);
+    font-size: 14px; color: var(--ink-700);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .role-card ul li:last-child { border-bottom: 0; }
+  .role-card ul li::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--court-600); flex-shrink: 0;
+  }
+
+  @media (max-width: 980px) {
+    .roles-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================================================
+     FACETTES (grille de fonctionnalités)
+     ============================================================================ */
+  .facets {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .facet {
+    background: var(--off-white);
+    border: 1px solid var(--cream-200);
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: border-color 220ms var(--ease), transform 220ms var(--ease);
+    position: relative;
+  }
+  .facet:hover { border-color: var(--court-300); transform: translateY(-2px); }
+  .facet .icon {
+    width: 36px; height: 36px;
+    background: var(--court-100); color: var(--court-700);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+  }
+  .facet.gold .icon { background: var(--gold-100); color: var(--gold-700); }
+  .facet h4 {
+    font-size: 19px; font-family: 'Fraunces', serif; font-weight: 500;
+    letter-spacing: -0.015em; margin-bottom: 8px;
+  }
+  .facet p { font-size: 14px; color: var(--ink-700); }
+  .facet .tag {
+    position: absolute; top: 18px; right: 18px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    background: var(--cream-200); color: var(--ink-500);
+    padding: 3px 8px; border-radius: 999px;
+  }
+  .facet .tag.v2 { background: var(--gold-100); color: var(--gold-700); }
+  .facet .tag.v3 { background: var(--court-100); color: var(--court-700); }
+
+  @media (max-width: 980px) {
+    .facets { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .facets { grid-template-columns: 1fr; }
+  }
+
+  /* Section dark variant des facets */
+  section.dark .facet {
+    background: var(--court-800);
+    border-color: rgba(241, 237, 229, 0.10);
+    color: var(--cream-50);
+  }
+  section.dark .facet:hover { border-color: var(--gold-500); }
+  section.dark .facet h4 { color: var(--cream-50); }
+  section.dark .facet p { color: rgba(241, 237, 229, 0.7); }
+  section.dark .facet .icon { background: rgba(241, 237, 229, 0.08); color: var(--cream-50); }
+  section.dark .facet.gold .icon { background: var(--gold-500); color: var(--court-900); }
+  section.dark .facet .tag { background: rgba(241,237,229,0.10); color: var(--cream-200); }
+
+  /* ============================================================================
+     PROMESSE 2 MINUTES — section centrée
+     ============================================================================ */
+  .promise {
+    text-align: center;
+  }
+  .promise h2 {
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: 1;
+    max-width: 1000px; margin: 0 auto;
+  }
+  .promise h2 .italic { font-style: italic; color: var(--court-700); }
+  .promise h2 .underline {
+    background-image: linear-gradient(transparent 75%, var(--gold-300) 75%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    padding: 0 4px;
+  }
+  .promise .sub {
+    margin: 28px auto 0; font-size: 18px;
+    color: var(--ink-700); max-width: 640px;
+  }
+  .promise .timer {
+    margin-top: 56px;
+    display: inline-flex; align-items: baseline; gap: 12px;
+    border-top: 1px solid var(--paper-200);
+    border-bottom: 1px solid var(--paper-200);
+    padding: 16px 32px;
+  }
+  .promise .timer .big {
+    font-family: 'Fraunces', serif; font-size: 48px;
+    color: var(--court-700);
+  }
+  .promise .timer .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.1em;
+  }
+
+  /* ============================================================================
+     ROADMAP en facettes dépliables visuellement (timeline horizontale)
+     ============================================================================ */
+  .roadmap {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+    border: 1px solid rgba(241,237,229,0.15);
+    border-radius: 20px; overflow: hidden;
+  }
+  .roadmap-col {
+    padding: 36px 28px;
+    background: var(--court-800);
+  }
+  .roadmap-col.center { background: var(--court-700); }
+  .roadmap-col.right  { background: var(--court-900); }
+  .roadmap-col .phase {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--gold-300); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .roadmap-col h3 {
+    font-size: 28px; margin: 12px 0 8px; color: var(--cream-50);
+  }
+  .roadmap-col .when {
+    font-size: 13px; color: rgba(241,237,229,0.6); margin-bottom: 24px;
+  }
+  .roadmap-col ul {
+    margin: 0; padding: 0; list-style: none;
+  }
+  .roadmap-col li {
+    padding: 10px 0; border-bottom: 1px dashed rgba(241,237,229,0.10);
+    font-size: 14px; color: rgba(241,237,229,0.82);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .roadmap-col li:last-child { border-bottom: 0; }
+  .roadmap-col li .check {
+    flex-shrink: 0; margin-top: 4px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--gold-500);
+    box-shadow: inset 0 0 0 2px rgba(11,58,44,0.7);
+  }
+
+  @media (max-width: 980px) {
+    .roadmap { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================================================
+     PRICING / TARIFS placeholder
+     ============================================================================ */
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .price-card {
+    background: var(--off-white);
+    border: 1px solid var(--cream-200);
+    border-radius: 18px;
+    padding: 32px 28px;
+    display: flex; flex-direction: column;
+  }
+  .price-card.featured {
+    border-color: var(--court-700);
+    box-shadow: 0 0 0 4px var(--court-100);
+  }
+  .price-card .plan {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--court-700);
+  }
+  .price-card.featured .plan { color: var(--gold-700); }
+  .price-card h3 {
+    font-size: 28px; margin: 14px 0 8px;
+  }
+  .price-card .price {
+    font-family: 'Fraunces', serif; font-size: 44px;
+    color: var(--ink-950); margin: 16px 0 4px;
+  }
+  .price-card .price small {
+    font-size: 14px; color: var(--ink-500); font-family: 'Inter', sans-serif;
+  }
+  .price-card .desc { color: var(--ink-700); font-size: 14px; }
+  .price-card ul { list-style: none; padding: 0; margin: 24px 0; }
+  .price-card ul li {
+    padding: 8px 0; font-size: 14px; color: var(--ink-700);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .price-card ul li::before {
+    content: "✓"; color: var(--court-600); font-weight: 600;
+    flex-shrink: 0;
+  }
+  .price-card .cta-row { margin-top: auto; padding-top: 12px; }
+
+  @media (max-width: 980px) {
+    .pricing-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================================================
+     FAQ
+     ============================================================================ */
+  .faq-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px 64px;
+  }
+  .faq-item {
+    border-top: 1px solid var(--cream-200);
+    padding-top: 20px;
+  }
+  .faq-item h4 {
+    font-size: 19px; margin: 0 0 8px;
+  }
+  .faq-item p { font-size: 15px; color: var(--ink-700); }
+
+  @media (max-width: 760px) {
+    .faq-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================================================
+     CTA FINAL
+     ============================================================================ */
+  .cta-final {
+    background: var(--court-700);
+    color: var(--cream-50);
+    padding: 120px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-final::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(241,237,229,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(241,237,229,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+  }
+  .cta-final h2 {
+    font-size: clamp(44px, 6vw, 88px);
+    color: var(--cream-50); position: relative;
+    line-height: 1;
+  }
+  .cta-final h2 .italic { font-style: italic; color: var(--gold-300); }
+  .cta-final .sub {
+    margin-top: 28px; color: rgba(241,237,229,0.75);
+    font-size: 18px; max-width: 580px; margin-left: auto; margin-right: auto;
+    position: relative;
+  }
+  .cta-final .ctas {
+    margin-top: 44px; display: flex; gap: 12px; justify-content: center;
+    flex-wrap: wrap; position: relative;
+  }
+  .cta-final .btn-primary { background: var(--gold-500); color: var(--court-900); }
+  .cta-final .btn-primary:hover { background: var(--gold-300); }
+  .cta-final .btn-ghost {
+    color: var(--cream-50); border-color: rgba(241,237,229,0.25);
+  }
+  .cta-final .btn-ghost:hover { background: rgba(241,237,229,0.08); }
+
+  /* ============================================================================
+     FOOTER
+     ============================================================================ */
+  footer {
+    background: var(--court-900); color: rgba(241,237,229,0.7);
+    padding: 56px 0 32px;
+  }
+  footer .row {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px;
+  }
+  footer .brand-block .brand { color: var(--cream-50); }
+  footer .brand-block p { font-size: 14px; margin-top: 12px; max-width: 320px; }
+  footer h5 {
+    font-family: 'Inter', sans-serif; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: rgba(241,237,229,0.4); margin: 0 0 16px;
+  }
+  footer ul { list-style: none; padding: 0; margin: 0; }
+  footer ul li { margin-bottom: 8px; }
+  footer ul li a {
+    color: rgba(241,237,229,0.8); text-decoration: none; font-size: 14px;
+  }
+  footer ul li a:hover { color: var(--gold-300); }
+  footer .legal {
+    margin-top: 48px; padding-top: 24px;
+    border-top: 1px solid rgba(241,237,229,0.10);
+    font-size: 12px; color: rgba(241,237,229,0.5);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+
+  @media (max-width: 760px) {
+    footer .row { grid-template-columns: 1fr 1fr; }
+    footer .brand-block { grid-column: span 2; }
+  }
+
+  /* ============================================================================
+     UTIL
+     ============================================================================ */
+  .reveal { opacity: 0; transform: translateY(20px); transition: all 600ms var(--ease); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ===========================================================================
+     NAV
+=========================================================================== -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#" class="brand">the&nbsp;court<span class="dot">.</span></a>
+    <nav class="nav-links">
+      <a href="#joueur">Joueur</a>
+      <a href="#club">Club</a>
+      <a href="#arbitre">Juge-arbitre</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#" class="cta">Créer un compte</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===========================================================================
+     HERO
+=========================================================================== -->
+<section class="hero">
+  <div class="hero-deco" aria-hidden="true"></div>
+  <div class="container">
+    <div class="hero-content">
+      <span class="eyebrow"><span class="pulse"></span>POC v0.2 · Padel d'abord, autres raquettes ensuite</span>
+      <h1>
+        Tout se joue<br/>
+        sur <span class="italic">The Court</span><span class="gold">.</span>
+      </h1>
+      <p class="lead">
+        Recherche de tournois, inscription en deux clics, paiement partagé, partenaires,
+        résultats, espaces club et arbitrage. Une seule app pour tout votre padel.
+      </p>
+      <div class="hero-ctas">
+        <a href="#joueur" class="btn btn-primary">
+          Découvrir les fonctionnalités <span class="arrow">→</span>
+        </a>
+        <a href="#tarifs" class="btn btn-ghost">Voir les tarifs</a>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-block">
+        <div class="num">3</div>
+        <div class="label">Espaces — joueur, club, juge-arbitre</div>
+      </div>
+      <div class="stat-block">
+        <div class="num">2 <span style="font-size:24px; color:var(--ink-500);">min</span></div>
+        <div class="label">De l'arrivée sur le site à l'inscription validée</div>
+      </div>
+      <div class="stat-block">
+        <div class="num">1</div>
+        <div class="label">Outil — fini Tenup, Excel, WhatsApp et Facebook</div>
+      </div>
+      <div class="stat-block">
+        <div class="num">5</div>
+        <div class="label">Sports prévus — padel, tennis, badminton, ping, squash</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     CONSTAT
+=========================================================================== -->
+<section class="constat" id="constat">
+  <div class="container">
+    <h2>Aujourd'hui, votre padel<br/><span style="font-style: italic; color: var(--court-700);">vit dans cinq endroits différents.</span></h2>
+    <div class="grid">
+      <div class="item">
+        <span class="n">01</span>
+        <h3>Pour trouver un tournoi</h3>
+        <p>Tenup, les pages Facebook des clubs, le bouche-à-oreille. Trois sources, jamais à jour en même temps.</p>
+      </div>
+      <div class="item">
+        <span class="n">02</span>
+        <h3>Pour trouver un partenaire</h3>
+        <p>WhatsApp, Instagram DM, le groupe du club. Vous demandez à dix personnes, deux répondent.</p>
+      </div>
+      <div class="item">
+        <span class="n">03</span>
+        <h3>Pour suivre vos résultats</h3>
+        <p>Un carnet, des screens, un tableau Excel. Vos statistiques n'existent nulle part en vrai.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     TROIS MONDES — JOUEUR / CLUB / JUGE-ARBITRE
+=========================================================================== -->
+<section class="cream-soft">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">— Trois rôles, une plateforme</div>
+      <h2>Une seule app.<br/><span class="italic">Trois manières de l'utiliser.</span></h2>
+      <p class="sub">
+        The Court parle au joueur, au club et au juge-arbitre. Chacun voit ce qui le concerne,
+        rien de plus. Et les trois sont reliés par les mêmes données — un classement, un tournoi,
+        un score, racontés dans la langue de chacun.
+      </p>
+    </div>
+
+    <div class="roles-grid">
+      <article class="role-card">
+        <div class="role-num">01 — JOUEUR</div>
+        <h3>Pour <span class="italic">jouer</span></h3>
+        <p>Vous cherchez, vous vous inscrivez, vous jouez. Le reste, on s'en occupe.</p>
+        <ul>
+          <li>Recherche par ville, rayon, date, niveau</li>
+          <li>Inscription et paiement en deux clics</li>
+          <li>Invitation de partenaire ou file d'attente solo</li>
+          <li>Profil, stats, historique automatique</li>
+          <li>Notifications avant chaque match</li>
+        </ul>
+      </article>
+
+      <article class="role-card">
+        <div class="role-num">02 — CLUB</div>
+        <h3>Pour <span class="italic">organiser</span></h3>
+        <p>Créez vos tournois, suivez vos inscrits, encaissez. Sans fichier Excel.</p>
+        <ul>
+          <li>Création de tournoi en 5 minutes</li>
+          <li>Suivi temps réel des inscriptions</li>
+          <li>Paiement Stripe Connect — virement direct</li>
+          <li>Gestion file d'attente intelligente</li>
+          <li>Statistiques de remplissage et d'audience</li>
+        </ul>
+      </article>
+
+      <article class="role-card">
+        <div class="role-num">03 — JUGE-ARBITRE</div>
+        <h3>Pour <span class="italic">arbitrer</span></h3>
+        <p>Tableaux, horaires, scores. Tout sur votre téléphone, mobile-first.</p>
+        <ul>
+          <li>Génération assistée des tableaux</li>
+          <li>Saisie des scores tactile</li>
+          <li>Publication des résultats en direct</li>
+          <li>Gestion des forfaits et changements</li>
+          <li>Historique de vos tournois arbitrés</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     FACETTES JOUEUR
+=========================================================================== -->
+<section id="joueur">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">— 01 / Espace joueur</div>
+      <h2>Tout ce qu'un joueur fait<br/>dans une saison<span class="italic">, dans une seule app.</span></h2>
+      <p class="sub">
+        On a regardé ce qui prend du temps à un joueur amateur — chercher, s'inscrire, payer,
+        trouver un partenaire, suivre ses matchs. Puis on l'a réduit au minimum nécessaire.
+      </p>
+    </div>
+
+    <div class="facets">
+      <article class="facet">
+        <div class="icon">⌕</div>
+        <h4>Recherche par ville et rayon</h4>
+        <p>Filtrez par date, catégorie (P25 → P2000), genre, indoor/outdoor, prix. Carte interactive.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">⏱</div>
+        <h4>Inscription en deux clics</h4>
+        <p>Vous êtes connecté, votre licence est déjà liée, le formulaire est pré-rempli. Vous validez, c'est fini.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">⊜</div>
+        <h4>Paiement partagé</h4>
+        <p>Un seul tournoi, deux paiements. Chaque partenaire paie sa part, factures auto envoyées par email.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">○</div>
+        <h4>File d'attente solo</h4>
+        <p>Pas de partenaire ? Inscrivez-vous seul. Si quelqu'un d'autre vous match, l'inscription se valide.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">★</div>
+        <h4>Partenaires favoris</h4>
+        <p>Retrouvez vos coéquipiers réguliers, voyez vos statistiques de duo, invitez en un clic.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">▤</div>
+        <h4>Profil et historique</h4>
+        <p>Photo, classement FFT, niveau, main, côté, tous vos matchs et stats automatiquement remplis.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">⚐</div>
+        <h4>Clubs favoris</h4>
+        <p>Suivez vos clubs, recevez les nouveaux tournois en priorité, accédez aux avis des autres joueurs.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">▦</div>
+        <h4>Notifications utiles</h4>
+        <p>Confirmation d'inscription, horaires de match, terrain attribué, score adverse. Rien d'autre.</p>
+      </article>
+      <article class="facet gold">
+        <div class="icon">✦</div>
+        <h4>Communauté</h4>
+        <p>Recherchez un partenaire, ajoutez des amis, suivez des joueurs, notez vos clubs.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     FACETTES CLUB (fond crème soft)
+=========================================================================== -->
+<section class="cream-soft" id="club">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">— 02 / Espace club</div>
+      <h2>Vos tournois remplis,<br/>vos joueurs <span class="italic">contents.</span></h2>
+      <p class="sub">
+        Conçu avec les clubs en tête. Pas un logiciel qu'on adopte par contrainte — un outil qui
+        remplace les fichiers, les SMS, les rappels manuels.
+      </p>
+    </div>
+
+    <div class="facets">
+      <article class="facet">
+        <div class="icon">+</div>
+        <h4>Création de tournoi</h4>
+        <p>Date, format, prix, nombre d'équipes. Publié en 5 minutes, visible aux joueurs immédiatement.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">⊞</div>
+        <h4>Suivi des inscriptions</h4>
+        <p>Liste temps réel, paiements vérifiés, file d'attente, statut de chaque équipe.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">€</div>
+        <h4>Encaissement direct</h4>
+        <p>Stripe Connect : l'argent va directement sur le compte du club, pas un intermédiaire.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">⊡</div>
+        <h4>Gestion des terrains</h4>
+        <p>Inventaire de vos courts, indoor/outdoor, surface, attribution automatique pour les matchs.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">▥</div>
+        <h4>Communication ciblée</h4>
+        <p>Envoyez un message à vos adhérents, vos inscrits d'un tournoi, ou vos meilleurs joueurs.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">↻</div>
+        <h4>File d'attente intelligente</h4>
+        <p>Désistement détecté, le suivant est notifié automatiquement. Le tournoi reste plein.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     FACETTES JUGE-ARBITRE — fond sombre vert profond
+=========================================================================== -->
+<section class="dark" id="arbitre">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">— 03 / Espace juge-arbitre</div>
+      <h2>Le tournoi se gère<br/><span class="italic">depuis votre téléphone.</span></h2>
+      <p class="sub">
+        Mobile-first, tactile, hors-ligne quand le club a le wifi qui rame. Conçu pour quelqu'un
+        qui court entre quatre courts pendant une journée entière.
+      </p>
+    </div>
+
+    <div class="facets">
+      <article class="facet">
+        <div class="icon">⊞</div>
+        <h4>Tableaux générés</h4>
+        <p>Élimination directe, poules + tableau, consolante. Vous validez, c'est en ligne.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">▦</div>
+        <h4>Saisie de scores tactile</h4>
+        <p>Set par set, jeu par jeu, tie-break si besoin. Erreur ? Annulation immédiate.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">⚑</div>
+        <h4>Publication directe</h4>
+        <p>Score saisi = score visible côté joueur. Les classements se mettent à jour en direct.</p>
+      </article>
+      <article class="facet">
+        <div class="icon">↔</div>
+        <h4>Gestion des forfaits</h4>
+        <p>Une équipe ne se présente pas ? Walkover en un clic, le bracket s'adapte automatiquement.</p>
+      </article>
+      <article class="facet gold">
+        <div class="icon">⌘</div>
+        <h4>Historique d'arbitrage</h4>
+        <p>Tous les tournois que vous avez officiés, exportable PDF pour vos justificatifs fédéraux.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     PROMESSE 2 MINUTES
+=========================================================================== -->
+<section class="promise">
+  <div class="container-narrow">
+    <div class="kicker" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--court-600); margin-bottom: 24px;">— Notre engagement</div>
+    <h2>
+      De l'arrivée sur le site<br/>
+      à l'inscription validée<span class="italic">,</span><br/>
+      <span class="underline">moins de deux minutes.</span>
+    </h2>
+    <p class="sub">
+      Si une fonctionnalité ralentit le joueur, elle dégage. C'est notre seul KPI produit.
+    </p>
+    <div class="timer">
+      <span class="big">2:00</span>
+      <span class="lbl">— max, du clic à la confirmation</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     ROADMAP — V1 / V2 / V3
+=========================================================================== -->
+<section class="dark" id="roadmap">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">— Roadmap produit</div>
+      <h2>Ce qui est là.<br/><span class="italic">Et ce qui arrive ensuite.</span></h2>
+      <p class="sub">
+        On démarre simple — la base solide, fiable, qui couvre 95% des besoins. Les
+        fonctionnalités à fort levier (matchmaking IA, marketplace, multi-sport) viennent par
+        vagues, sans casser l'existant.
+      </p>
+    </div>
+
+    <div class="roadmap">
+      <div class="roadmap-col">
+        <div class="phase">V1 — POC · Maintenant</div>
+        <h3>Les fondations</h3>
+        <div class="when">2026 · 4 mois</div>
+        <ul>
+          <li><span class="check"></span> Authentification + 3 types de comptes</li>
+          <li><span class="check"></span> Recherche tournois + carte</li>
+          <li><span class="check"></span> Inscription, paiement, file d'attente</li>
+          <li><span class="check"></span> Espace club complet</li>
+          <li><span class="check"></span> Espace juge-arbitre complet</li>
+          <li><span class="check"></span> Profil + statistiques de base</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-col center">
+        <div class="phase">V2 — IA & Communauté · 2027</div>
+        <h3>L'intelligence</h3>
+        <div class="when">+ 6 à 9 mois après V1</div>
+        <ul>
+          <li><span class="check"></span> Matchmaking partenaire IA</li>
+          <li><span class="check"></span> "Trouve-moi un tournoi" intelligent</li>
+          <li><span class="check"></span> Anti no-show + dynamic pricing club</li>
+          <li><span class="check"></span> Heatmap de performance</li>
+          <li><span class="check"></span> Synchronisation FFT / Tenup</li>
+          <li><span class="check"></span> Score fairplay communautaire</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-col right">
+        <div class="phase">V3 — Plateforme · au-delà</div>
+        <h3>L'écosystème</h3>
+        <div class="when">Long terme</div>
+        <ul>
+          <li><span class="check"></span> Tennis, badminton, squash, ping</li>
+          <li><span class="check"></span> ELO propriétaire</li>
+          <li><span class="check"></span> Marketplace coachs et stages</li>
+          <li><span class="check"></span> Réseau social padel</li>
+          <li><span class="check"></span> Coach IA personnel</li>
+          <li><span class="check"></span> Highlights vidéo automatiques</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     PRICING (placeholder — à valider)
+=========================================================================== -->
+<section id="tarifs">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">— Tarification (placeholder)</div>
+      <h2>Gratuit pour jouer.<br/><span class="italic">Premium pour aller plus loin.</span></h2>
+      <p class="sub">
+        Le joueur ne paie rien pour s'inscrire à un tournoi (frais inclus dans le prix payé au club).
+        Les abonnements Premium et Club ouvrent les fonctionnalités avancées. Tarifs définitifs à valider.
+      </p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="plan">— Joueur</div>
+        <h3>Gratuit</h3>
+        <div class="price">0 €<small> / mois</small></div>
+        <p class="desc">Tout ce qu'il faut pour jouer.</p>
+        <ul>
+          <li>Recherche illimitée</li>
+          <li>Inscription tournois</li>
+          <li>Paiement partagé</li>
+          <li>Profil + historique</li>
+          <li>Communauté de base</li>
+        </ul>
+        <div class="cta-row"><a href="#" class="btn btn-ghost" style="width:100%; justify-content:center;">Créer un compte</a></div>
+      </div>
+
+      <div class="price-card featured">
+        <div class="plan">— Joueur Premium</div>
+        <h3>Premium</h3>
+        <div class="price">4,90 €<small> / mois</small></div>
+        <p class="desc">Pour les compétiteurs réguliers.</p>
+        <ul>
+          <li>Inscription prioritaire</li>
+          <li>Statistiques avancées</li>
+          <li>Matchmaking IA (V2)</li>
+          <li>Heatmap perfs (V2)</li>
+          <li>Sans publicité</li>
+          <li>Badge premium</li>
+        </ul>
+        <div class="cta-row"><a href="#" class="btn btn-primary" style="width:100%; justify-content:center;">Passer Premium</a></div>
+      </div>
+
+      <div class="price-card">
+        <div class="plan">— Club</div>
+        <h3>Club</h3>
+        <div class="price">à partir de 29 €<small> / mois</small></div>
+        <p class="desc">Pour les clubs qui organisent des tournois.</p>
+        <ul>
+          <li>Tournois illimités</li>
+          <li>Encaissement Stripe Connect</li>
+          <li>CRM joueurs (V2)</li>
+          <li>Communication ciblée</li>
+          <li>Statistiques de remplissage</li>
+          <li>Support prioritaire</li>
+        </ul>
+        <div class="cta-row"><a href="#" class="btn btn-ghost" style="width:100%; justify-content:center;">Nous contacter</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     FAQ
+=========================================================================== -->
+<section class="cream-soft">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">— Questions fréquentes</div>
+      <h2>Tout savoir <span class="italic">avant de tester.</span></h2>
+    </div>
+
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h4>The Court remplace-t-il Tenup ?</h4>
+        <p>Non. Tenup reste la plateforme officielle de la FFT. The Court agrège les tournois (officiels et privés), simplifie l'inscription, et ajoute la dimension communauté que Tenup ne couvre pas.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Mon classement FFT est-il à jour ?</h4>
+        <p>Vous le saisissez à l'inscription. La synchronisation automatique avec Tenup est prévue en V2 pour éliminer la double saisie.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Comment fonctionne le paiement partagé ?</h4>
+        <p>Vous vous inscrivez à deux. Chaque partenaire paie sa part directement par carte. Si l'un des deux ne paie pas dans les 24h, l'inscription est annulée.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Mon club n'est pas inscrit, comment l'ajouter ?</h4>
+        <p>Le club crée un compte gratuit pour apparaître dans l'annuaire. Pour organiser ses tournois sur The Court, il prend l'abonnement Club.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Quels sports sont couverts ?</h4>
+        <p>Le POC se concentre sur le padel. Tennis, badminton, tennis de table et squash arriveront en V3, une fois la base padel validée avec 3 clubs partenaires et 300 joueurs actifs.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Mes données sont-elles en France ?</h4>
+        <p>Oui — hébergement Vercel + Neon (zones EU), bascule sur VPS Hetzner/Scaleway France une fois le produit consolidé. Conformité RGPD dès le départ.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     CTA FINAL
+=========================================================================== -->
+<section class="cta-final">
+  <div class="container-narrow">
+    <h2>On se voit<br/>sur <span class="italic">The Court</span>.</h2>
+    <p class="sub">
+      Le POC démarre cet été en bêta fermée. Pour rejoindre la liste, ou si vous gérez un club
+      des Hauts-de-France et voulez en parler — un email suffit.
+    </p>
+    <div class="ctas">
+      <a href="mailto:eugeneleconte@outlook.com" class="btn btn-primary">Rejoindre la bêta</a>
+      <a href="#" class="btn btn-ghost">Voir les fonctionnalités →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================================================================
+     FOOTER
+=========================================================================== -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="brand-block">
+        <div class="brand" style="font-family: 'Fraunces', serif; font-size: 22px;">the&nbsp;court<span class="dot" style="color:var(--gold-500);">.</span></div>
+        <p>La plateforme française des sports de raquette. Padel d'abord, le reste ensuite. Conçu en France.</p>
+      </div>
+      <div>
+        <h5>Produit</h5>
+        <ul>
+          <li><a href="#joueur">Espace joueur</a></li>
+          <li><a href="#club">Espace club</a></li>
+          <li><a href="#arbitre">Espace juge-arbitre</a></li>
+          <li><a href="#roadmap">Roadmap</a></li>
+          <li><a href="#tarifs">Tarifs</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Ressources</h5>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Statut</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Légal</h5>
+        <ul>
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">CGU</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <div>© 2026 The Court · Tout se joue ici.</div>
+      <div>Conçu en France · Mockup statique pour validation visuelle</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Reveal au scroll — léger
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.section-head, .role-card, .facet, .price-card, .faq-item, .roadmap-col')
+    .forEach(el => { el.classList.add('reveal'); io.observe(el); });
+</script>
+
+</body>
+</html>

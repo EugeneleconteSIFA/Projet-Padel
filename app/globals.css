@@ -1,0 +1,29 @@
+/* =============================================================================
+   GLOBAL STYLES — point d'entrée CSS de l'app.
+   Tokens de marque importés depuis branding/design-tokens.css.
+   ============================================================================= */
+
+@import '../branding/design-tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Focus visible cohérent partout */
+*:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Sélection texte */
+::selection {
+  background: var(--color-accent-500);
+  color: white;
+}
+
+/* Scrollbar discrète */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-ink-300); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-400); }

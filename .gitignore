@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+
+# Debug & OS
+npm-debug.log*
+.DS_Store
+**/.DS_Store
+*.gdoc
+*.gsheet
+*.pem
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Tests
+coverage/
+playwright-report/
+test-results/

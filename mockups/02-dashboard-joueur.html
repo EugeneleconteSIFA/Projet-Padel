@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Padel Platform — Dashboard joueur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink-950:#0a0b0e; --ink-900:#15171a; --ink-800:#1f2228; --ink-700:#2a2f37;
+    --ink-600:#3a3f47; --ink-500:#5a6068; --ink-400:#7d838c; --ink-300:#b1b6bd;
+    --ink-200:#d8dadf; --ink-100:#ececef; --ink-50:#f7f7f8;
+    --accent-500:#1fb57a; --accent-600:#178758; --accent-50:#ebf9f2;
+    --warning:#f0a500; --danger:#e63946;
+    --bg:#f7f7f8; --surface:#ffffff;
+  }
+  *,*::before,*::after { box-sizing: border-box; }
+  body {
+    margin:0; font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg); color: var(--ink-900); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  aside {
+    background: var(--surface); border-right: 1px solid var(--ink-200); padding: 24px 16px;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .brand { font-weight: 700; letter-spacing: -0.02em; margin-bottom: 32px; padding: 0 8px; }
+  .brand .dot { color: var(--accent-500); }
+  nav.side a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    color: var(--ink-700); text-decoration: none; font-size: 14px; font-weight: 500;
+    margin-bottom: 2px;
+  }
+  nav.side a:hover { background: var(--ink-50); color: var(--ink-900); }
+  nav.side a.active { background: var(--ink-900); color: white; }
+  nav.side a.active .ic { color: white; }
+  .ic { width: 16px; height: 16px; display: inline-block; color: var(--ink-500); }
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-400); padding: 16px 12px 8px;
+  }
+
+  main { padding: 32px 40px; }
+  header.page-head {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;
+  }
+  header.page-head h1 { font-size: 28px; letter-spacing: -0.02em; margin: 0; }
+  header.page-head p { color: var(--ink-500); font-size: 14px; margin: 4px 0 0; }
+  .user {
+    display: flex; align-items: center; gap: 12px; padding: 8px 14px;
+    background: var(--surface); border: 1px solid var(--ink-200); border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-500), #0f6f48); color: white;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+  }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--ink-200); border-radius: 14px;
+    padding: 18px;
+  }
+  .stat .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-500); }
+  .stat .value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0 4px; }
+  .stat .delta { font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  .delta.up { color: var(--accent-600); }
+  .delta.flat { color: var(--ink-500); }
+
+  .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--ink-200); border-radius: 14px;
+    padding: 20px;
+  }
+  .panel h2 { font-size: 16px; letter-spacing: -0.01em; margin: 0 0 16px; }
+  .panel h2 .meta { font-weight: 400; color: var(--ink-500); font-size: 13px; margin-left: 8px; }
+
+  .next-match {
+    background: linear-gradient(135deg, #1f2228, #15171a);
+    color: white; border-radius: 14px; padding: 24px; position: relative; overflow: hidden;
+  }
+  .next-match .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.08em; }
+  .next-match .when { font-size: 28px; font-weight: 700; margin-top: 8px; letter-spacing: -0.02em; }
+  .next-match .where { font-size: 14px; opacity: 0.7; margin-top: 4px; }
+  .next-match .vs { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; gap: 16px; }
+  .team { flex: 1; }
+  .team .names { font-weight: 600; font-size: 15px; }
+  .team .rank { font-size: 12px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; }
+  .vs-divider { font-family: 'JetBrains Mono', monospace; opacity: 0.4; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--ink-100); font-size: 14px; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-500); font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  .result-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .result-pill.win { background: var(--accent-50); color: var(--accent-600); }
+  .result-pill.loss { background: #fdecee; color: var(--danger); }
+
+  .form-strip { display: flex; gap: 4px; margin-top: 8px; }
+  .form-cell { width: 18px; height: 18px; border-radius: 4px; background: var(--ink-200); }
+  .form-cell.win { background: var(--accent-500); }
+  .form-cell.loss { background: var(--danger); }
+
+  ul.partners { list-style: none; margin: 0; padding: 0; }
+  ul.partners li {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--ink-100);
+  }
+  ul.partners li:last-child { border-bottom: 0; }
+  ul.partners .name { font-weight: 500; font-size: 14px; }
+  ul.partners .sub { font-size: 12px; color: var(--ink-500); }
+  ul.partners .matches { margin-left: auto; font-size: 12px; color: var(--ink-500); font-family: 'JetBrains Mono', monospace; }
+
+  @media (max-width: 1024px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { display: none; }
+    main { padding: 24px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">padel<span class="dot">.</span>platform</div>
+    <nav class="side">
+      <a class="active" href="#">▣ Tableau de bord</a>
+      <a href="#">⊞ Tournois</a>
+      <a href="#">★ Mes inscriptions</a>
+      <a href="#">⚑ Résultats</a>
+      <a href="#">◌ Partenaires</a>
+      <a href="#">⊕ Clubs favoris</a>
+      <div class="section-label">Compte</div>
+      <a href="#">⚙ Paramètres</a>
+      <a href="#">⏻ Se déconnecter</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="page-head">
+      <div>
+        <h1>Bonjour Eugène</h1>
+        <p>Voici ton padel cette semaine.</p>
+      </div>
+      <div class="user">
+        <div class="avatar">EL</div>
+        <span>Eugène Leconte</span>
+        <span style="font-family:'JetBrains Mono', monospace; color: var(--ink-500); font-size: 12px;">P250</span>
+      </div>
+    </header>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="label">Classement FFT</div>
+        <div class="value">P250</div>
+        <div class="delta up">+12 places ce mois</div>
+      </div>
+      <div class="stat">
+        <div class="label">Matchs joués</div>
+        <div class="value">47</div>
+        <div class="delta flat">8 ce mois</div>
+      </div>
+      <div class="stat">
+        <div class="label">Winrate</div>
+        <div class="value">62%</div>
+        <div class="delta up">+4 pts vs mois dernier</div>
+      </div>
+      <div class="stat">
+        <div class="label">Forme récente</div>
+        <div class="value">7 V — 3 D</div>
+        <div class="form-strip">
+          <span class="form-cell win"></span>
+          <span class="form-cell win"></span>
+          <span class="form-cell loss"></span>
+          <span class="form-cell win"></span>
+          <span class="form-cell win"></span>
+          <span class="form-cell win"></span>
+          <span class="form-cell loss"></span>
+          <span class="form-cell win"></span>
+          <span class="form-cell win"></span>
+          <span class="form-cell loss"></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <div>
+        <div class="next-match">
+          <div class="label">Prochain match</div>
+          <div class="when">Samedi 16 mai · 14h30</div>
+          <div class="where">Padel Club Loos · Terrain 3 · Indoor</div>
+          <div class="vs">
+            <div class="team">
+              <div class="names">E. Leconte / T. Martin</div>
+              <div class="rank">P250 / P100</div>
+            </div>
+            <div class="vs-divider">vs</div>
+            <div class="team" style="text-align:right;">
+              <div class="names">L. Durand / M. Cohen</div>
+              <div class="rank">P500 / P250</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top: 24px;">
+          <h2>Derniers résultats <span class="meta">5 derniers matchs</span></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Tournoi</th><th>Adversaire</th><th>Score</th><th>Résultat</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>09 mai</td>
+                <td>Open Roubaix</td>
+                <td>Petit / Lambert</td>
+                <td>6-4 / 6-3</td>
+                <td><span class="result-pill win">V</span></td>
+              </tr>
+              <tr>
+                <td>03 mai</td>
+                <td>Tournoi Loos</td>
+                <td>Garcia / Müller</td>
+                <td>4-6 / 7-5 / 6-4</td>
+                <td><span class="result-pill win">V</span></td>
+              </tr>
+              <tr>
+                <td>26 avr.</td>
+                <td>Hauts-de-France Open</td>
+                <td>Bernard / Leclerc</td>
+                <td>6-7 / 4-6</td>
+                <td><span class="result-pill loss">D</span></td>
+              </tr>
+              <tr>
+                <td>20 avr.</td>
+                <td>Padel Tournai</td>
+                <td>Vidal / Soto</td>
+                <td>6-2 / 6-3</td>
+                <td><span class="result-pill win">V</span></td>
+              </tr>
+              <tr>
+                <td>13 avr.</td>
+                <td>Open Métropole</td>
+                <td>Dupont / Roussel</td>
+                <td>7-6 / 4-6 / 5-7</td>
+                <td><span class="result-pill loss">D</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h2>Partenaires favoris</h2>
+          <ul class="partners">
+            <li>
+              <div class="avatar" style="background: linear-gradient(135deg, #f0a500, #c08000); width: 32px; height: 32px;">TM</div>
+              <div>
+                <div class="name">Thomas Martin</div>
+                <div class="sub">P100 · droite</div>
+              </div>
+              <span class="matches">12 matchs</span>
+            </li>
+            <li>
+              <div class="avatar" style="background: linear-gradient(135deg, #3a7bd5, #1f4e96); width: 32px; height: 32px;">JD</div>
+              <div>
+                <div class="name">Julien Devos</div>
+                <div class="sub">P250 · gauche</div>
+              </div>
+              <span class="matches">8 matchs</span>
+            </li>
+            <li>
+              <div class="avatar" style="background: linear-gradient(135deg, #e63946, #a02530); width: 32px; height: 32px;">AC</div>
+              <div>
+                <div class="name">Antoine Carpentier</div>
+                <div class="sub">P500 · les deux</div>
+              </div>
+              <span class="matches">5 matchs</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="panel" style="margin-top: 24px;">
+          <h2>Tournois suggérés</h2>
+          <ul class="partners">
+            <li>
+              <div>
+                <div class="name">Open Hauts-de-France</div>
+                <div class="sub">17 mai · P250 · 12 km</div>
+              </div>
+              <span class="matches" style="color: var(--accent-600);">3 places</span>
+            </li>
+            <li>
+              <div>
+                <div class="name">Tournoi Roubaix Mai</div>
+                <div class="sub">23 mai · P100 · 18 km</div>
+              </div>
+              <span class="matches" style="color: var(--warning, #f0a500);">2 places</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

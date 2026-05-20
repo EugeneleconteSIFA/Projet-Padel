@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Court — Complete Branding Showcase</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ====================================================================
+           1. DESIGN TOKENS — All combined from every file
+           ==================================================================== */
+        :root {
+            /* Palette principale */
+            --cream-50:  #f1ede5;
+            --cream-100: #f8f6f0;
+            --cream-200: #e5dfd3;
+            --cream-dark: #E5DFD3;
+            --cream-light: #F8F6F0;
+            --off-white: #fbfaf6;
+            
+            --court-700: #0f4c3a;
+            --court-600: #176b53;
+            --court-100: #d7e5dd;
+            --green: #0F4C3A;
+            --green-2: #176B53;
+            
+            --gold-500: #c9a24a;
+            --gold-100: #f0e4c2;
+            --gold-light: #F0E4C2;
+            
+            --ink-950: #15171a;
+            --ink: #15171A;
+            
+            --glass: rgba(255, 255, 255, 0.4);
+
+            /* Typo */
+            --font-sans: 'Inter', sans-serif;
+            --font-display: 'Fraunces', serif;
+
+            /* Animation */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-slow: 360ms;
+            --duration: 0.4s;
+        }
+
+        /* Reset de base */
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            background-color: var(--cream-50);
+            color: var(--ink-950);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { 
+            font-family: var(--font-display); 
+            font-weight: 500; 
+            margin: 0;
+            letter-spacing: -0.05em;
+        }
+        
+        p { 
+            margin: 0; 
+            line-height: 1.7; 
+            color: var(--ink-950); 
+        }
+
+        img { display: block; }
+
+        .container {
+            width: min(1400px, 92%);
+            margin: auto;
+        }
+
+        section {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        /* ====================================================================
+           2. GLOBAL TEXTURES & DECORATIONS
+           ==================================================================== */
+        
+        /* Noise texture overlay */
+        .noise {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .025;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='%23000000'%3E%3Ccircle cx='12' cy='16' r='1'/%3E%3Ccircle cx='38' cy='84' r='1'/%3E%3Ccircle cx='112' cy='32' r='1'/%3E%3Ccircle cx='76' cy='118' r='1'/%3E%3Ccircle cx='132' cy='72' r='1'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Vertical label */
+        .vertical-label {
+            position: fixed;
+            right: 26px;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+            writing-mode: vertical-lr;
+            font-size: .72rem;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: rgba(15,76,58,.42);
+            z-index: 100;
+        }
+
+        /* ====================================================================
+           3. SVG LIBRARY — All court patterns
+           ==================================================================== */
+        .svg-library {
+            position: absolute;
+            width: 0; height: 0;
+            overflow: hidden;
+        }
+
+        /* ====================================================================
+           4. HEADER & NAVIGATION
+           ==================================================================== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 999;
+            backdrop-filter: blur(16px);
+            background: rgba(241,237,229,.72);
+            border-bottom: 1px solid rgba(15,76,58,.06);
+        }
+
+        .nav {
+            height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* --- Logo Variants --- */
+        
+        /* Logo 1: Basic with tennis ball icon */
+        .logo {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--green);
+            font-family: var(--font-display);
+            font-size: 2rem;
+            letter-spacing: -0.05em;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Tennis ball icon in logo */
+        .tennis-ball-icon {
+            width: 14px;
+            height: 14px;
+            margin-left: 4px;
+        }
+        
+        .tennis-ball-icon circle { fill: var(--gold-500); }
+        .tennis-ball-icon path { fill: none; stroke: var(--cream-50); stroke-width: 0.8; stroke-linecap: round; }
+
+        /* Tennis ball CSS version */
+        .ball {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gold-500);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ball::before, .ball::after {
+            content: "";
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border: 1px solid rgba(255,255,255,.9);
+            border-radius: 50%;
+            top: -3px;
+        }
+
+        .ball::before { left: -11px; }
+        .ball::after { right: -11px; }
+
+        /* Logo hover effect: Court overlay */
+        .logo-court-overlay {
+            position: absolute;
+            inset: -14px -18px;
+            z-index: -1;
+            opacity: 0;
+            transition: .5s var(--ease);
+        }
+
+        .logo-court-overlay::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(201,162,74,.35);
+            border-radius: 18px;
+        }
+
+        .logo-court-overlay::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: rgba(201,162,74,.35);
+        }
+
+        .logo:hover .logo-court-overlay {
+            opacity: 1;
+            transform: scale(1.04);
+        }
+
+        /* Logo 2: Blueprint version with SVG court */
+        .logo-blueprint {
+            font-family: var(--font-display);
+            font-size: 42px;
+            color: var(--ink-950);
+            text-decoration: none;
+            display: flex;
+            align-items: baseline;
+            position: relative;
+            padding: 20px;
+        }
+
+        .court-blueprint {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.5s var(--ease);
+            transform: scale(0.95);
+        }
+
+        .logo-blueprint:hover .court-blueprint {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .logo-blueprint:hover { color: var(--court-700); }
+
+        /* Court lines animation for logo */
+        .court-lines {
+            fill: none;
+            stroke: var(--gold-500);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+        }
+
+        .logo:hover .court-lines {
+            animation: drawCourt var(--duration-slow) var(--ease-out-expo) forwards;
+        }
+
+        @keyframes drawCourt {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* ====================================================================
+           5. HERO SECTION
+           ==================================================================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            padding-top: 82px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+            color: var(--green);
+            font-size: .82rem;
+            text-transform: uppercase;
+            letter-spacing: .18em;
+        }
+
+        .eyebrow-line {
+            width: 40px;
+            height: 1px;
+            background: rgba(201,162,74,.7);
+        }
+
+        .hero h1 {
+            font-size: clamp(4rem, 8vw, 8rem);
+            line-height: .9;
+            margin-bottom: 30px;
+            color: var(--green);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 650px;
+            color: rgba(21,23,26,.72);
+            margin-bottom: 40px;
+        }
+
+        /* Hero visual - Big court */
+        .hero-visual {
+            position: relative;
+            height: 760px;
+        }
+
+        .big-court {
+            position: absolute;
+            inset: 0;
+            border-radius: 42px;
+            background: var(--green);
+            overflow: hidden;
+        }
+
+        .big-court::before {
+            content: "";
+            position: absolute;
+            inset: 36px;
+            border: 1px solid rgba(201,162,74,.34);
+            border-radius: 24px;
+        }
+
+        .big-court::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 36px;
+            width: 1px;
+            height: calc(100% - 72px);
+            transform: translateX(-50%);
+            background: rgba(201,162,74,.34);
+        }
+
+        .horizontal-line {
+            position: absolute;
+            left: 36px;
+            right: 36px;
+            top: 50%;
+            height: 1px;
+            background: rgba(201,162,74,.34);
+        }
+
+        .small-line {
+            position: absolute;
+            width: 40%;
+            left: 30%;
+            height: 1px;
+            background: rgba(201,162,74,.24);
+        }
+
+        .small-line.top { top: 32%; }
+        .small-line.bottom { bottom: 32%; }
+
+        /* Floating tags */
+        .tag {
+            position: absolute;
+            backdrop-filter: blur(16px);
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 24px;
+            padding: 24px;
+            color: white;
+        }
+
+        .tag h3 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+        }
+
+        .tag p { color: rgba(255,255,255,.72); }
+
+        .tag-1 {
+            top: 60px;
+            left: 60px;
+            width: 260px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .tag-2 {
+            bottom: 70px;
+            right: 60px;
+            width: 260px;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Ball trail animation */
+        .ball-trail {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--gold-500);
+            top: 26%;
+            left: 18%;
+            animation: ballMove 7s linear infinite;
+        }
+
+        .ball-trail::before {
+            content: "";
+            position: absolute;
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(201,162,74,.45), transparent);
+            top: 50%;
+            right: 100%;
+        }
+
+        @keyframes ballMove {
+            0% { transform: translate(0,0); opacity: 0; }
+            10% { opacity: 1; }
+            50% { transform: translate(260px,160px); }
+            100% { transform: translate(420px,320px); opacity: 0; }
+        }
+
+        /* Net shimmer effect */
+        .net-shimmer {
+            position: absolute;
+            inset: 0;
+            opacity: .12;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+            width: 30%;
+            animation: shimmer 7s linear infinite;
+        }
+
+        @keyframes shimmer {
+            from { transform: translateX(-120%); }
+            to { transform: translateX(420%); }
+        }
+
+        /* ====================================================================
+           6. BUTTONS — All variants
+           ==================================================================== */
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn {
+            position: relative;
+            overflow: hidden;
+            padding: 17px 28px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            transition: .4s var(--ease);
+            font-weight: 500;
+            font-family: var(--font-sans);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Button 1: Court hover lines */
+        .btn-court {
+            background: var(--cream-light);
+            border: 1px solid rgba(15,76,58,.08);
+            color: var(--green);
+        }
+
+        .btn-court::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(rgba(201,162,74,.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201,162,74,.18) 1px, transparent 1px);
+            background-size: 100% 50%, 50% 100%;
+            opacity: 0;
+            transition: .4s;
+        }
+
+        .btn-court:hover::before { opacity: 1; }
+
+        /* Button 2: Ball animation */
+        .btn-ball {
+            background: var(--green);
+            color: var(--cream);
+        }
+
+        .btn-ball::after {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.14);
+            top: 50%;
+            left: -20px;
+            transform: translateY(-50%);
+            transition: 1s var(--ease);
+        }
+
+        .btn-ball:hover::after { left: 110%; }
+
+        /* Button 3: Stroke/editorial */
+        .btn-stroke {
+            background: transparent;
+            border: 1px solid rgba(15,76,58,.15);
+            color: var(--green);
+        }
+
+        .btn-stroke:hover { background: rgba(201,162,74,.08); }
+
+        /* Button 4: Primary */
+        .btn-primary {
+            background-color: var(--court-700);
+            color: var(--cream-50);
+        }
+
+        .btn-primary:hover { background-color: var(--court-600); }
+
+        /* Button 5: Secondary with court overlay */
+        .btn-secondary {
+            background-color: var(--cream-200);
+            color: var(--court-700);
+            border: 1px solid rgba(15, 76, 58, 0.1);
+        }
+
+        .btn-court-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: 0;
+            transform: scale(1.1);
+            transition: opacity 0.3s ease, transform 0.3s var(--ease-out-expo);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,0 H200 V100 H0 Z M10,10 V90 H190 V10 Z M100,10 V90 M10,50 H190 M50,10 V90 M150,10 V90' fill='none' stroke='%23C9A24A' stroke-width='1' stroke-opacity='0.2'/%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+        }
+
+        .btn-secondary:hover {
+            color: var(--ink-950);
+            background-color: var(--cream-100);
+            border-color: var(--gold-500);
+        }
+
+        .btn-secondary:hover .btn-court-overlay {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Option buttons */
+        .option-btn {
+            border: none;
+            background: var(--cream-light);
+            border: 1px solid rgba(15,76,58,.08);
+            padding: 12px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: .35s var(--ease);
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .option-btn:hover { transform: translateY(-2px); }
+        .option-btn.active { background: var(--green); color: white; }
+
+        /* Felt texture button */
+        .felt-button {
+            background: var(--gold-500);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            filter: url(#feltFilter);
+            transition: transform 0.2s;
+        }
+
+        .felt-button:hover { transform: translateY(-2px); }
+
+        /* ====================================================================
+           7. IDEA CARDS SECTION
+           ==================================================================== */
+        .idea-section {
+            background: var(--cream-light);
+        }
+
+        .idea-title {
+            max-width: 900px;
+            margin-bottom: 70px;
+        }
+
+        .idea-title h2 {
+            font-size: 4rem;
+            color: var(--green);
+            margin-bottom: 20px;
+        }
+
+        .idea-title p {
+            color: rgba(21,23,26,.7);
+            font-size: 1.05rem;
+        }
+
+        .ideas-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .idea {
+            position: relative;
+            background: white;
+            border-radius: 30px;
+            padding: 34px;
+            min-height: 340px;
+            overflow: hidden;
+            border: 1px solid rgba(15,76,58,.06);
+            transition: .45s var(--ease);
+        }
+
+        .idea:hover { transform: translateY(-6px); }
+
+        .idea-number {
+            position: absolute;
+            right: 24px;
+            top: 24px;
+            font-family: var(--font-display);
+            color: rgba(15,76,58,.1);
+            font-size: 4rem;
+        }
+
+        .idea h3 {
+            font-size: 2rem;
+            color: var(--green);
+            margin-bottom: 18px;
+        }
+
+        .idea p {
+            color: rgba(21,23,26,.72);
+            margin-bottom: 24px;
+        }
+
+        /* ====================================================================
+           8. MICRO COMPONENTS
+           ==================================================================== */
+
+        /* Score glass cards */
+        .score-glass {
+            margin-top: 26px;
+            padding: 18px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            background: rgba(201,162,74,.08);
+            border: 1px solid rgba(201,162,74,.15);
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .score-row:last-child { margin-bottom: 0; }
+
+        /* Score font for results */
+        .score-font {
+            font-family: var(--font-sans);
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            letter-spacing: -2px;
+            font-size: 40px;
+            color: var(--court-700);
+        }
+
+        /* Club stamps */
+        .stamp {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 1px dashed rgba(15,76,58,.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 26px;
+            font-family: var(--font-display);
+            color: var(--green);
+            transform: rotate(-11deg);
+        }
+
+        /* Cursor line */
+        .cursor-line {
+            width: 140px;
+            height: 1px;
+            background: var(--gold-500);
+            margin-top: 36px;
+            position: relative;
+        }
+
+        .cursor-line::after {
+            content: "";
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gold-500);
+            top: 50%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Live indicator */
+        .live {
+            margin-top: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(15,76,58,.06);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gold-500);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(201,162,74,.5); }
+            70% { box-shadow: 0 0 0 12px rgba(201,162,74,0); }
+            100% { box-shadow: 0 0 0 0 rgba(201,162,74,0); }
+        }
+
+        /* Net pattern */
+        .net {
+            margin-top: 30px;
+            height: 120px;
+            background-image:
+                linear-gradient(rgba(15,76,58,.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15,76,58,.06) 1px, transparent 1px);
+            background-size: 12px 12px;
+            border-radius: 18px;
+        }
+
+        /* Magazine cards */
+        .magazine {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .mag-card {
+            height: 120px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(201,162,74,.15), rgba(15,76,58,.08));
+        }
+
+        /* Paper sheets */
+        .paper {
+            margin-top: 30px;
+            background: var(--cream);
+            border-radius: 18px;
+            padding: 20px;
+            transform: rotate(-2deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,.06);
+        }
+
+        .paper-line {
+            height: 1px;
+            background: rgba(15,76,58,.08);
+            margin: 14px 0;
+        }
+
+        /* Options boxes */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            border-radius: 16px;
+            padding: 16px;
+            background: var(--cream-light);
+            border: 1px solid rgba(15,76,58,.06);
+            transition: .35s;
+        }
+
+        .option:hover {
+            border-color: rgba(201,162,74,.25);
+            transform: translateX(4px);
+        }
+
+        .option strong {
+            display: block;
+            color: var(--green);
+            margin-bottom: 6px;
+        }
+
+        /* Tournament cards with trajectory */
+        .tournament-card {
+            background: white;
+            border: 1px solid var(--cream-200);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s var(--ease);
+        }
+
+        .tournament-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold-500);
+        }
+
+        .trajectory-svg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .tournament-card:hover .trajectory-svg { opacity: 1; }
+
+        .path-draw {
+            stroke: var(--gold-500);
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            fill: none;
+        }
+
+        .tournament-card:hover .path-draw {
+            animation: drawPath 1.5s forwards ease-out;
+        }
+
+        @keyframes drawPath { to { stroke-dashoffset: 0; } }
+
+        /* Card trajectory (ghost ball) */
+        .card-trajectory {
+            padding: 30px;
+            border: 1px solid var(--cream-200);
+            border-radius: 15px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card-trajectory:hover { transform: translateY(-4px); }
+
+        .ball-path {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            pointer-events: none;
+        }
+
+        .path-line {
+            fill: none;
+            stroke: var(--gold-500);
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            stroke-dashoffset: 20;
+            opacity: 0;
+            transition: all 0.6s ease;
+        }
+
+        .card-trajectory:hover .path-line {
+            opacity: 0.4;
+            stroke-dashoffset: 0;
+        }
+
+        /* ====================================================================
+           9. TEXTURES & BACKGROUNDS
+           ==================================================================== */
+
+        /* Mesh pattern section */
+        .mesh-section {
+            height: 200px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            background: var(--court-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .mesh-pattern {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(30deg, transparent 45%, rgba(255,255,255,0.1) 50%, transparent 55%),
+                linear-gradient(-30deg, transparent 45%, rgba(255,255,255,0.1) 50%, transparent 55%);
+            background-size: 15px 26px;
+        }
+
+        /* Quartz texture */
+        .quartz-texture {
+            position: absolute;
+            inset: 0;
+            opacity: 0.4;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Court visualization */
+        .court-viz {
+            height: 400px;
+            background: var(--court-100);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--cream-200);
+        }
+
+        .court-lines-svg {
+            width: 80%;
+            height: 80%;
+            position: absolute;
+            top: 10%; left: 10%;
+        }
+
+        /* Mesh shadow box */
+        .mesh-shadow-box {
+            height: 300px;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+        }
+
+        .mesh-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 50% 50%, transparent 20%, var(--cream-50) 21%),
+                linear-gradient(45deg, transparent 48%, var(--cream-200) 50%, transparent 52%);
+            background-size: 10px 10px;
+            opacity: 0.3;
+        }
+
+        /* Glass wall effect */
+        .glass-container {
+            height: 300px;
+            background: linear-gradient(135deg, var(--court-700) 0%, var(--green-2) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-wall {
+            width: 60%;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            color: white;
+            box-shadow: 20px 0 50px rgba(0,0,0,0.2);
+        }
+
+        /* Court background pattern */
+        .court-background-pattern {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            width: 120%;
+            height: 120%;
+            opacity: 0.04;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .court-background-pattern svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ====================================================================
+           10. DARK SECTION
+           ==================================================================== */
+        .dark {
+            background: var(--green);
+            color: var(--cream);
+            overflow: hidden;
+        }
+
+        .dark::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(rgba(201,162,74,.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201,162,74,.06) 1px, transparent 1px);
+            background-size: 100% 180px, 180px 100%;
+        }
+
+        .dark h2 {
+            color: var(--cream);
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .dark p {
+            color: rgba(255,255,255,.7);
+            max-width: 800px;
+        }
+
+        .dark-grid {
+            margin-top: 60px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .dark-card {
+            padding: 30px;
+            border-radius: 24px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.06);
+            min-height: 220px;
+            transition: .4s;
+        }
+
+        .dark-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(201,162,74,.2);
+        }
+
+        /* ====================================================================
+           11. TYPOGRAPHY SECTION
+           ==================================================================== */
+        .font-specimen { margin-bottom: 60px; }
+        .big-text { font-size: 80px; line-height: 1; margin: 20px 0; }
+
+        /* Court underline effect */
+        .court-underline {
+            position: relative;
+            display: inline-block;
+        }
+
+        .court-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; left: 0;
+            width: 0; height: 3px;
+            background: var(--gold-500);
+            transition: width 0.6s var(--ease);
+        }
+
+        .court-underline:hover::after { width: 100%; }
+
+        /* ====================================================================
+           12. PREVIEW ZONES
+           ==================================================================== */
+        .preview {
+            position: relative;
+            min-height: 280px;
+            border-radius: 26px;
+            overflow: hidden;
+            background: var(--cream-light);
+            border: 1px solid rgba(15,76,58,.06);
+        }
+
+        /* Preview court backgrounds */
+        .preview-court-a {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(rgba(201,162,74,.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201,162,74,.18) 1px, transparent 1px);
+            background-size: 100% 50%, 50% 100%;
+        }
+
+        .preview-court-b {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-court-c {
+            position: absolute;
+            inset: 0;
+            background: var(--green);
+        }
+
+        .preview-court-c::before {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border: 1px solid rgba(201,162,74,.3);
+            border-radius: 20px;
+        }
+
+        .preview-court-c::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 18px;
+            width: 1px;
+            height: calc(100% - 36px);
+            background: rgba(201,162,74,.3);
+        }
+
+        /* Score previews */
+        .flip-board {
+            background: #111;
+            color: #F5F5F5;
+            border-radius: 20px;
+            padding: 26px;
+            font-family: monospace;
+        }
+
+        .flip-number {
+            font-size: 4rem;
+            animation: flip 2s infinite;
+        }
+
+        @keyframes flip {
+            0% { transform: rotateX(0); }
+            50% { transform: rotateX(180deg); }
+            100% { transform: rotateX(360deg); }
+        }
+
+        .oled {
+            background: #0A0A0A;
+            border-radius: 20px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #D9FFCB;
+            font-family: monospace;
+            font-size: 2rem;
+            letter-spacing: .12em;
+        }
+
+        /* Cursor previews */
+        .cursor-ball {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--gold-500);
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            animation: moveCursor 4s infinite ease-in-out;
+        }
+
+        @keyframes moveCursor {
+            0% { transform: translate(0,0); }
+            50% { transform: translate(260px,-60px); }
+            100% { transform: translate(520px,0); }
+        }
+
+        /* ====================================================================
+           13. SYSTEM NAV (for lab pages)
+           ==================================================================== */
+        .system-nav {
+            background: white;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            border-bottom: 1px solid var(--cream-200);
+            position: sticky;
+            top: 82px;
+            z-index: 998;
+        }
+
+        .system-nav button {
+            background: none;
+            border: none;
+            font-family: var(--font-display);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .system-nav button.active {
+            background: var(--court-700);
+            color: white;
+        }
+
+        .page { display: none; padding: 60px 0; }
+        .page.active { display: block; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-desc {
+            color: #666;
+            margin-bottom: 40px;
+            border-left: 3px solid var(--gold-500);
+            padding-left: 20px;
+            display: block;
+        }
+
+        /* ====================================================================
+           14. FEATURE CARDS
+           ==================================================================== */
+        .features-section {
+            background-color: var(--off-white);
+            border-top: 1px solid var(--cream-200);
+            border-bottom: 1px solid var(--cream-200);
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--cream-200);
+            backdrop-filter: blur(5px);
+        }
+
+        /* ====================================================================
+           15. DEMO AREA
+           ==================================================================== */
+        .demo-area {
+            padding: 50px 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        /* ====================================================================
+           16. GRID & CARDS
+           ==================================================================== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 32px;
+            padding: 34px;
+            border: 1px solid rgba(15,76,58,.06);
+        }
+
+        .card h3 {
+            font-size: 2rem;
+            color: var(--green);
+            margin-bottom: 16px;
+        }
+
+        .card p {
+            color: rgba(21,23,26,.72);
+            margin-bottom: 28px;
+        }
+
+        .options-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        /* ====================================================================
+           17. RESPONSIVE
+           ==================================================================== */
+        @media(max-width: 1100px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .ideas-grid { grid-template-columns: 1fr; }
+            .dark-grid { grid-template-columns: 1fr 1fr; }
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        @media(max-width: 700px) {
+            .dark-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 4rem; }
+            .idea-title h2, .dark h2 { font-size: 3rem; }
+            .big-text { font-size: 48px; }
+        }
+
+        /* ====================================================================
+           18. CONCEPT CARDS (for lab)
+           ==================================================================== */
+        .concept-card {
+            background: white;
+            border: 1px solid #e5dfd3;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        .concept-label {
+            display: inline-block;
+            background: var(--gold-100);
+            color: var(--gold-500);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .lab-container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
+        /* Logo box for lab */
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SVG Filters & Symbols -->
+    <svg class="svg-library" viewBox="0 0 240 120" preserveAspectRatio="none">
+        <filter id="feltFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
+            <feDiffuseLighting in="noise" lighting-color="white" surfaceScale="1">
+                <feDistantLight azimuth="45" elevation="60" />
+            </feDiffuseLighting>
+            <feComposite operator="in" in2="SourceGraphic" />
+        </filter>
+
+        <symbol id="padel-half-court" viewBox="0 0 100 100">
+            <path d="M0,0 H100 V100 H0 Z" />
+            <line x1="20" y1="0" x2="20" y2="100" />
+            <line x1="20" y1="50" x2="100" y2="50" />
+            <line x1="100" y1="0" x2="100" y2="100" stroke-dasharray="2,2"/>
+        </symbol>
+
+        <symbol id="padel-full-court" viewBox="0 0 200 100">
+            <rect x="0" y="0" width="200" height="100" fill="none" rx="2"/>
+            <line x1="20" y1="0" x2="20" y2="100" />
+            <line x1="180" y1="0" x2="180" y2="100" />
+            <line x1="100" y1="0" x2="100" y2="100" stroke-width="2"/>
+            <line x1="60" y1="0" x2="60" y2="100" />
+            <line x1="140" y1="0" x2="140" y2="100" />
+            <line x1="60" y1="50" x2="140" y2="50" />
+        </symbol>
+
+        <symbol id="court-premium" viewBox="0 0 240 120">
+            <rect x="0" y="0" width="240" height="120" fill="var(--court-50, #f0f4f2)" rx="2"/>
+            <g stroke="var(--gold-500)" stroke-width="0.8" fill="none">
+                <rect x="20" y="10" width="200" height="100" />
+                <line x1="120" y1="10" x2="120" y2="110" stroke-width="1.5" />
+                <line x1="50" y1="10" x2="50" y2="110" />
+                <line x1="190" y1="10" x2="190" y2="110" />
+                <line x1="50" y1="60" x2="190" y2="60" />
+            </g>
+            <g stroke="var(--gold-500)" stroke-width="3" opacity="0.3">
+                <line x1="20" y1="10" x2="20" y2="110" />
+                <line x1="220" y1="10" x2="220" y2="110" />
+            </g>
+        </symbol>
+    </svg>
+
+    <!-- Global noise texture -->
+    <div class="noise"></div>
+
+    <!-- Vertical label -->
+    <div class="vertical-label">
+        THE COURT · BRAND SYSTEM · PADEL CLUB AESTHETIC
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="container nav">
+            <div class="logo">
+                <div class="logo-court-overlay"></div>
+                the court
+                <div class="ball"></div>
+                <div class="ball"></div>
+                <div class="ball"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div>
+                <div class="eyebrow">
+                    <div class="eyebrow-line"></div>
+                    Brand System / Anti-AI feeling
+                </div>
+                <h1>Tout se joue ici.</h1>
+                <p>La plateforme tout-en-un pour les passionnés de Padel. Un langage graphique inspiré du padel réel : terrains, feuilles de score, marquages, clubs historiques, typographie éditoriale, imperfections élégantes.</p>
+                <div class="buttons">
+                    <button class="btn btn-court">Hover terrain</button>
+                    <button class="btn btn-ball">Animation balle</button>
+                    <button class="btn btn-stroke">Style éditorial</button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="big-court">
+                    <div class="horizontal-line"></div>
+                    <div class="small-line top"></div>
+                    <div class="small-line bottom"></div>
+                    <div class="net-shimmer"></div>
+                    <div class="ball-trail"></div>
+                </div>
+                <div class="tag tag-1">
+                    <h3>Glass scoreboard</h3>
+                    <p>Utiliser des cartes translucides inspirées des panneaux de scores.</p>
+                </div>
+                <div class="tag tag-2">
+                    <h3>Editorial sports club</h3>
+                    <p>Plus magazine premium que startup tech.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IDEAS SECTION -->
+    <section class="idea-section">
+        <div class="container">
+            <div class="idea-title">
+                <h2>18 idées visuelles à explorer</h2>
+                <p>Le but n'est pas d'utiliser tout ça. Le but est de construire des détails uniques, cohérents avec l'univers du padel.</p>
+            </div>
+            <div class="ideas-grid">
+                <!-- Idea 1: Court Lines -->
+                <div class="idea">
+                    <div class="idea-number">01</div>
+                    <h3>Court Lines</h3>
+                    <p>Utiliser les lignes du terrain comme système graphique global : backgrounds, séparateurs, hover states.</p>
+                    <div class="net"></div>
+                </div>
+
+                <!-- Idea 2: Live Score Glass -->
+                <div class="idea">
+                    <div class="idea-number">02</div>
+                    <h3>Live Score Glass</h3>
+                    <p>Cartes inspirées des tableaux de scores des clubs.</p>
+                    <div class="score-glass">
+                        <div class="score-row">
+                            <span>Leconte / Martin</span>
+                            <strong>6</strong>
+                        </div>
+                        <div class="score-row">
+                            <span>Durand / Petit</span>
+                            <strong>4</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Idea 3: Editorial Cursor -->
+                <div class="idea">
+                    <div class="idea-number">03</div>
+                    <h3>Editorial Cursor</h3>
+                    <p>Curseur custom inspiré de trajectoires de balle.</p>
+                    <div class="cursor-line"></div>
+                </div>
+
+                <!-- Idea 4: Club Stamps -->
+                <div class="idea">
+                    <div class="idea-number">04</div>
+                    <h3>Club Stamps</h3>
+                    <p>Badges type tampon de club ancien.</p>
+                    <div class="stamp">P500<br/>LILLE</div>
+                </div>
+
+                <!-- Idea 5: Magazine Layout -->
+                <div class="idea">
+                    <div class="idea-number">05</div>
+                    <h3>Magazine Layout</h3>
+                    <p>Layout asymétrique inspiré des magazines de sport premium.</p>
+                    <div class="magazine">
+                        <div class="mag-card"></div>
+                        <div class="mag-card"></div>
+                    </div>
+                </div>
+
+                <!-- Idea 6: Paper Sheets -->
+                <div class="idea">
+                    <div class="idea-number">06</div>
+                    <h3>Paper Sheets</h3>
+                    <p>Simuler des feuilles de match légèrement inclinées.</p>
+                    <div class="paper">
+                        <div class="paper-line"></div>
+                        <div class="paper-line"></div>
+                        <div class="paper-line"></div>
+                    </div>
+                </div>
+
+                <!-- Idea 7: Warm Photography -->
+                <div class="idea">
+                    <div class="idea-number">07</div>
+                    <h3>Warm Photography</h3>
+                    <p>Photos chaudes, désaturées, lumière de fin d'après-midi.</p>
+                </div>
+
+                <!-- Idea 8: Live Tournament -->
+                <div class="idea">
+                    <div class="idea-number">08</div>
+                    <h3>Live Tournament</h3>
+                    <p>Petits indicateurs live minimalistes.</p>
+                    <div class="live">
+                        <div class="live-dot"></div>
+                        Match en cours
+                    </div>
+                </div>
+
+                <!-- Idea 9: Micro Typography -->
+                <div class="idea">
+                    <div class="idea-number">09</div>
+                    <h3>Micro Typography</h3>
+                    <p>Petits labels verticaux éditoriaux partout dans l'interface.</p>
+                </div>
+
+                <!-- Idea 10: Noise Texture -->
+                <div class="idea">
+                    <div class="idea-number">10</div>
+                    <h3>Noise Texture</h3>
+                    <p>Ajouter un grain papier ultra subtil.</p>
+                </div>
+
+                <!-- Idea 11: Thin Icons -->
+                <div class="idea">
+                    <div class="idea-number">11</div>
+                    <h3>Thin Icons</h3>
+                    <p>Icônes ultra fines 1.5px façon gravure technique.</p>
+                </div>
+
+                <!-- Idea 12: Minimal Motion -->
+                <div class="idea">
+                    <div class="idea-number">12</div>
+                    <h3>Minimal Motion</h3>
+                    <p>Animations lentes, physiques, jamais "fancy startup".</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DARK SECTION -->
+    <section class="dark">
+        <div class="container">
+            <h2>Quelques idées de détails très forts.</h2>
+            <p>Ce sont les détails qui cassent immédiatement l'effet template. Un bon produit a souvent 15 micro détails cohérents plutôt qu'une grosse idée visuelle.</p>
+            <div class="dark-grid">
+                <div class="dark-card">Utiliser des noms de courts : Court Suzanne, Court Central, Court 03...</div>
+                <div class="dark-card">Hover des boutons = lignes de terrain qui apparaissent.</div>
+                <div class="dark-card">Ajouter des "notes de juge-arbitre" manuscrites en overlay.</div>
+                <div class="dark-card">Utiliser le vocabulaire du padel partout : bandeja, vibora, tie-break...</div>
+                <div class="dark-card">Créer des séparateurs inspirés du filet.</div>
+                <div class="dark-card">Ajouter de légères rotations sur certains éléments éditoriaux.</div>
+                <div class="dark-card">Sections type "club journal" au lieu de cartes SaaS.</div>
+                <div class="dark-card">Créer un mode sombre vert profond type club privé nocturne.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BRAND LAB SECTION -->
+    <section>
+        <div class="container">
+            <div class="idea-title">
+                <h2>Brand Lab</h2>
+                <p>Exploration des matières et interactions pour briser le look "IA".</p>
+            </div>
+
+            <!-- Logo Blueprint -->
+            <div class="concept-card">
+                <span class="concept-label">Identité</span>
+                <h2>Le Logo "Blueprint"</h2>
+                <p>La balle a des courbes plus courtes et centrées. Au survol, un plan technique du terrain apparaît derrière le nom.</p>
+                <div class="logo-box">
+                    <a href="#" class="logo-blueprint">
+                        the court
+                        <svg class="tennis-ball-icon" viewBox="0 0 16 16">
+                            <circle class="ball-base" cx="8" cy="8" r="8"/>
+                            <path class="ball-curve" d="M3 11 C 5 9, 11 9, 13 11" />
+                            <path class="ball-curve" d="M3 5 C 5 7, 11 7, 13 5" />
+                        </svg>
+                        <div class="court-blueprint">
+                            <svg width="100%" height="100%">
+                                <use href="#court-premium" />
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mesh Section -->
+            <div class="concept-card">
+                <span class="concept-label">Texture</span>
+                <h2>Le Grillage (Mesh)</h2>
+                <p>Utiliser des motifs géométriques qui rappellent le grillage des terrains pour les séparateurs ou les headers.</p>
+                <div class="mesh-section">
+                    <div class="mesh-pattern"></div>
+                    <h3 style="position: relative; z-index: 1;">Contenu sur Grillage</h3>
+                </div>
+            </div>
+
+            <!-- Glass Wall -->
+            <div class="concept-card">
+                <span class="concept-label">Matière</span>
+                <h2>L'effet "Paroi de Verre"</h2>
+                <p>Le padel se joue derrière des vitres. Utiliser le flou (blur) pour simuler la profondeur de champ du terrain.</p>
+                <div class="glass-container">
+                    <div class="glass-wall">
+                        <h3>Padel Club de Lille</h3>
+                        <p>Réservez votre créneau sur le court central.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ball Trajectory Card -->
+            <div class="concept-card">
+                <span class="concept-label">Interaction</span>
+                <h2>La "Balle Fantôme"</h2>
+                <p>Au survol d'une carte (tournoi, club), une trajectoire de balle (lob ou smash) se dessine discrètement.</p>
+                <div class="card-trajectory" style="max-width: 400px;">
+                    <h3>Open de Printemps</h3>
+                    <p>P250 Hommes · 12 paires inscrites</p>
+                    <svg class="ball-path">
+                        <path class="path-line" d="M 20 80 Q 150 -20 300 80" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Felt Button -->
+            <div class="concept-card">
+                <span class="concept-label">Sensation</span>
+                <h2>Bouton "Felt Texture"</h2>
+                <p>Un bouton qui n'est pas plat, mais qui possède le grain tactile d'une balle de tennis neuve.</p>
+                <div style="padding: 20px 0;">
+                    <button class="felt-button">S'inscrire au tournoi</button>
+                </div>
+            </div>
+
+            <!-- Court Visualization -->
+            <div class="concept-card">
+                <span class="concept-label">Visualisation</span>
+                <h2>Vue Tactique "The Court"</h2>
+                <p>Visualisation premium du terrain avec texture quartz et lignes gold.</p>
+                <div class="court-viz">
+                    <div class="quartz-texture"></div>
+                    <svg class="court-lines-svg" viewBox="0 0 200 100">
+                        <line x1="0" y1="0" x2="0" y2="100" stroke="var(--gold-500)" stroke-width="4" opacity="0.4"/>
+                        <line x1="200" y1="0" x2="200" y2="100" stroke="var(--gold-500)" stroke-width="4" opacity="0.4"/>
+                        <g stroke="white" stroke-width="1.5" fill="none">
+                            <rect x="0" y="0" width="200" height="100" />
+                            <line x1="100" y1="0" x2="100" y2="100" />
+                            <line x1="30" y1="0" x2="30" y2="100" />
+                            <line x1="170" y1="0" x2="170" y2="100" />
+                            <line x1="30" y1="50" x2="170" y2="50" />
+                        </g>
+                        <line x1="100" y1="0" x2="100" y2="100" stroke="var(--ink-950)" stroke-width="2" stroke-dasharray="1,1" />
+                    </svg>
+                    <div style="position:absolute; bottom: 20px; left: 20px; color: white; font-family: var(--font-display); font-style: italic;">
+                        Vue tactique "The Court"
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mesh Shadows -->
+            <div class="concept-card">
+                <span class="concept-label">Texture</span>
+                <h2>Texture "Mesh Shadows"</h2>
+                <p>Pour des fonds de section qui rappellent le grillage des clubs en plein soleil.</p>
+                <div class="mesh-shadow-box">
+                    <div class="mesh-overlay"></div>
+                    <div style="position: relative; text-align: center;">
+                        <h3 style="font-size: 32px; margin-bottom: 10px; color: var(--green);">Rejoignez le Club</h3>
+                        <button class="btn btn-primary">Explorer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TYPOGRAPHY SECTION -->
+    <section class="idea-section">
+        <div class="container">
+            <div class="idea-title">
+                <h2>Typography System</h2>
+                <p>Hiérarchie et personnalité typographique.</p>
+            </div>
+
+            <div class="font-specimen">
+                <p style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 12px; color: var(--gold-500); margin-bottom: 10px;">Titre principal — Fraunces 600</p>
+                <h1 class="big-text">L'élégance du <span class="court-underline">geste</span>.</h1>
+            </div>
+
+            <div class="font-specimen">
+                <p style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 12px; color: var(--gold-500); margin-bottom: 10px;">UI & Corps — Inter</p>
+                <p style="font-size: 20px; max-width: 600px; line-height: 1.6;">
+                    The Court utilise <strong>Inter</strong> pour sa lisibilité chirurgicale. Les données de tournois, les classements et les horaires sont clairs, sans distraction.
+                </p>
+            </div>
+
+            <div class="font-specimen">
+                <p style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 12px; color: var(--gold-500); margin-bottom: 10px;">Résultats — Score Display</p>
+                <div class="score-font">
+                    6/4 · 3/6 · 10/8
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOURNAMENT CARDS -->
+    <section>
+        <div class="container">
+            <div class="idea-title">
+                <h2>Cartes Tournoi</h2>
+                <p>Interactions dynamiques avec trajectoires de balle.</p>
+            </div>
+
+            <div class="grid">
+                <div class="tournament-card">
+                    <h3 style="margin-top:0">P500 — Urban Padel</h3>
+                    <p>14 Janvier · Lille</p>
+                    <div style="color: var(--gold-500); font-weight: bold;">Inscriptions Ouvertes</div>
+                    <svg class="trajectory-svg" viewBox="0 0 300 150">
+                        <path class="path-draw" d="M 10 130 Q 150 10 280 130" stroke-width="2" />
+                    </svg>
+                </div>
+
+                <div class="tournament-card">
+                    <h3 style="margin-top:0">P1000 — Cupra Tour</h3>
+                    <p>22 Février · Lyon</p>
+                    <div style="color: var(--court-700);">Bientôt disponible</div>
+                    <svg class="trajectory-svg" viewBox="0 0 300 150">
+                        <path class="path-draw" d="M 280 130 C 200 20, 100 20, 20 130" stroke-width="2" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section">
+        <div class="court-background-pattern">
+            <svg viewBox="0 0 200 100" preserveAspectRatio="none">
+                <use href="#padel-full-court" fill="none" stroke="var(--gold-500)" stroke-width="0.5" />
+            </svg>
+        </div>
+        <div class="features-content">
+            <div class="feature-card">
+                <h3>Trouvez votre tournoi</h3>
+                <p>Accédez à tous les tournois homologués FFT autour de chez vous en moins de 2 minutes.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Inscriptions simplifiées</h3>
+                <p>Inscrivez votre paire, payez en ligne, et recevez vos convocations instantanément.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Suivez vos matchs</h3>
+                <p>Consultez les tableaux, scores en direct et historiques de vos confrontations.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BUTTONS DEMO -->
+    <section class="demo-area">
+        <h2>Interactions boutons</h2>
+        <p>Passez la souris sur les boutons pour voir les différents effets.</p>
+        <div class="button-group">
+            <button class="btn btn-primary">Bouton Primaire</button>
+            <button class="btn btn-secondary">
+                Bouton "The Court"
+                <div class="btn-court-overlay"></div>
+            </button>
+            <button class="btn btn-court">Hover terrain</button>
+            <button class="btn btn-ball">Animation balle</button>
+            <button class="btn btn-stroke">Style éditorial</button>
+        </div>
+    </section>
+
+    <!-- ANIMATION CONCEPTS -->
+    <section class="dark">
+        <div class="container">
+            <h2>Animation concepts</h2>
+            <p>Le mouvement doit rappeler le sport : trajectoires, rebonds, tension du filet, respiration légère du terrain.</p>
+            <div class="dark-grid">
+                <div class="dark-card">Ligne du terrain qui se dessine au scroll.</div>
+                <div class="dark-card">Balles qui traversent lentement les backgrounds.</div>
+                <div class="dark-card">Hover "slice" avec effet de rotation.</div>
+                <div class="dark-card">Cartes qui réagissent comme des feuilles physiques.</div>
+                <div class="dark-card">Micro vibrations type impact de balle.</div>
+                <div class="dark-card">Reflets subtils sur glass cards.</div>
+                <div class="dark-card">Filet animé avec shimmer horizontal.</div>
+                <div class="dark-card">Parallax ultra lent sur lignes du terrain.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE PREVIEW SECTION -->
+    <section>
+        <div class="container">
+            <div class="idea-title">
+                <h2>Interactive Brainstorming</h2>
+                <p>Clique sur les options pour voir immédiatement les différentes directions visuelles.</p>
+            </div>
+
+            <div class="grid">
+                <!-- Court Backgrounds Preview -->
+                <div class="card">
+                    <h3>Court Backgrounds</h3>
+                    <p>Différentes manières d'utiliser les lignes du terrain.</p>
+                    <div class="options-row">
+                        <button class="option-btn active" onclick="showPreview('court','a',this)">Option A</button>
+                        <button class="option-btn" onclick="showPreview('court','b',this)">Option B</button>
+                        <button class="option-btn" onclick="showPreview('court','c',this)">Option C</button>
+                    </div>
+                    <div class="preview" id="court-preview">
+                        <div class="preview-court-a preview-item"></div>
+                    </div>
+                </div>
+
+                <!-- Live Score Preview -->
+                <div class="card">
+                    <h3>Live Score UI</h3>
+                    <p>Inspirations scoreboards et affichages tournoi.</p>
+                    <div class="options-row">
+                        <button class="option-btn active" onclick="showPreview('score','a',this)">Option A</button>
+                        <button class="option-btn" onclick="showPreview('score','b',this)">Option B</button>
+                        <button class="option-btn" onclick="showPreview('score','c',this)">Option C</button>
+                    </div>
+                    <div class="preview" id="score-preview">
+                        <div class="score-a preview-item" style="padding: 30px;">
+                            <div class="score-glass">
+                                <div class="score-row">
+                                    <span>Leconte / Martin</span>
+                                    <strong>6</strong>
+                                </div>
+                                <div class="score-row">
+                                    <span>Petit / Durand</span>
+                                    <strong>4</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function showPreview(group, option, button) {
+            const preview = document.getElementById(group + '-preview');
+            const buttons = button.parentElement.querySelectorAll('.option-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            let html = '';
+            
+            if(group === 'court') {
+                if(option === 'a') {
+                    html = `<div class="preview-court-a preview-item"></div>`;
+                }
+                if(option === 'b') {
+                    html = `
+                        <div class="preview-court-b preview-item">
+                            <button class="btn btn-court" style="position: relative; z-index: 10;">Hover me</button>
+                        </div>
+                    `;
+                }
+                if(option === 'c') {
+                    html = `<div class="preview-court-c preview-item"></div>`;
+                }
+            }
+            
+            if(group === 'score') {
+                if(option === 'a') {
+                    html = `
+                        <div class="score-a preview-item" style="padding: 30px;">
+                            <div class="score-glass">
+                                <div class="score-row"><span>Leconte / Martin</span><strong>6</strong></div>
+                                <div class="score-row"><span>Petit / Durand</span><strong>4</strong></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                if(option === 'b') {
+                    html = `
+                        <div class="preview-item" style="padding: 30px;">
+                            <div class="flip-board">
+                                <div style="margin-bottom:20px;">CENTRAL COURT</div>
+                                <div class="flip-number">6 - 4</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                if(option === 'c') {
+                    html = `
+                        <div class="preview-item">
+                            <div class="oled">LIVE · P500</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            preview.innerHTML = html;
+        }
+    </script>
+
+</body>
+</html>

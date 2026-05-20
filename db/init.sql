@@ -1,0 +1,85 @@
+-- ============================================================================
+-- INIT.SQL — Référence SQL DÉRIVÉE du schéma Prisma.
+-- ----------------------------------------------------------------------------
+-- ATTENTION : ce fichier n'est PAS la source de vérité.
+-- La source unique du modèle est prisma/schema.prisma.
+--
+-- Ce fichier sert :
+--   1. de doc lisible pour quelqu'un qui n'a pas Prisma,
+--   2. de checklist pour les revues archi.
+--
+-- Pour créer / migrer la base, utiliser :
+--   npx prisma migrate dev --name <nom_explicite>
+--   npx prisma migrate deploy   # en production
+--
+-- Pour voir le SQL réel généré par Prisma :
+--   npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script
+-- ============================================================================
+
+-- Extensions PostgreSQL utiles (à activer en prod)
+-- CREATE EXTENSION IF NOT EXISTS "pgcrypto";    -- UUID, hashing
+-- CREATE EXTENSION IF NOT EXISTS "postgis";     -- géoloc (V2 pour rayon km optimisé)
+-- CREATE EXTENSION IF NOT EXISTS "unaccent";    -- recherche texte FR
+-- CREATE EXTENSION IF NOT EXISTS "pg_trgm";     -- recherche fuzzy
+
+-- ----------------------------------------------------------------------------
+-- TABLES PRINCIPALES (vue d'ensemble — la définition exacte vient de Prisma)
+-- ----------------------------------------------------------------------------
+--
+-- Auth & identité
+--   users, accounts, sessions, verification_tokens
+--
+-- Profils
+--   player_profiles, club_profiles, referee_profiles, player_licenses
+--
+-- Référentiel
+--   sports, federations, ranking_categories
+--
+-- Adresse
+--   addresses
+--
+-- Clubs
+--   clubs, courts, club_memberships, player_favorite_clubs, stripe_accounts
+--
+-- Tournois
+--   tournaments, tournament_editions, tournament_referees
+--   teams, team_members, registrations, waiting_list_entries
+--   brackets, matches, match_scores
+--
+-- Paiements
+--   payments, payment_splits, invoices
+--
+-- Communauté
+--   friendships, follows, club_reviews, notifications
+--
+-- Audit
+--   audit_logs
+-- ----------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------
+-- INDEXES MANUELS (en plus de ceux générés par Prisma)
+-- À ajouter via une migration Prisma `--create-only` puis édition manuelle
+-- quand le besoin se confirme avec les volumes réels.
+-- ----------------------------------------------------------------------------
+
+-- Recherche tournoi par ville + date (cas d'usage le plus fréquent)
+-- CREATE INDEX IF NOT EXISTS idx_editions_search
+--   ON "TournamentEdition" ("status", "startDate")
+--   WHERE "status" IN ('PUBLISHED', 'REGISTRATION_OPEN');
+
+-- Recherche d'adresses par ville (autocomplete)
+-- CREATE INDEX IF NOT EXISTS idx_addresses_city_trgm
+--   ON "Address" USING gin (city gin_trgm_ops);
+
+-- Recherche club par nom (autocomplete)
+-- CREATE INDEX IF NOT EXISTS idx_clubs_name_trgm
+--   ON "Club" USING gin (name gin_trgm_ops);
+
+-- ----------------------------------------------------------------------------
+-- VUES MATÉRIALISÉES (V2 — pour les classements et statistiques)
+-- ----------------------------------------------------------------------------
+
+-- À implémenter quand on aura les volumes :
+--   - mv_player_stats : matchs joués, gagnés, winrate, série en cours
+--   - mv_club_activity : tournois organisés, taux de remplissage moyen
+--   - mv_platform_ranking : classement plateforme (différent de FFT)

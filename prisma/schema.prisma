@@ -1,0 +1,799 @@
+// ============================================================================
+// SCHEMA PRISMA — Source de vérité unique du modèle de données
+// ----------------------------------------------------------------------------
+// Règle d'or : on ne recrée jamais la base. Toute modification passe par
+//   npx prisma migrate dev --name <nom_explicite>
+// Les migrations sont versionnées dans prisma/migrations/.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon : pooler pour les requêtes runtime (DATABASE_URL),
+  // connexion directe pour les migrations Prisma (DIRECT_URL).
+  // Cf. https://neon.tech/docs/guides/prisma
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  PLAYER
+  CLUB
+  REFEREE
+  ADMIN
+}
+
+enum AccountTier {
+  FREE
+  PREMIUM
+}
+
+enum DominantHand {
+  LEFT
+  RIGHT
+  AMBIDEXTROUS
+}
+
+enum PreferredSide {
+  LEFT
+  RIGHT
+  BOTH
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  UNDISCLOSED
+}
+
+enum CourtSurface {
+  ARTIFICIAL_GRASS
+  CONCRETE
+  GLASS_PANORAMIC
+  OTHER
+}
+
+enum CourtKind {
+  INDOOR
+  OUTDOOR
+  COVERED
+}
+
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+  POOLS_PLUS_BRACKET
+  POOLS_ONLY
+  CONSOLATION
+  AMERICANO
+  ROUND_ROBIN
+}
+
+enum TournamentGender {
+  MEN
+  WOMEN
+  MIXED
+}
+
+enum TournamentStatus {
+  DRAFT
+  PUBLISHED
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  RUNNING
+  COMPLETED
+  CANCELLED
+}
+
+enum RegistrationStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  WAITING_LIST
+  WITHDRAWN
+  REJECTED
+}
+
+enum WaitingListMode {
+  TEAM
+  SOLO // joueur seul cherchant un partenaire
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  CANCELLED
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+enum NotificationKind {
+  TOURNAMENT_REMINDER
+  REGISTRATION_CONFIRMED
+  WAITING_LIST_PROMOTED
+  PARTNER_REQUEST
+  MATCH_SCHEDULED
+  SCORE_PUBLISHED
+  PAYMENT_RECEIVED
+  CLUB_ANNOUNCEMENT
+  GENERIC
+}
+
+enum AuditAction {
+  USER_CREATED
+  USER_LOGGED_IN
+  PASSWORD_CHANGED
+  PROFILE_UPDATED
+  TOURNAMENT_CREATED
+  TOURNAMENT_UPDATED
+  REGISTRATION_CREATED
+  REGISTRATION_CANCELLED
+  PAYMENT_CREATED
+  PAYMENT_REFUNDED
+  ROLE_GRANTED
+  ROLE_REVOKED
+}
+
+// ============================================================================
+// SPORT — référentiel multi-sport (POC = padel uniquement)
+// ============================================================================
+
+model Sport {
+  id          String   @id @default(cuid())
+  slug        String   @unique // padel, badminton, tennis, ...
+  name        String
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rankingCategories RankingCategory[]
+  courts            Court[]
+  tournaments       Tournament[]
+}
+
+model Federation {
+  id        String   @id @default(cuid())
+  slug      String   @unique // fft
+  name      String
+  country   String   @default("FR")
+  createdAt DateTime @default(now())
+
+  playerLicenses PlayerLicense[]
+}
+
+model RankingCategory {
+  id        String   @id @default(cuid())
+  sportId   String
+  code      String // P25, P100, P250, P500, P1000, P2000
+  label     String
+  sortOrder Int
+
+  sport Sport @relation(fields: [sportId], references: [id], onDelete: Cascade)
+
+  @@unique([sportId, code])
+}
+
+// ============================================================================
+// USER — compte de base unique, étendu par profils selon le rôle
+// ============================================================================
+
+model User {
+  id            String      @id @default(cuid())
+  email         String      @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  role          UserRole    @default(PLAYER)
+  tier          AccountTier @default(FREE)
+  locale        String      @default("fr")
+
+  firstName String
+  lastName  String
+  phone     String?
+  birthDate DateTime?
+  avatarUrl String?
+
+  addressId String?
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  // Relations 1-1 vers les profils (un user a 0 ou 1 profil par type)
+  playerProfile  PlayerProfile?
+  clubProfile    ClubProfile?
+  refereeProfile RefereeProfile?
+
+  // Auth.js
+  accounts           Account[]
+  sessions           Session[]
+  verificationTokens VerificationToken[]
+
+  // Relations transverses
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  clubReviewsGiven  ClubReview[]      @relation("ReviewAuthor")
+
+  @@index([role])
+  @@index([tier])
+}
+
+// ============================================================================
+// AUTH.JS (NextAuth v5) — sessions, providers OAuth, tokens
+// ============================================================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  userId     String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([identifier, token])
+}
+
+// ============================================================================
+// ADRESSE — entité partagée (users, clubs)
+// ============================================================================
+
+model Address {
+  id         String   @id @default(cuid())
+  street     String?
+  city       String
+  postalCode String
+  country    String   @default("FR")
+  latitude   Float?
+  longitude  Float?
+  createdAt  DateTime @default(now())
+
+  users User[]
+  clubs Club[]
+
+  @@index([city, postalCode])
+}
+
+// ============================================================================
+// PLAYER PROFILE — profil joueur, lié 1-1 à un User de role PLAYER
+// ============================================================================
+
+model PlayerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  estimatedLevel  String? // libre : "débutant", "intermédiaire", "confirmé", "compétition"
+  dominantHand    DominantHand?
+  preferredSide   PreferredSide?
+  gender          Gender         @default(UNDISCLOSED)
+  lookingForPartner Boolean      @default(false)
+  bio             String?        @db.Text
+  availability    Json? // { mon: ["18:00-21:00"], ... } — flexibilité maximale
+  premiumSince    DateTime?
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  licenses        PlayerLicense[]
+  favoriteClubs   PlayerFavoriteClub[]
+  memberships     ClubMembership[]
+  teams           TeamMember[]
+  registrationsAsLead Registration[] @relation("RegistrationLeadPlayer")
+  paymentsMade    Payment[]
+  paymentSplits   PaymentSplit[]
+  waitingListSolo WaitingListEntry[] @relation("SoloWaiting")
+  friendshipsInitiated Friendship[]  @relation("FriendshipInitiator")
+  friendshipsReceived  Friendship[]  @relation("FriendshipReceiver")
+  followsGiven    Follow[]          @relation("Follower")
+  followsReceived Follow[]          @relation("Followed")
+
+  @@index([lookingForPartner])
+}
+
+model PlayerLicense {
+  id              String   @id @default(cuid())
+  playerProfileId String
+  federationId    String
+  licenseNumber   String
+  ranking         String? // ex: "P250", classement officiel
+  rankingPoints   Int? // points si dispo
+  validFrom       DateTime?
+  validUntil      DateTime?
+  syncedAt        DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  playerProfile PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+  federation    Federation    @relation(fields: [federationId], references: [id])
+
+  @@unique([federationId, licenseNumber])
+  @@index([playerProfileId])
+}
+
+// ============================================================================
+// CLUB PROFILE — profil club, lié 1-1 à un User de role CLUB
+// ============================================================================
+
+model ClubProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  clubId String? @unique // un compte CLUB pilote 1 club (V2: multi-clubs possible via table de liaison)
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club Club? @relation(fields: [clubId], references: [id], onDelete: SetNull)
+}
+
+model Club {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  websiteUrl  String?
+  phone       String?
+  email       String?
+  logoUrl     String?
+  coverUrl    String?
+  addressId   String?
+  address     Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  clubProfile     ClubProfile?
+  courts          Court[]
+  memberships     ClubMembership[]
+  favoritedBy     PlayerFavoriteClub[]
+  tournaments     Tournament[]
+  reviews         ClubReview[]
+  stripeAccount   StripeAccount?
+
+  @@index([name])
+}
+
+model Court {
+  id         String       @id @default(cuid())
+  clubId     String
+  sportId    String
+  name       String
+  kind       CourtKind
+  surface    CourtSurface @default(ARTIFICIAL_GRASS)
+  isActive   Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  club    Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  sport   Sport   @relation(fields: [sportId], references: [id])
+  matches Match[]
+
+  @@unique([clubId, name])
+}
+
+model ClubMembership {
+  id              String   @id @default(cuid())
+  playerProfileId String
+  clubId          String
+  since           DateTime @default(now())
+  isActive        Boolean  @default(true)
+
+  player PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+  club   Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([playerProfileId, clubId])
+}
+
+model PlayerFavoriteClub {
+  id              String   @id @default(cuid())
+  playerProfileId String
+  clubId          String
+  createdAt       DateTime @default(now())
+
+  player PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+  club   Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([playerProfileId, clubId])
+}
+
+// ============================================================================
+// REFEREE PROFILE — juge-arbitre
+// ============================================================================
+
+model RefereeProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  certificationLevel String? // "club", "fédéral", ...
+  certificationId    String?
+  validUntil         DateTime?
+
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignments TournamentReferee[]
+}
+
+// ============================================================================
+// TOURNOIS — Tournament (modèle), TournamentEdition (instance datée)
+// ============================================================================
+
+model Tournament {
+  id          String           @id @default(cuid())
+  clubId      String
+  sportId     String
+  name        String
+  slug        String           @unique
+  description String?          @db.Text
+  format      TournamentFormat
+  gender      TournamentGender
+  category    String? // P25, P100, P250, ...
+  isPublic    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  club     Club                @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  sport    Sport               @relation(fields: [sportId], references: [id])
+  editions TournamentEdition[]
+
+  @@index([clubId])
+  @@index([category])
+}
+
+model TournamentEdition {
+  id           String           @id @default(cuid())
+  tournamentId String
+  startDate    DateTime
+  endDate      DateTime
+  registrationOpensAt  DateTime?
+  registrationClosesAt DateTime?
+  maxTeams     Int
+  priceCents   Int // prix par équipe en centimes
+  currency     String           @default("EUR")
+  status       TournamentStatus @default(DRAFT)
+  externalUrl  String?
+  rulesUrl     String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  tournament    Tournament         @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  registrations Registration[]
+  waitingList   WaitingListEntry[]
+  brackets      Bracket[]
+  matches       Match[]
+  referees      TournamentReferee[]
+  invoices      Invoice[]
+
+  @@index([startDate])
+  @@index([status])
+  @@index([tournamentId])
+}
+
+model TournamentReferee {
+  id                  String   @id @default(cuid())
+  tournamentEditionId String
+  refereeProfileId    String
+  isHead              Boolean  @default(false)
+  assignedAt          DateTime @default(now())
+
+  edition TournamentEdition @relation(fields: [tournamentEditionId], references: [id], onDelete: Cascade)
+  referee RefereeProfile    @relation(fields: [refereeProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentEditionId, refereeProfileId])
+}
+
+// ============================================================================
+// INSCRIPTIONS, ÉQUIPES, FILE D'ATTENTE
+// ============================================================================
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String?
+  createdAt DateTime @default(now())
+
+  members       TeamMember[]
+  registrations Registration[]
+  matchesAsA    Match[]        @relation("TeamA")
+  matchesAsB    Match[]        @relation("TeamB")
+}
+
+model TeamMember {
+  id              String  @id @default(cuid())
+  teamId          String
+  playerProfileId String
+  isCaptain       Boolean @default(false)
+
+  team   Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, playerProfileId])
+}
+
+model Registration {
+  id                  String             @id @default(cuid())
+  tournamentEditionId String
+  teamId              String
+  leadPlayerId        String // joueur qui a initié l'inscription (paiement, contact)
+  status              RegistrationStatus @default(PENDING_PAYMENT)
+  registeredAt        DateTime           @default(now())
+  confirmedAt         DateTime?
+  withdrawnAt         DateTime?
+
+  edition    TournamentEdition @relation(fields: [tournamentEditionId], references: [id], onDelete: Cascade)
+  team       Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  leadPlayer PlayerProfile     @relation("RegistrationLeadPlayer", fields: [leadPlayerId], references: [id])
+  payments   Payment[]
+
+  @@unique([tournamentEditionId, teamId])
+  @@index([status])
+}
+
+model WaitingListEntry {
+  id                  String          @id @default(cuid())
+  tournamentEditionId String
+  mode                WaitingListMode
+  teamId              String? // si mode = TEAM
+  soloPlayerId        String? // si mode = SOLO
+  position            Int
+  joinedAt            DateTime        @default(now())
+  promotedAt          DateTime?
+
+  edition    TournamentEdition @relation(fields: [tournamentEditionId], references: [id], onDelete: Cascade)
+  soloPlayer PlayerProfile?    @relation("SoloWaiting", fields: [soloPlayerId], references: [id], onDelete: SetNull)
+
+  @@index([tournamentEditionId, position])
+}
+
+// ============================================================================
+// TABLEAUX ET MATCHS
+// ============================================================================
+
+model Bracket {
+  id                  String   @id @default(cuid())
+  tournamentEditionId String
+  label               String // "Tableau principal", "Consolante", "Poule A"
+  order               Int      @default(0)
+  createdAt           DateTime @default(now())
+
+  edition TournamentEdition @relation(fields: [tournamentEditionId], references: [id], onDelete: Cascade)
+  matches Match[]
+}
+
+model Match {
+  id                  String   @id @default(cuid())
+  tournamentEditionId String
+  bracketId           String?
+  courtId             String?
+  teamAId             String?
+  teamBId             String?
+  scheduledAt         DateTime?
+  startedAt           DateTime?
+  endedAt             DateTime?
+  winnerTeamId        String?
+  status              String   @default("scheduled") // scheduled, live, completed, walkover, cancelled
+  metadata            Json? // notes libres (round, place dans le tableau)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  edition TournamentEdition @relation(fields: [tournamentEditionId], references: [id], onDelete: Cascade)
+  bracket Bracket?          @relation(fields: [bracketId], references: [id], onDelete: SetNull)
+  court   Court?            @relation(fields: [courtId], references: [id], onDelete: SetNull)
+  teamA   Team?             @relation("TeamA", fields: [teamAId], references: [id], onDelete: SetNull)
+  teamB   Team?             @relation("TeamB", fields: [teamBId], references: [id], onDelete: SetNull)
+  scores  MatchScore[]
+
+  @@index([tournamentEditionId])
+  @@index([scheduledAt])
+}
+
+model MatchScore {
+  id        String   @id @default(cuid())
+  matchId   String
+  setNumber Int
+  teamAGames Int
+  teamBGames Int
+  tieBreak   Json? // { teamA: 7, teamB: 5 }
+  createdAt DateTime @default(now())
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, setNumber])
+}
+
+// ============================================================================
+// PAIEMENTS — Stripe + paiements partagés
+// ============================================================================
+
+model StripeAccount {
+  id              String   @id @default(cuid())
+  clubId          String   @unique
+  stripeAccountId String   @unique
+  chargesEnabled  Boolean  @default(false)
+  payoutsEnabled  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  registrationId        String
+  payerPlayerId         String // joueur qui a payé (ou initié)
+  amountCents           Int
+  currency              String        @default("EUR")
+  status                PaymentStatus @default(PENDING)
+  stripePaymentIntentId String?       @unique
+  stripeChargeId        String?
+  paidAt                DateTime?
+  refundedAt            DateTime?
+  refundedAmountCents   Int           @default(0)
+  metadata              Json?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  registration Registration   @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  payer        PlayerProfile  @relation(fields: [payerPlayerId], references: [id])
+  splits       PaymentSplit[]
+  invoice      Invoice?
+
+  @@index([status])
+  @@index([registrationId])
+}
+
+model PaymentSplit {
+  id              String        @id @default(cuid())
+  paymentId       String
+  playerProfileId String
+  amountCents     Int
+  status          PaymentStatus @default(PENDING)
+  paidAt          DateTime?
+
+  payment Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  player  PlayerProfile @relation(fields: [playerProfileId], references: [id])
+
+  @@unique([paymentId, playerProfileId])
+}
+
+model Invoice {
+  id                  String        @id @default(cuid())
+  number              String        @unique // INV-2026-000123
+  paymentId           String?       @unique
+  tournamentEditionId String?
+  amountCents         Int
+  vatCents            Int           @default(0)
+  currency            String        @default("EUR")
+  status              InvoiceStatus @default(DRAFT)
+  pdfUrl              String?
+  issuedAt            DateTime?
+  createdAt           DateTime      @default(now())
+
+  payment Payment?           @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  edition TournamentEdition? @relation(fields: [tournamentEditionId], references: [id], onDelete: SetNull)
+}
+
+// ============================================================================
+// COMMUNAUTÉ — amis, abonnements, avis, notifications
+// ============================================================================
+
+model Friendship {
+  id           String           @id @default(cuid())
+  initiatorId  String
+  receiverId   String
+  status       FriendshipStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  respondedAt  DateTime?
+
+  initiator PlayerProfile @relation("FriendshipInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  receiver  PlayerProfile @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([initiatorId, receiverId])
+}
+
+model Follow {
+  id         String   @id @default(cuid())
+  followerId String
+  followedId String
+  createdAt  DateTime @default(now())
+
+  follower PlayerProfile @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followed PlayerProfile @relation("Followed", fields: [followedId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followedId])
+}
+
+model ClubReview {
+  id        String   @id @default(cuid())
+  clubId    String
+  authorId  String
+  rating    Int // 1-5
+  text      String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club   Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  author User @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, authorId])
+  @@index([rating])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  kind      NotificationKind
+  title     String
+  body      String?          @db.Text
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+}
+
+// ============================================================================
+// AUDIT LOG
+// ============================================================================
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String?
+  action     AuditAction
+  entityType String?
+  entityId   String?
+  ip         String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

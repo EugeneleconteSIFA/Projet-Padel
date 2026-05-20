@@ -1,0 +1,225 @@
+/* ============================================================================
+   THE COURT — Design tokens (DA Bandeja).
+   ----------------------------------------------------------------------------
+   Palette : crème argentée, vert padel profond, or signature, noir.
+   Typographie : Fraunces (titres serif) + Inter (corps sans).
+   Mode sombre : fond vert profond, jamais noir pur.
+   ============================================================================ */
+
+:root {
+  /* ---------- Crèmes (fond principal mode clair) ---------- */
+  --cream-50:  #f1ede5;
+  --cream-100: #f8f6f0;
+  --cream-200: #e5dfd3;
+  --cream-300: #d8d2c5;
+  --off-white: #fbfaf6;
+
+  /* ---------- Vert padel (signature) ---------- */
+  --court-50:  #e9f1ec;
+  --court-100: #d7e5dd;
+  --court-300: #6ea58e;
+  --court-500: #2a8264;
+  --court-600: #176b53;
+  --court-700: #0f4c3a;
+  --court-800: #0b3a2c;
+  --court-900: #082b21;
+
+  /* ---------- Or (accent rare) ---------- */
+  --gold-100: #f0e4c2;
+  --gold-300: #e0c98a;
+  --gold-500: #c9a24a;
+  --gold-700: #9a7a32;
+
+  /* ---------- Encres ---------- */
+  --ink-950: #15171a;
+  --ink-900: #1d2025;
+  --ink-700: #3a3f47;
+  --ink-500: #5a6068;
+  --ink-400: #7d838c;
+  --ink-300: #b1b6bd;
+  --paper-200: #d8d2c5;
+
+  /* ---------- Sémantique ---------- */
+  --color-success: var(--court-600);
+  --color-warning: var(--gold-500);
+  --color-danger:  #a6332e;     /* rouge sourd, pas alerte criarde */
+  --color-info:    var(--court-700);
+
+  /* ---------- Surfaces (mode clair) ---------- */
+  --bg-page:     var(--cream-50);
+  --bg-surface:  var(--off-white);
+  --bg-muted:    var(--cream-100);
+  --bg-inverse:  var(--court-700);
+
+  --text-primary:   var(--ink-950);
+  --text-secondary: var(--ink-700);
+  --text-muted:     var(--ink-500);
+  --text-inverse:   var(--cream-50);
+  --text-accent:    var(--court-700);
+  --text-gold:      var(--gold-500);
+
+  --border-subtle: var(--cream-200);
+  --border-strong: var(--paper-200);
+
+  /* ---------- Typographie ----------
+     En Next.js, next/font expose --font-inter, --font-fraunces, --font-jetbrains-mono.
+     En HTML standalone (mockups), les Google Fonts sont chargées via <link>.
+     Les fallbacks gèrent les deux cas. */
+  --font-sans:    var(--font-inter, 'Inter'), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: var(--font-fraunces, 'Fraunces'), 'GT Sectra', 'Tiempos Headline', Georgia, serif;
+  --font-mono:    var(--font-jetbrains-mono, 'JetBrains Mono'), 'SFMono-Regular', Consolas, monospace;
+
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-lg:   18px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  30px;
+  --text-4xl:  38px;
+  --text-5xl:  52px;
+  --text-6xl:  72px;
+  --text-7xl:  96px;
+
+  --leading-tight: 1.05;
+  --leading-snug:  1.25;
+  --leading-normal: 1.55;
+  --leading-loose: 1.75;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+
+  /* ---------- Spacing ---------- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ---------- Rayons ---------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  /* ---------- Ombres (très discrètes) ---------- */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 26, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 26, 0.05), 0 1px 2px rgba(15, 23, 26, 0.04);
+  --shadow-md: 0 6px 18px rgba(15, 76, 58, 0.08);
+  --shadow-lg: 0 18px 40px rgba(15, 76, 58, 0.10);
+
+  /* ---------- Transitions ---------- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 360ms;
+
+  /* ---------- Conteneurs ---------- */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1440px;
+}
+
+/* ============================================================================
+   MODE SOMBRE — fond vert profond, jamais noir pur (signature The Court).
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-page:     var(--court-900);
+    --bg-surface:  var(--court-800);
+    --bg-muted:    var(--court-700);
+    --bg-inverse:  var(--cream-50);
+
+    --text-primary:   var(--cream-50);
+    --text-secondary: var(--cream-200);
+    --text-muted:     #a6b0aa;
+    --text-inverse:   var(--ink-950);
+    --text-accent:    var(--cream-50);
+    --text-gold:      var(--gold-300);
+
+    --border-subtle: rgba(241, 237, 229, 0.10);
+    --border-strong: rgba(241, 237, 229, 0.20);
+
+    --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 18px 40px rgba(0, 0, 0, 0.55);
+  }
+}
+
+[data-theme="dark"] {
+  --bg-page:     var(--court-900);
+  --bg-surface:  var(--court-800);
+  --bg-muted:    var(--court-700);
+  --bg-inverse:  var(--cream-50);
+  --text-primary:   var(--cream-50);
+  --text-secondary: var(--cream-200);
+  --text-muted:     #a6b0aa;
+  --text-inverse:   var(--ink-950);
+  --text-accent:    var(--cream-50);
+  --text-gold:      var(--gold-300);
+  --border-subtle: rgba(241, 237, 229, 0.10);
+  --border-strong: rgba(241, 237, 229, 0.20);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* Force le mode clair même si le système préfère le sombre */
+[data-theme="light"] {
+  --bg-page:     var(--cream-50);
+  --bg-surface:  var(--off-white);
+  --bg-muted:    var(--cream-100);
+  --bg-inverse:  var(--court-700);
+  --text-primary:   var(--ink-950);
+  --text-secondary: var(--ink-700);
+  --text-muted:     var(--ink-500);
+  --text-inverse:   var(--cream-50);
+  --text-accent:    var(--court-700);
+  --text-gold:      var(--gold-500);
+  --border-subtle: var(--cream-200);
+  --border-strong: var(--paper-200);
+  --shadow-md: 0 6px 18px rgba(15, 76, 58, 0.08);
+  --shadow-lg: 0 18px 40px rgba(15, 76, 58, 0.12);
+}
+
+/* ============================================================================
+   RESET MINIMAL ET BASE
+   ============================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  font-weight: 500; /* Fraunces moyenne, le serif porte sans gras */
+  margin: 0;
+}
+
+p { margin: 0; }
