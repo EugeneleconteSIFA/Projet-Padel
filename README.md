@@ -51,6 +51,8 @@ Le scaffold Next.js + Prisma est en place. `app/`, `lib/`, `prisma/` sont prêts
 
 Le dépôt GitHub [`Projet-Padel`](https://github.com/EugeneleconteSIFA/Projet-Padel) est le **miroir distant** pour le VPS — pas le dossier `Documents/GitHub/PROJET PADEL/`.
 
+> **Attention Google Drive + Git** : Drive peut corrompre `.git/` (fichiers dupliqués `… 2`, `… 3`). En cas d'erreur `unable to read` au push, supprimer `.git`, puis `git init`, `git add .`, `git commit`, `git remote add origin …`, `git push --force origin main`.
+
 ---
 
 ## Démarrage développeur
