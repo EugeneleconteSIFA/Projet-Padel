@@ -47,11 +47,26 @@ Le scaffold Next.js + Prisma est en place. `app/`, `lib/`, `prisma/` sont prêts
 |---|---|
 | Commit local | `git add .` puis `git commit -m "…"` |
 | Publier sur GitHub | `git push origin main` |
-| Déployer sur le VPS | SSH → `cd /var/www/the-court` → `git pull` → `npm run build` → redémarrer l'app |
+| Déployer sur le VPS | SSH → `bash scripts/vps-deploy.sh` (voir ci-dessous) |
 
 Le dépôt GitHub [`Projet-Padel`](https://github.com/EugeneleconteSIFA/Projet-Padel) est le **miroir distant** pour le VPS — pas le dossier `Documents/GitHub/PROJET PADEL/`.
 
 > **Attention Google Drive + Git** : Drive peut corrompre `.git/` (fichiers dupliqués `… 2`, `… 3`). En cas d'erreur `unable to read` au push, supprimer `.git`, puis `git init`, `git add .`, `git commit`, `git remote add origin …`, `git push --force origin main`.
+
+### Déploiement VPS (obligatoire après chaque push)
+
+Sur le serveur, **ne pas utiliser `git pull` seul** si le VPS a des commits locaux (erreur « divergent branches »). Utiliser :
+
+```bash
+cd /var/www/the-court
+bash scripts/vps-deploy.sh
+```
+
+Le script fait : `git reset --hard origin/main`, supprime `.next`, `npm run build`, redémarre PM2.
+
+Ensuite dans le navigateur : rechargement forcé (`Cmd+Shift+R`) ou fenêtre privée.
+
+Les erreurs **400** sur `/_next/static/…` viennent presque toujours d'un build obsolète ou d'un HTML en cache qui pointe vers d'anciens hashes de chunks.
 
 ---
 
