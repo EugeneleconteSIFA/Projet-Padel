@@ -27,7 +27,7 @@ echo "→ Vérification assets…"
 CSS=$(ls .next/static/css/*.css 2>/dev/null | head -1)
 if [ -n "$CSS" ]; then
   HASH=$(basename "$CSS" .css)
-  CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/_next/static/css/${HASH}.css")
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/_next/static/css/${HASH}.css" || echo "000")
   echo "   CSS /_next/static/css/${HASH}.css → HTTP $CODE"
   [ "$CODE" = "200" ] || { echo "ERREUR: assets non servis correctement."; exit 1; }
 fi

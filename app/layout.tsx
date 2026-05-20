@@ -26,6 +26,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+  },
   title: {
     default: 'The Court — Tout se joue ici',
     template: '%s · The Court',

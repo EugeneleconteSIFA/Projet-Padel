@@ -52,6 +52,13 @@ export default function HomePageClient({ tournaments }: { tournaments: Tournamen
     );
   }
 
+  function resetFilters() {
+    setSelCategories([]);
+    setSelGenres([]);
+    setSelSurface('all');
+    setRadius(50);
+  }
+
   const results = useMemo(() => {
     return tournaments.filter(t => {
       if (t.distance > radius) return false;
@@ -64,6 +71,8 @@ export default function HomePageClient({ tournaments }: { tournaments: Tournamen
 
   const activeFilterCount =
     selCategories.length + selGenres.length + (selSurface !== 'all' ? 1 : 0);
+
+  const hasActiveFilters = activeFilterCount > 0 || radius !== 50;
 
   return (
     <div
@@ -101,17 +110,6 @@ export default function HomePageClient({ tournaments }: { tournaments: Tournamen
           </nav>
         </div>
       </header>
-
-      <section
-        className="border-b px-6 py-3 text-center text-sm font-semibold"
-        style={{
-          background: 'var(--gold-100)',
-          borderColor: 'var(--gold-500)',
-          color: 'var(--court-700)',
-        }}
-      >
-        Test partage dossier : modification visible depuis The Court.
-      </section>
 
       {/* ── SEARCH STRIP ──────────────────────────────────────────────────── */}
       <div
@@ -203,15 +201,19 @@ export default function HomePageClient({ tournaments }: { tournaments: Tournamen
               </div>
             </div>
 
-            {/* Submit */}
-            <button
-              className="shrink-0 rounded-lg px-5 py-2 text-sm font-medium text-white transition"
-              style={{ background: 'var(--court-700)' }}
-              onMouseOver={e => (e.currentTarget.style.background = 'var(--court-600)')}
-              onMouseOut={e => (e.currentTarget.style.background = 'var(--court-700)')}
-            >
-              Rechercher
-            </button>
+            {/* Réinitialiser */}
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="shrink-0 rounded-lg px-5 py-2 text-sm font-medium text-white transition"
+                style={{ background: 'var(--court-700)' }}
+                onMouseOver={e => (e.currentTarget.style.background = 'var(--court-600)')}
+                onMouseOut={e => (e.currentTarget.style.background = 'var(--court-700)')}
+              >
+                Réinitialiser
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -416,15 +418,8 @@ function TournamentCard({ t }: { t: Tournament }) {
   const full   = left === 0;
   const urgent = !full && left <= 2;
 
-  return (
-    <article
-      className="flex flex-col rounded-xl border p-5 transition-transform hover:-translate-y-px"
-      style={{
-        background: 'var(--bg-surface)',
-        borderColor: 'var(--cream-200)',
-        boxShadow: 'var(--shadow-xs)',
-      }}
-    >
+  const cardBody = (
+    <>
       {/* Badges */}
       <div className="mb-3 flex flex-wrap gap-1.5">
         <Badge
@@ -482,24 +477,44 @@ function TournamentCard({ t }: { t: Tournament }) {
         </span>
       </div>
 
-      {/* CTA */}
-      <Link
-        href={`/tournois/${t.id}`}
-        className="mt-3 block rounded-lg py-2 text-center text-sm font-medium transition"
-        style={{
-          background: full ? 'var(--cream-200)' : 'var(--court-700)',
-          color: full ? 'var(--text-secondary)' : 'var(--cream-50)',
-        }}
-        onMouseOver={e => {
-          if (!full) e.currentTarget.style.background = 'var(--court-600)';
-        }}
-        onMouseOut={e => {
-          if (!full) e.currentTarget.style.background = 'var(--court-700)';
-        }}
-      >
-        {full ? "Liste d'attente" : 'Voir le tournoi →'}
-      </Link>
-    </article>
+      {/* CTA — liste d'attente uniquement si complet */}
+      {full && (
+        <Link
+          href={`/tournois/${t.id}`}
+          className="mt-3 block rounded-lg py-2 text-center text-sm font-medium transition"
+          style={{
+            background: 'var(--cream-200)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          Liste d&apos;attente
+        </Link>
+      )}
+    </>
+  );
+
+  const articleClass =
+    'relative flex flex-col rounded-xl border p-5 transition-transform hover:-translate-y-px';
+  const articleStyle = {
+    background: 'var(--bg-surface)',
+    borderColor: 'var(--cream-200)',
+    boxShadow: 'var(--shadow-xs)',
+  };
+
+  if (full) {
+    return (
+      <article className={articleClass} style={articleStyle}>
+        {cardBody}
+      </article>
+    );
+  }
+
+  return (
+    <Link href={`/tournois/${t.id}`} className="block">
+      <article className={`${articleClass} cursor-pointer`} style={articleStyle}>
+        {cardBody}
+      </article>
+    </Link>
   );
 }
 

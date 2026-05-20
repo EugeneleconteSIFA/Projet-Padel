@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async rewrites() {
+    return [{ source: '/favicon.ico', destination: '/favicon.svg' }];
+  },
   eslint: {
     // Les warnings d'apostrophes FR en JSX ne bloquent pas le POC
     ignoreDuringBuilds: true,

@@ -15,6 +15,7 @@ import {
 import { auth } from '@/lib/auth';
 import { checkUserRegistration } from '@/lib/actions/tournament';
 import { RegisterButton } from './register-button';
+import { CopyLinkButton } from '@/components/copy-link-button';
 
 /* =============================================================================
    The Court — Fiche détail d'un tournoi.
@@ -307,7 +308,7 @@ export default async function TournamentPage({
                 Partager
               </p>
               <div className="flex gap-2">
-                <ShareButton label="Copier le lien" icon={<LinkIcon />} />
+                <CopyLinkButton icon={<LinkIcon />} />
                 <ShareButton label="WhatsApp" icon={<WhatsappIcon />} />
               </div>
             </div>
