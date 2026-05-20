@@ -16,7 +16,7 @@ import {
   spotsLabel,
   formatDate,
 } from '@/lib/mock-tournaments';
-import { NavUser } from '@/components/nav-user';
+import { SiteHeader } from '@/components/site-header';
 
 /* ── Carte lazy (SSR off — Leaflet exige window) ──────────────────────────── */
 const TournamentMap = dynamic(
@@ -522,57 +522,7 @@ export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }
     <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
 
       {/* ── Navigation ─────────────────────────────────────────────────── */}
-      <nav
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: 'var(--bg-surface)',
-          borderBottom: '1px solid var(--border-subtle)',
-          backdropFilter: 'blur(12px)',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1400,
-            margin: '0 auto',
-            padding: '0 24px',
-            height: 60,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <span
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 20,
-                fontWeight: 700,
-                color: 'var(--court-700)',
-                letterSpacing: '-0.01em',
-              }}
-            >
-              The Court
-            </span>
-          </Link>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-            <Link
-              href="/tournois"
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: 'var(--court-700)',
-                textDecoration: 'none',
-              }}
-            >
-              Tournois
-            </Link>
-            <NavUser />
-          </div>
-        </div>
-      </nav>
+      <SiteHeader />
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header

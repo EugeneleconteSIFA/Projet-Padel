@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { LogoutButton } from '@/components/logout-button';
+import { DashboardHeader } from '@/components/dashboard-header';
 
 /* =============================================================================
    Layout dashboard — routes protégées post-connexion.
@@ -18,75 +18,13 @@ export default async function DashboardLayout({
   if (!session?.user) redirect('/login');
 
   const user = session.user;
-  const initials = [user.name?.split(' ')[0]?.[0], user.name?.split(' ')[1]?.[0]]
-    .filter(Boolean)
-    .join('')
-    .toUpperCase() || '?';
-
   const role = user.role ?? 'PLAYER';
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
 
       {/* ── HEADER ────────────────────────────────────────────────────────── */}
-      <header
-        className="sticky top-0 z-30 border-b backdrop-blur-md"
-        style={{
-          borderColor: 'var(--border-subtle)',
-          background: 'color-mix(in srgb, var(--bg-page) 88%, transparent)',
-        }}
-      >
-        <div className="mx-auto flex max-w-screen-xl items-center justify-between px-6 py-3">
-
-          {/* Logo */}
-          <Link
-            href="/"
-            className="shrink-0 transition hover:opacity-70"
-            style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--text-primary)' }}
-          >
-            the court<span style={{ color: 'var(--gold-500)' }}>.</span>
-          </Link>
-
-          {/* Nav principale — desktop */}
-          <nav className="hidden items-center gap-1 md:flex">
-            <NavLink href="/" label="Tournois" icon={<SearchIcon />} />
-            <NavLink href="/profil" label="Mon profil" icon={<UserIcon />} />
-            {role === 'CLUB'    && <NavLink href="/club"    label="Mon club"    icon={<BuildingIcon />} />}
-            {role === 'REFEREE' && <NavLink href="/arbitre" label="Arbitrage"   icon={<WhistleIcon />} />}
-          </nav>
-
-          {/* Avatar + menu */}
-          <div className="flex items-center gap-3">
-            {/* Badge tier */}
-            {user.tier === 'PREMIUM' && (
-              <span
-                className="hidden rounded-full px-2.5 py-0.5 text-xs font-semibold sm:inline-block"
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  background: 'rgba(201,162,74,0.15)',
-                  color: 'var(--gold-500)',
-                  border: '1px solid rgba(201,162,74,0.3)',
-                }}
-              >
-                PREMIUM
-              </span>
-            )}
-
-            {/* Avatar */}
-            <Link
-              href="/profil"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition hover:opacity-80"
-              style={{ background: 'var(--court-700)', color: 'var(--cream-50)' }}
-              title="Mon profil"
-            >
-              {initials}
-            </Link>
-
-            {/* Déconnexion */}
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
+      <DashboardHeader />
 
       {/* ── CONTENU ──────────────────────────────────────────────────────── */}
       <main className="mx-auto max-w-screen-xl px-4 py-8 pb-24 sm:px-6 md:pb-8">
@@ -102,29 +40,33 @@ export default async function DashboardLayout({
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
-        <BottomNavLink href="/"       label="Tournois" icon={<SearchIcon />} />
-        <BottomNavLink href="/profil" label="Profil"   icon={<UserIcon />}   />
-        {role === 'CLUB'    && <BottomNavLink href="/club"    label="Club"      icon={<BuildingIcon />} />}
-        {role === 'REFEREE' && <BottomNavLink href="/arbitre" label="Arbitrage" icon={<WhistleIcon />} />}
+        {role === 'PLAYER' && (
+          <>
+            <BottomNavLink href="/" label="Accueil" icon={<HomeIcon />} />
+            <BottomNavLink href="/tournois" label="Tournois" icon={<SearchIcon />} />
+            <BottomNavLink href="/profil" label="Profil" icon={<UserIcon />} />
+          </>
+        )}
+        {role === 'CLUB' && (
+          <>
+            <BottomNavLink href="/" label="Accueil" icon={<HomeIcon />} />
+            <BottomNavLink href="/club" label="Tournois" icon={<TrophyIcon />} />
+            <BottomNavLink href="/club/tournoi/nouveau" label="Créer" icon={<PlusIcon />} />
+          </>
+        )}
+        {role === 'REFEREE' && (
+          <>
+            <BottomNavLink href="/" label="Accueil" icon={<HomeIcon />} />
+            <BottomNavLink href="/arbitre" label="Tournois" icon={<TrophyIcon />} />
+            <BottomNavLink href="/arbitre" label="Tableaux" icon={<LayoutIcon />} />
+          </>
+        )}
       </nav>
     </div>
   );
 }
 
 /* ── Composants locaux ───────────────────────────────────────────────────── */
-
-function NavLink({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition hover:opacity-70"
-      style={{ color: 'var(--text-secondary)' }}
-    >
-      {icon}
-      {label}
-    </Link>
-  );
-}
 
 function BottomNavLink({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) {
   return (
@@ -141,31 +83,61 @@ function BottomNavLink({ href, label, icon }: { href: string; label: string; ico
 
 /* ── Icons ───────────────────────────────────────────────────────────────── */
 
+function HomeIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+
 function SearchIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
     </svg>
   );
 }
+
 function UserIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
     </svg>
   );
 }
-function BuildingIcon() {
+
+function TrophyIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 21h18M3 7v14M21 7v14M6 7V3h12v4M6 11h4M14 11h4M6 15h4M14 15h4" />
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
     </svg>
   );
 }
-function WhistleIcon() {
+
+function PlusIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m4 4 4.5 4.5"/><circle cx="14" cy="14" r="6"/><path d="m20 8-6 6"/>
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+  );
+}
+
+function LayoutIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <line x1="3" y1="9" x2="21" y2="9" />
+      <line x1="9" y1="21" x2="9" y2="9" />
     </svg>
   );
 }
