@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { NavUser } from '@/components/nav-user';
+import { SiteHeader } from '@/components/site-header';
 import {
   CATEGORIES,
   RADII,
@@ -80,36 +80,7 @@ export default function HomePageClient({ tournaments }: { tournaments: Tournamen
       style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
     >
       {/* ── NAV ───────────────────────────────────────────────────────────── */}
-      <header
-        className="sticky top-0 z-50 border-b"
-        style={{
-          background: 'rgba(241, 237, 229, 0.95)',
-          backdropFilter: 'saturate(140%) blur(12px)',
-          WebkitBackdropFilter: 'saturate(140%) blur(12px)',
-          borderColor: 'var(--paper-200)',
-        }}
-      >
-        <div className="mx-auto flex max-w-screen-xl items-center justify-between px-6 py-3">
-          <Link
-            href="/"
-            className="shrink-0"
-            style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink-950)' }}
-          >
-            the court<span style={{ color: 'var(--gold-500)' }}>.</span>
-          </Link>
-
-          <nav className="flex items-center gap-3">
-            <Link
-              href="/vitrine"
-              className="hidden rounded-md px-3 py-1.5 text-sm font-medium transition hover:opacity-70 md:inline-block"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              À propos
-            </Link>
-            <NavUser />
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* ── SEARCH STRIP ──────────────────────────────────────────────────── */}
       <div
