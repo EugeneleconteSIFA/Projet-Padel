@@ -116,7 +116,7 @@ export default function HomePageClient({ tournaments }: { tournaments: Tournamen
       {/* ── SEARCH STRIP ──────────────────────────────────────────────────── */}
       <div
         className="border-b px-6 py-5"
-        style={{ borderColor: 'var(--paper-200)', background: 'var(--color-danger)' }}
+        style={{ borderColor: 'var(--paper-200)', background: 'var(--court-700)' }}
       >
         <div className="mx-auto max-w-screen-xl">
           <div
