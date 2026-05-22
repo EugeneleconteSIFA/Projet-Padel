@@ -356,7 +356,7 @@ export default function SignupPage() {
                 Recherche partenaire
               </div>
               <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                Visible dans la section "Trouver un partenaire"
+                Visible dans la section « Trouver un partenaire »
               </div>
             </div>
             <Toggle

@@ -5,18 +5,22 @@ import type { DefaultSession } from 'next-auth';
    Ajoute id, role et tier dans session.user côté client et serveur.
    ============================================================================= */
 
+type ValidationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
 declare module 'next-auth' {
   interface Session {
     user: {
       id:   string;
       role: 'PLAYER' | 'CLUB' | 'REFEREE' | 'ADMIN';
       tier: 'FREE' | 'PREMIUM';
+      validationStatus?: ValidationStatus;
     } & DefaultSession['user'];
   }
 
   interface User {
     role?: 'PLAYER' | 'CLUB' | 'REFEREE' | 'ADMIN';
     tier?: 'FREE' | 'PREMIUM';
+    validationStatus?: ValidationStatus;
   }
 }
 
@@ -25,5 +29,6 @@ declare module 'next-auth/jwt' {
     id?:   string;
     role?: string;
     tier?: string;
+    validationStatus?: ValidationStatus;
   }
 }

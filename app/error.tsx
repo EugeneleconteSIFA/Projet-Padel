@@ -48,7 +48,7 @@ export default function GlobalError({
         Une erreur est survenue.
       </h1>
       <p className="mt-3 max-w-sm text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-        Quelque chose s'est mal passé de notre côté. L'équipe a été notifiée.
+        Quelque chose s&apos;est mal passé de notre côté. L&apos;équipe a été notifiée.
       </p>
 
       {/* Digest pour le débogage */}
@@ -75,7 +75,7 @@ export default function GlobalError({
           className="rounded-xl border px-6 py-3 text-sm font-medium transition hover:opacity-80"
           style={{ borderColor: 'var(--border-strong)', color: 'var(--text-secondary)' }}
         >
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </a>
       </div>
     </div>

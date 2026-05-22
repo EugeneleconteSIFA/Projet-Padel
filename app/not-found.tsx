@@ -36,7 +36,7 @@ export default function NotFound() {
           lineHeight: 1.1,
         }}
       >
-        Cette page n'existe pas.
+        Cette page n&apos;existe pas.
       </h1>
       <p className="mt-3 max-w-sm text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
         Le tournoi, le profil ou la page que vous cherchez a peut-être été déplacé ou supprimé.
