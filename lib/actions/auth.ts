@@ -99,11 +99,18 @@ export async function signup(data: SignupData): Promise<ActionResult> {
       data: {
         userId:           user.id,
         lookingForPartner: data.lookingForPartner ?? false,
-        // licenceFFT, classement, hand, side à ajouter quand le schéma les expose
+        dominantHand:     data.hand === 'droitier' ? 'RIGHT' : data.hand === 'gaucher' ? 'LEFT' : undefined,
+        preferredSide:    data.side === 'droite' ? 'RIGHT' : data.side === 'gauche' ? 'LEFT' : data.side === 'les deux' ? 'BOTH' : undefined,
+        estimatedLevel:   data.classement,
       },
     });
   } else if (data.role === 'REFEREE') {
-    await db.refereeProfile.create({ data: { userId: user.id } });
+    await db.refereeProfile.create({ 
+      data: { 
+        userId: user.id,
+        // validationStatus sera PENDING par défaut via schéma
+      } 
+    });
   } else if (data.role === 'CLUB') {
     // Crée le Club + ClubProfile dès l'inscription.
     // Le gérant met à jour le vrai nom dans /club/parametres.
@@ -120,7 +127,11 @@ export async function signup(data: SignupData): Promise<ActionResult> {
     });
 
     await db.clubProfile.create({
-      data: { userId: user.id, clubId: club.id },
+      data: { 
+        userId: user.id, 
+        clubId: club.id,
+        // validationStatus sera PENDING par défaut via schéma
+      },
     });
   }
 

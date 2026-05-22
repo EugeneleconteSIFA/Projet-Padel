@@ -139,6 +139,12 @@ enum NotificationKind {
   GENERIC
 }
 
+enum ValidationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum AuditAction {
   USER_CREATED
   USER_LOGGED_IN
@@ -367,6 +373,7 @@ model ClubProfile {
   userId String @unique
 
   clubId String? @unique // un compte CLUB pilote 1 club (V2: multi-clubs possible via table de liaison)
+  validationStatus ValidationStatus @default(PENDING)
 
   user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   club Club? @relation(fields: [clubId], references: [id], onDelete: SetNull)
@@ -452,6 +459,7 @@ model RefereeProfile {
   certificationLevel String? // "club", "fédéral", ...
   certificationId    String?
   validUntil         DateTime?
+  validationStatus   ValidationStatus @default(PENDING)
 
   user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   assignments TournamentReferee[]

@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { loginWithCredentials, loginWithMagicLink } from '@/lib/actions/auth';
+import { signIn } from 'next-auth/react';
+import { loginWithMagicLink } from '@/lib/actions/auth';
 
 /* =============================================================================
    The Court — Page connexion.
    V1 : email + mot de passe + magic link via Auth.js v5.
    OAuth Google / Apple prévu en V2.
+   Redirection automatique selon rôle et statut de validation après connexion.
    ============================================================================= */
 
 export default function LoginPage() {
@@ -34,9 +36,20 @@ export default function LoginPage() {
       if (res.success) setSent(true);
       else setError(res.error);
     } else {
-      const res = await loginWithCredentials(email, password, callbackUrl);
-      if (res.success) router.push(callbackUrl);
-      else setError(res.error);
+      // Utiliser signIn directement avec callbackUrl
+      // Le middleware fera le dispatch automatique après connexion
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Email ou mot de passe incorrect.');
+      } else {
+        // Rediriger vers la page demandée ou laisser le middleware faire le dispatch
+        router.push(callbackUrl);
+      }
     }
 
     setLoading(false);
