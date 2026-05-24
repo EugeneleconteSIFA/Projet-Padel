@@ -44,6 +44,9 @@ export const metadata: Metadata = {
   },
 };
 
+/* Auth + SessionProvider : pas de prérendu statique (évite useContext null au build). */
+export const dynamic = 'force-dynamic';
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,

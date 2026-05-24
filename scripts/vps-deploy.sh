@@ -17,15 +17,26 @@ git reset --hard origin/main
 echo "→ Nettoyage build…"
 rm -rf .next
 
+if [ -f .env.local ]; then
+  echo "⚠ Suppression de .env.local (réservé au dev local, peut écraser .env au build)."
+  rm -f .env.local
+fi
+
+if grep -q '^NODE_ENV=' .env 2>/dev/null; then
+  echo "⚠ .env contient NODE_ENV=… — retirez cette ligne (elle casse le build Next en prod)."
+fi
+
 echo "→ Dépendances npm (prod + dev — requis pour next build)…"
 rm -rf node_modules
-# PM2 / .env peuvent forcer NODE_ENV=production et omettre les devDependencies
-export NPM_CONFIG_PRODUCTION=false
-export NODE_ENV=development
-if ! npm ci; then
-  echo "⚠ npm ci a échoué — fallback npm install"
-  npm install
-fi
+# NODE_ENV=development uniquement pour npm ci (sous-shell, ne pollue pas le build).
+(
+  export NPM_CONFIG_PRODUCTION=false
+  export NODE_ENV=development
+  if ! npm ci; then
+    echo "⚠ npm ci a échoué — fallback npm install"
+    npm install
+  fi
+)
 PKG_COUNT=$(find node_modules -maxdepth 1 -type d | wc -l | tr -d ' ')
 echo "   ${PKG_COUNT} packages dans node_modules"
 if [ "$PKG_COUNT" -lt 200 ]; then
@@ -42,12 +53,11 @@ npx prisma generate
 npx prisma migrate deploy
 
 echo "→ Build production…"
-# Next.js attend NODE_ENV=production pour le build ; npm ci ci-dessus utilise development.
-export NODE_ENV=production
-npm run build
+# Forcer production : évite le mélange runtime dev/prod et l'erreur useContext au prérendu.
+NODE_ENV=production npm run build
 
 echo "→ Redémarrage PM2…"
-pm2 start "$PM2_NAME" 2>/dev/null || pm2 restart "$PM2_NAME"
+pm2 restart "$PM2_NAME" --update-env 2>/dev/null || pm2 start "$PM2_NAME"
 
 echo "→ Attente démarrage app (5 s)…"
 sleep 5
