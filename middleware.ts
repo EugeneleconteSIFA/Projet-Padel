@@ -29,6 +29,7 @@ export default auth((req) => {
     pathname.startsWith('/tournois/') ||
     pathname.startsWith('/post/') ||
     pathname.startsWith('/joueur/') ||
+    /^\/club\/[^/]+\/communaute$/.test(pathname) ||
     pathname.startsWith('/api/auth/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon');

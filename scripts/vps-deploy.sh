@@ -18,7 +18,10 @@ echo "→ Nettoyage build…"
 rm -rf .next
 
 echo "→ Dépendances npm…"
-npm ci
+if ! npm ci; then
+  echo "⚠ npm ci a échoué — fallback npm install"
+  npm install
+fi
 
 echo "→ Prisma (client + migrations BDD)…"
 npx prisma generate

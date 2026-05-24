@@ -104,6 +104,7 @@ export default async function ClubDashboardPage() {
   ]);
 
   const clubName   = data?.club.name ?? 'Mon club';
+  const clubSlug   = data?.club.slug;
   const tournaments = data
     ? data.tournaments.map(t => ({
         id:          t.id,
@@ -157,6 +158,24 @@ export default async function ClubDashboardPage() {
         <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
           Gérez vos tournois et suivez les inscriptions.
         </p>
+        {clubSlug && (
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href={`/club/${clubSlug}/communaute`}
+              className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold"
+              style={{ background: 'var(--bg-muted)', color: 'var(--court-800)' }}
+            >
+              Espace communauté
+            </Link>
+            <Link
+              href={`/club/${clubSlug}/dashboard/communaute`}
+              className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold"
+              style={{ background: 'var(--gold-100)', color: 'var(--gold-800)' }}
+            >
+              Modération
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* ── EN-TÊTE ─────────────────────────────────────────────────────── */}
