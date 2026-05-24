@@ -27,7 +27,7 @@ export default auth((req) => {
   const isPublic =
     PUBLIC_PATHS.includes(pathname) ||
     pathname.startsWith('/tournois/') ||
-    pathname.startsWith('/post/') ||
+    pathname.startsWith('/forum') ||
     pathname.startsWith('/joueur/') ||
     /^\/club\/[^/]+\/communaute$/.test(pathname) ||
     pathname.startsWith('/api/auth/') ||

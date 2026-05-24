@@ -17,10 +17,11 @@ git reset --hard origin/main
 echo "→ Nettoyage build…"
 rm -rf .next
 
-echo "→ Dépendances npm…"
-if ! npm ci; then
+echo "→ Dépendances npm (prod + dev — requis pour next build)…"
+# NODE_ENV=production sur le VPS omet tailwindcss/postcss sans --include=dev
+if ! npm ci --include=dev; then
   echo "⚠ npm ci a échoué — fallback npm install"
-  npm install
+  npm install --include=dev
 fi
 
 echo "→ Prisma (client + migrations BDD)…"

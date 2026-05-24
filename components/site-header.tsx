@@ -59,6 +59,13 @@ export function SiteHeader() {
           >
             Matchs
           </Link>
+          <Link
+            href="/forum"
+            className="hidden rounded-md px-3 py-1.5 text-sm font-medium transition hover:opacity-70 md:inline-block"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Forum
+          </Link>
           <NavUser />
         </nav>
       </div>
