@@ -8,6 +8,7 @@ import { SiteHeader } from '@/components/site-header';
 import { ReplyForm } from '@/components/community/ForumReplyForm';
 import { ForumReplyItem } from '@/components/community/ForumReplyItem';
 import { PinThreadButton } from '@/components/community/PinThreadButton';
+import { ReportButton } from '@/components/community/ReportButton';
 import {
   FORUM_CATEGORY_LABELS,
   categoryToSlug,
@@ -68,6 +69,11 @@ export default async function ForumThreadPage({ params }: Props) {
                 isPinned={thread.isPinned}
               />
             )}
+            <ReportButton
+              targetType="FORUM_THREAD"
+              targetId={thread.id}
+              loginCallbackUrl={`/login?callbackUrl=${encodeURIComponent(`/forum/${categorie}/${threadId}`)}`}
+            />
           </div>
           <p className="mb-3 text-xs" style={{ color: 'var(--text-muted)' }}>
             {thread.author.firstName} {thread.author.lastName} ·{' '}

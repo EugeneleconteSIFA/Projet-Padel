@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { ReactionType } from '@prisma/client';
 import { toggleReaction } from '@/lib/actions/community/post-reactions';
+import { ContentMenu } from '@/components/community/ContentMenu';
 import type { SerializedPost } from '@/lib/community/posts';
 import { cn } from '@/lib/utils';
 
@@ -97,6 +98,12 @@ export function PostCard({ post, showClubBadge = true }: PostCardProps) {
             Annonce club
           </span>
         )}
+
+        <ContentMenu
+          targetType="POST"
+          targetId={post.id}
+          loginCallbackUrl={`/login?callbackUrl=${encodeURIComponent(`/post/${post.id}`)}`}
+        />
       </header>
 
       <p className="mb-3 whitespace-pre-wrap text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>

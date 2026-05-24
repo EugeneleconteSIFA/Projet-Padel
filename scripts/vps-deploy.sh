@@ -18,10 +18,23 @@ echo "→ Nettoyage build…"
 rm -rf .next
 
 echo "→ Dépendances npm (prod + dev — requis pour next build)…"
-# NODE_ENV=production sur le VPS omet tailwindcss/postcss sans --include=dev
-if ! npm ci --include=dev; then
+rm -rf node_modules
+# PM2 / .env peuvent forcer NODE_ENV=production et omettre les devDependencies
+export NPM_CONFIG_PRODUCTION=false
+export NODE_ENV=development
+if ! npm ci; then
   echo "⚠ npm ci a échoué — fallback npm install"
-  npm install --include=dev
+  npm install
+fi
+PKG_COUNT=$(find node_modules -maxdepth 1 -type d | wc -l | tr -d ' ')
+echo "   ${PKG_COUNT} packages dans node_modules"
+if [ "$PKG_COUNT" -lt 200 ]; then
+  echo "⚠ Peu de packages — tailwindcss/typescript peuvent manquer pour le build"
+fi
+
+if [ ! -f lib/actions/auth.ts ]; then
+  echo "✗ ERREUR : lib/actions/auth.ts absent — vérifiez le dépôt Git"
+  exit 1
 fi
 
 echo "→ Prisma (client + migrations BDD)…"

@@ -5,6 +5,7 @@ import { useTransition } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { voteReply } from '@/lib/actions/community/forum';
+import { ReportButton } from '@/components/community/ReportButton';
 
 export type ForumReplyView = {
   id: string;
@@ -52,9 +53,16 @@ export function ForumReplyItem({
           <p className="text-sm font-semibold" style={{ color: 'var(--ink-950)' }}>
             {reply.author.firstName} {reply.author.lastName}
           </p>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true, locale: fr })}
-          </p>
+          <div className="flex items-center gap-1">
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true, locale: fr })}
+            </span>
+            <ReportButton
+              targetType="FORUM_REPLY"
+              targetId={reply.id}
+              loginCallbackUrl={`/login?callbackUrl=${encodeURIComponent(`/forum/${categorySlug}/${threadId}`)}`}
+            />
+          </div>
         </div>
         <p className="mb-3 whitespace-pre-wrap text-sm" style={{ color: 'var(--text-primary)' }}>
           {reply.content}
