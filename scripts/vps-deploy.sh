@@ -42,6 +42,8 @@ npx prisma generate
 npx prisma migrate deploy
 
 echo "→ Build production…"
+# Next.js attend NODE_ENV=production pour le build ; npm ci ci-dessus utilise development.
+export NODE_ENV=production
 npm run build
 
 echo "→ Redémarrage PM2…"

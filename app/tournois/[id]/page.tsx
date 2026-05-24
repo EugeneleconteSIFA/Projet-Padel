@@ -26,8 +26,14 @@ import { CopyLinkButton } from '@/components/copy-link-button';
 /* ── generateStaticParams ───────────────────────────────────────────────── */
 
 export async function generateStaticParams() {
-  const slugs = await listTournamentSlugs();
-  return slugs.map((slug) => ({ id: slug }));
+  try {
+    const slugs = await listTournamentSlugs();
+    return slugs.map((slug) => ({ id: slug }));
+  } catch (e) {
+    // Build VPS : si DATABASE_URL est indisponible, ne pas bloquer tout le déploiement.
+    console.warn('[tournois/[id]] generateStaticParams ignoré:', e);
+    return [];
+  }
 }
 
 /* ── Metadata dynamique ──────────────────────────────────────────────────── */
