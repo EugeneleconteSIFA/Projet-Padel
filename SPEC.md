@@ -354,3 +354,24 @@ Si ces critères sont atteints, la phase 2 démarre : extension multi-sports, ap
 - `db/init.sql` — Script SQL initial dérivé (lecture seule, non source de vérité)
 - `mockups/` — Maquettes HTML standalone
 - `README.md` — Guide de démarrage développeur
+
+
+---
+
+## 14. État d'implémentation (mise à jour 24/05/2026)
+
+La spécification ci-dessus décrit la cible V1 (POC). État réel du code déployé :
+
+| Domaine | Spéc | État |
+|---|---|---|
+| Création de compte / connexion (§5.0) | V1 | ✅ Implémenté (email+mdp, magic link, inscription 3 étapes) — **bugs connus, voir ci-dessous** |
+| Espace joueur (§5.1) | V1 | ✅ Profil, édition profil, feed perso |
+| Espace club (§5.2) | V1 | ✅ Dashboard, création tournoi, paramètres, Stripe (config) |
+| Espace juge-arbitre (§5.3) | V1 | ✅ Dashboard, gestion tournoi, tableaux, scores |
+| Validation club / arbitre | V1 | ✅ Pages d'attente — **logique de statut à corriger** |
+| Recherche tournois + carte | V1 | ✅ `/tournois` + Leaflet, fiche tournoi, annuaire clubs |
+| Paiement Stripe Connect | V1 | 🟠 Config présente, encaissement réel à finaliser |
+| Module Communauté | hors § V1 initiale | ✅ Feed, posts, forum, matchs amicaux, follow, réactions, signalement + modération (cf. `community_implementation.md`) |
+| Réinitialisation mot de passe | V1 | 🟡 Page mock, Server Action à brancher |
+
+**⚠️ Connexion & connectivité — points ouverts.** Le système d'auth présente des défauts vérifiés (statut de validation figé dans le JWT, failles de protection des sous-routes, `trustHost` manquant en prod, lien « mot de passe oublié » cassé). Diagnostic complet et corrections priorisées : **[DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md)**.

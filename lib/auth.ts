@@ -14,6 +14,7 @@ import { db } from '@/lib/db';
    ============================================================================= */
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   adapter: PrismaAdapter(db),
 
   session: {
@@ -25,7 +26,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signOut:     '/',
     error:       '/login',
     verifyRequest: '/login?verify=1',   // page "vérifie ta boîte mail"
-    newUser:     '/onboarding',          // après magic link + nouveau compte
+    newUser:     '/profil/modifier',
   },
 
   providers: [
@@ -74,47 +75,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
 
   callbacks: {
-    /* Injecte role + tier + validationStatus dans le JWT */
     async jwt({ token, user }) {
       if (user) {
         token.id   = user.id;
         token.role = user.role;
         token.tier = user.tier;
-        // Pour CLUB et REFEREE, on récupère le statut de validation
-        if (user.role === 'CLUB' || user.role === 'REFEREE') {
-          try {
-            const db = (await import('@/lib/db')).db;
-            if (user.role === 'CLUB') {
-              const clubProfile = await db.clubProfile.findUnique({
-                where: { userId: user.id },
-                select: { validationStatus: true },
-              });
-              token.validationStatus = clubProfile?.validationStatus ?? 'PENDING';
-            } else if (user.role === 'REFEREE') {
-              const refereeProfile = await db.refereeProfile.findUnique({
-                where: { userId: user.id },
-                select: { validationStatus: true },
-              });
-              token.validationStatus = refereeProfile?.validationStatus ?? 'PENDING';
-            }
-          } catch (e) {
-            // En cas d'erreur, on met PENDING par défaut
-            token.validationStatus = 'PENDING';
-          }
-        }
       }
       return token;
     },
 
-    /* Expose role + tier + validationStatus dans la session côté client */
     async session({ session, token }) {
       if (session.user && token) {
         session.user.id   = token.id as string;
         session.user.role = token.role as 'PLAYER' | 'CLUB' | 'REFEREE' | 'ADMIN';
         session.user.tier = token.tier as 'FREE' | 'PREMIUM';
-        if (token.validationStatus) {
-          session.user.validationStatus = token.validationStatus as 'PENDING' | 'APPROVED' | 'REJECTED';
-        }
       }
       return session;
     },

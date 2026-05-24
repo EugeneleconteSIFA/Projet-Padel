@@ -20,7 +20,7 @@ Plateforme tout-en-un pour les sports de raquette, padel d'abord. Pour le joueur
 | [mockups/01-landing.html](./mockups/01-landing.html) | Mockup antérieur pré-branding — référence secondaire à réaligner |
 | [mockups/02-dashboard-joueur.html](./mockups/02-dashboard-joueur.html) | Mockup antérieur pré-branding — dashboard joueur à réaligner |
 
-Le scaffold Next.js + Prisma est en place. `app/`, `lib/`, `prisma/` sont prêts ; les pages publiques sont des placeholders documentés.
+Le scaffold Next.js + Prisma est en place et **l'application est implémentée** : auth, inscription 3 étapes, espaces joueur/club/arbitre, recherche tournoi + carte, module communauté et modération. Voir la section « État actuel du site » plus bas, et [DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md) pour les points ouverts sur la connexion.
 
 ---
 
@@ -138,11 +138,32 @@ Détails et trade-offs : [SPEC.md §7](./SPEC.md#7-hosting--recommandation).
 
 ---
 
-## Prochaines étapes (suggestion)
+---
 
-1. **Aligner les vues existantes sur la DA Bandeja** (landing, dashboard joueur, composants partagés)
-2. **Implémenter l'auth** (Auth.js v5 + Prisma adapter, magic link via Resend)
-3. **Implémenter le formulaire d'inscription** (3 étapes : identité → padel → type de compte)
-4. **Implémenter la recherche tournoi** (filtres + carte Leaflet)
-5. **Brancher Stripe Connect** côté club
-6. **Bêta fermée** avec un club partenaire (Lille / Hauts-de-France)
+## État actuel du site (mise à jour 24/05/2026)
+
+POC implémenté et déployé (VPS + PM2, `thecourt.fr`).
+
+**Implémenté**
+- **Auth.js v5** : connexion email/mot de passe (bcrypt) + magic link (Resend) ; inscription 3 étapes (identité → profil padel → type de compte) ; création automatique du profil selon le rôle.
+- **Espaces** : joueur (`/profil`, `/profil/modifier`, `/mon-feed`), club (`/club`, `/club/tournoi/nouveau`, `/club/parametres`, `/club/stripe`), arbitre (`/arbitre`, `/arbitre/tournoi/[id]`), admin (`/admin/moderation`).
+- **Validation** : pages d'attente club/arbitre (`/club/attente`, `/arbitre/attente`).
+- **Tournois** : recherche + carte Leaflet (`/tournois`), fiche (`/tournois/[id]`), annuaire clubs (`/clubs`).
+- **Communauté** : feed public/privé, posts (`/post/[id]`), forum (`/forum/**`), matchs amicaux (`/matchs-amicaux`), follow, réactions, signalement + modération (club + admin), espaces communauté de club (`/club/[slug]/communaute`).
+- **UI** : headers partagés (public + connecté par rôle), thème clair/sombre.
+
+**Points ouverts — connexion & connectivité** — détail et corrections dans **[DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md)** :
+- 🔴 Statut de validation figé dans le JWT → redirections d'attente incohérentes après approbation admin.
+- 🔴 Failles de protection : sous-routes club/arbitre non gardées côté serveur.
+- 🔴 Pages publiques `/tournois` et `/clubs` qui renvoient vers `/login` pour les visiteurs déconnectés (`PUBLIC_PATHS` incomplet).
+- 🔴 `trustHost` à activer pour NextAuth v5 sur VPS (sessions parfois non reconnues).
+- 🟠 Lien « mot de passe oublié » cassé (`/forgot-password` ≠ `/mot-de-passe-oublie`).
+- 🟠 `newUser: '/onboarding'` → route inexistante.
+- 🟡 Réinitialisation de mot de passe encore en mock.
+
+## Prochaines étapes
+
+1. **Corriger la connexion & la connectivité** — appliquer [DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md) (lots 1 à 3).
+2. **Brancher la réinitialisation de mot de passe** (Server Action + Resend).
+3. **Finaliser Stripe Connect** côté club (encaissement réel des inscriptions).
+4. **Bêta fermée** avec un club partenaire (Lille / Hauts-de-France).

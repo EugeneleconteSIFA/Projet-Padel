@@ -780,3 +780,23 @@ Ces règles s'appliquent à toutes les semaines sans exception :
 ---
 
 *The Court × Studio Forge — Généré le 2026-05-24*
+
+
+---
+
+## État d'implémentation (mise à jour 24/05/2026)
+
+Le plan en 6 semaines ci-dessus est **implémenté**. Présent dans le code déployé :
+
+**Schéma & logique** (`prisma/schema.prisma`, migration `20260524120000_add_community_module`)
+- Enums communauté (PostVisibility, ReactionType, ForumCategory, FriendlyMatchStatus, ReportTargetType, ReportStatus…), modèles Post/Reaction/Follow/FriendlyMatch/Forum/Report.
+- `lib/community/` : visibilité des posts, posts, feed tournois, accès club, catégories & requêtes forum, signalement.
+
+**Server actions** (`lib/actions/community/`)
+- `create-post`, `feed`, `follow`, `forum`, `friendly-match`, `post-reactions`, `promote-post`, `unpin-post`, `report` ; modération admin (`lib/actions/admin/review-report`).
+
+**Pages & composants**
+- Pages : `/feed`, `/mon-feed`, `/post/[id]`, `/forum` (+ `[categorie]`, `[categorie]/[threadId]`, `/recherche`), `/matchs-amicaux` (+ `/nouveau`), `/joueur/[id]`, `/club/[slug]/communaute`, `/club/[slug]/dashboard/communaute`, `/admin/moderation`.
+- Composants `components/community/` : FeedList, PrivateFeedList, PostCard, NewPostForm, FollowButton, ForumReply*, FriendlyMatch*, ClubModerationPanel, ModerationPanel, ReportButton, etc.
+
+**À noter** — l'accès aux espaces communauté de club et à la modération dépend du système d'auth, qui présente des points ouverts (gating de rôle/statut). Voir **[DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md)**.

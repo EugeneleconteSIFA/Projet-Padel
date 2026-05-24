@@ -1,7 +1,6 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { auth } from '@/lib/auth';
+import { requireApprovedClub } from '@/lib/auth-guards';
 import { getClubDashboard, getClubRegistrations } from '@/lib/actions/club';
 
 export const metadata: Metadata = { title: 'Mon club' };
@@ -93,9 +92,7 @@ const GENDER_LABEL: Record<string, string> = {
 /* ── Page ─────────────────────────────────────────────────────────────────── */
 
 export default async function ClubDashboardPage() {
-  const session = await auth();
-  if (!session?.user) redirect('/login');
-  if (session.user.role !== 'CLUB') redirect('/profil');
+  await requireApprovedClub();
 
   // Tente de charger les vraies données, fallback sur mock si BDD non connectée
   const [data, realRegistrations] = await Promise.all([

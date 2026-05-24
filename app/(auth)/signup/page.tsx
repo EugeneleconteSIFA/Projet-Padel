@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { signup } from '@/lib/actions/auth';
+import { getPostLoginDestination, signup } from '@/lib/actions/auth';
 
 /* =============================================================================
    The Court — Page inscription — formulaire 3 étapes.
@@ -75,6 +76,7 @@ const ACCOUNT_TYPES: {
 /* ── Page ──────────────────────────────────────────────────────────────────── */
 
 export default function SignupPage() {
+  const router = useRouter();
   const [step,    setStep]    = useState(1);
   const [loading, setLoading] = useState(false);
   const [done,    setDone]    = useState(false);
@@ -129,18 +131,22 @@ export default function SignupPage() {
       return;
     }
 
-    /* 2. Connexion automatique côté client — pose le cookie de session */
-    const redirectTo =
-      s3.accountType === 'club'    ? '/club' :
-      s3.accountType === 'arbitre' ? '/arbitre' :
-      '/profil';
-
-    await signIn('credentials', {
-      email:       s1.email,
-      password:    s1.password,
-      callbackUrl: redirectTo,
+    /* 2. Connexion automatique — dispatch selon rôle + statut DB (club/arbitre en attente) */
+    const result = await signIn('credentials', {
+      email:    s1.email,
+      password: s1.password,
+      redirect: false,
     });
-    /* signIn redirige automatiquement via callbackUrl — pas besoin de router.push */
+
+    if (result?.error) {
+      setLoading(false);
+      setError('Compte créé mais connexion impossible. Connectez-vous manuellement.');
+      return;
+    }
+
+    const destination = await getPostLoginDestination();
+    router.push(destination);
+    setLoading(false);
   }
 
   if (done) return <SuccessScreen email={s1.email} />;

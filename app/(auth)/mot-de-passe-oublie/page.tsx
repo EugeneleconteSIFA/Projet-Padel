@@ -2,24 +2,24 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-
-/* =============================================================================
-   Mot de passe oublié — envoi du lien de réinitialisation.
-   TODO V1 : brancher Server Action + Resend (email reset token).
-   ============================================================================= */
+import { requestPasswordReset } from '@/lib/actions/password-reset';
 
 export default function ForgotPasswordPage() {
-  const [email,    setEmail]    = useState('');
-  const [sent,     setSent]     = useState(false);
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) return;
+    setError('');
     startTransition(async () => {
-      // TODO : Server Action sendPasswordResetEmail(email)
-      await new Promise(r => setTimeout(r, 800));
-      setSent(true);
+      const res = await requestPasswordReset(email);
+      if (res.success) {
+        setSent(true);
+      } else {
+        setError(res.error);
+      }
     });
   }
 
@@ -34,7 +34,6 @@ export default function ForgotPasswordPage() {
       </Link>
 
       {sent ? (
-        /* ── Confirmation ────────────────────────────────────────────── */
         <div
           className="rounded-2xl border p-6 text-center"
           style={{ borderColor: 'var(--court-100)', background: 'var(--court-100)' }}
@@ -56,12 +55,13 @@ export default function ForgotPasswordPage() {
             Lien envoyé
           </h1>
           <p className="mt-2 text-sm" style={{ color: 'var(--court-700)' }}>
-            Si un compte existe pour <strong>{email}</strong>, vous recevrez un lien de réinitialisation dans les 2 minutes.
+            Si un compte existe pour <strong>{email}</strong>, vous recevrez un lien de réinitialisation dans les prochaines minutes.
           </p>
           <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
             Vérifiez vos spams si vous ne le trouvez pas.
           </p>
           <button
+            type="button"
             onClick={() => { setSent(false); setEmail(''); }}
             className="mt-5 text-sm font-medium transition hover:underline"
             style={{ color: 'var(--court-600)' }}
@@ -70,7 +70,6 @@ export default function ForgotPasswordPage() {
           </button>
         </div>
       ) : (
-        /* ── Formulaire ──────────────────────────────────────────────── */
         <>
           <h1
             style={{
@@ -111,6 +110,12 @@ export default function ForgotPasswordPage() {
                 }}
               />
             </div>
+
+            {error && (
+              <p className="text-sm" style={{ color: 'var(--color-danger)' }}>
+                {error}
+              </p>
+            )}
 
             <button
               type="submit"

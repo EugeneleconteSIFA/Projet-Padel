@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { requireApprovedReferee } from '@/lib/auth-guards';
 import { getArbitreDashboard } from '@/lib/actions/arbitre';
 
 /* =============================================================================
@@ -74,6 +75,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default async function ArbitrePage() {
+  await requireApprovedReferee();
   const data = await getArbitreDashboard().catch(() => MOCK_DASHBOARD);
 
   const totalUpcoming = data.upcoming.length;

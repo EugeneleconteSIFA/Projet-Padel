@@ -2,8 +2,8 @@ import { db } from '@/lib/db';
 import type { Session } from 'next-auth';
 
 /* =============================================================================
-   Helper de dispatch automatique selon rôle et statut de validation.
-   Utilisé par le middleware et après connexion pour rediriger l'utilisateur.
+   Helper de dispatch automatique selon rôle et statut de validation (DB fraîche).
+   Utilisé après connexion et par les gardes serveur (lib/auth-guards).
    ============================================================================= */
 
 export type DispatchResult =

@@ -701,3 +701,32 @@ Ces fonctionnalités pourront être ajoutées plus tard lorsque la V1 sera stabl
 - consulter les tournois assignés côté juge-arbitre.
 
 L’objectif n’est pas encore de créer une plateforme complète et avancée, mais de construire une base solide, claire et évolutive.
+
+
+---
+
+# État d'avancement (mise à jour 24/05/2026)
+
+POC implémenté et déployé (VPS + PM2, `thecourt.fr`).
+
+| Phase | Sujet | État |
+|---|---|---|
+| 1 | Structure globale + headers | ✅ Fait (header public + headers connectés par rôle) |
+| 2 | Authentification & dispatch | ⚠️ Implémenté **mais bugs connus** (voir encadré) |
+| 3 | Accueil public | ✅ Fait (`/`, landing) |
+| 4 | Page Tournois (recherche + carte) | ✅ Fait |
+| 5 | Fiche tournoi + inscription | ✅ Fait (`/tournois/[id]`) |
+| 6 | Accueil joueur | ✅ Fait (`/profil`, `/mon-feed`) |
+| 7 | Accueil club | ✅ Fait (dashboard, condition d'accès via validation) |
+| 8 | Création tournoi club | ✅ Fait (`/club/tournoi/nouveau`) |
+| 9 | Accueil juge-arbitre | ✅ Fait (`/arbitre`, gestion tournoi) |
+| 10 | Données minimales | ✅ Schéma Prisma complet + migrations |
+| — | **Module Communauté** (hors roadmap initiale) | ✅ Feed, forum, matchs amicaux, follow, réactions, modération |
+
+**⚠️ Phase 2 — Authentification & dispatch (2.2, 2.3) et Validation club/arbitre (2.4)** présentent des bugs vérifiés :
+- statut de validation **figé dans le JWT** (le dispatch §2.3 ne reflète pas l'approbation admin en temps réel) ;
+- **failles de protection** des sous-routes club/arbitre ;
+- `trustHost` manquant pour NextAuth v5 sur le VPS ;
+- lien « mot de passe oublié » cassé.
+
+➡️ Diagnostic détaillé et plan de correction : **[DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md)**.

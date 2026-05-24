@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
-import { loginWithMagicLink } from '@/lib/actions/auth';
+import { getPostLoginDestination, loginWithMagicLink } from '@/lib/actions/auth';
 
 /* =============================================================================
    The Court — Page connexion.
@@ -47,8 +47,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Email ou mot de passe incorrect.');
       } else {
-        // Rediriger vers la page demandée ou laisser le middleware faire le dispatch
-        router.push(callbackUrl);
+        const destination =
+          callbackUrl !== '/' ? callbackUrl : await getPostLoginDestination();
+        router.push(destination);
       }
     }
 
@@ -176,7 +177,7 @@ export default function LoginPage() {
           {mode === 'password' && (
             <div className="text-right">
               <Link
-                href="/forgot-password"
+                href="/mot-de-passe-oublie"
                 className="text-sm font-medium transition hover:underline"
                 style={{ color: 'var(--court-600)' }}
               >

@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { redirectApprovedRefereeFromAttente } from '@/lib/auth-guards';
+import { LogoutButton } from '@/components/logout-button';
 
 /* =============================================================================
    Page d'attente validation — compte juge-arbitre.
@@ -7,13 +7,7 @@ import { redirect } from 'next/navigation';
    ============================================================================= */
 
 export default async function ArbitreAttentePage() {
-  const session = await auth();
-  if (!session?.user) redirect('/login');
-
-  // Vérifier que l'utilisateur est bien un arbitre
-  if (session.user.role !== 'REFEREE') {
-    redirect('/');
-  }
+  await redirectApprovedRefereeFromAttente();
 
   return (
     <div
@@ -68,19 +62,14 @@ export default async function ArbitreAttentePage() {
           Votre compte juge-arbitre est en attente de validation. Vous serez prévenu dès que votre espace sera activé.
         </p>
 
-        {/* Bouton déconnexion */}
-        <form action="/api/auth/signout" method="POST">
-          <button
-            type="submit"
-            className="rounded-xl border px-6 py-2.5 text-sm font-medium transition hover:opacity-80"
-            style={{
-              borderColor: 'var(--border-strong)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Se déconnecter
-          </button>
-        </form>
+        <LogoutButton
+          label="Se déconnecter"
+          className="rounded-xl border px-6 py-2.5 text-sm font-medium transition hover:opacity-80"
+          style={{
+            borderColor: 'var(--border-strong)',
+            color: 'var(--text-secondary)',
+          }}
+        />
       </div>
     </div>
   );

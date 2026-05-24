@@ -1,7 +1,8 @@
 'use server';
 
-import { signIn, signOut } from '@/lib/auth';
+import { signIn, signOut, auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { getDispatchDestination } from '@/lib/dispatch';
 import { hash } from 'bcryptjs';
 import { AuthError } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -138,6 +139,14 @@ export async function signup(data: SignupData): Promise<ActionResult> {
   /* 5. Retourne succès — le client appellera signIn('credentials') directement
      (signIn depuis une Server Action avec redirect:false ne pose pas le cookie) */
   return { success: true };
+}
+
+/* ── Destination post-connexion (lecture DB fraîche) ───────────────────────── */
+
+export async function getPostLoginDestination(): Promise<string> {
+  const session = await auth();
+  const { destination } = await getDispatchDestination(session);
+  return destination;
 }
 
 /* ── Déconnexion ────────────────────────────────────────────────────────────── */
