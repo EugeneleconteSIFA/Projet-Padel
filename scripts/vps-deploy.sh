@@ -17,6 +17,9 @@ git reset --hard origin/main
 echo "→ Nettoyage build…"
 rm -rf .next
 
+echo "→ Dépendances npm…"
+npm ci
+
 echo "→ Prisma (client + migrations BDD)…"
 npx prisma generate
 npx prisma migrate deploy

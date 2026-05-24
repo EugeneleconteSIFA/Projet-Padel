@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteHeader } from '@/components/site-header';
+import { FollowButton } from '@/components/community/FollowButton';
+import { getFollowState } from '@/lib/actions/community/follow';
 import { db } from '@/lib/db';
 
 type Props = { params: Promise<{ id: string }> };
@@ -29,6 +31,8 @@ export default async function JoueurPage({ params }: Props) {
   });
 
   if (!profile) notFound();
+
+  const followState = await getFollowState(id);
 
   const { firstName, lastName, avatarUrl } = profile.user;
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
@@ -70,6 +74,11 @@ export default async function JoueurPage({ params }: Props) {
               Joueur de tournoi
             </p>
           )}
+          <FollowButton
+            targetPlayerProfileId={profile.id}
+            initialFollowing={followState.following}
+            canFollow={followState.canFollow}
+          />
         </div>
       </main>
     </div>

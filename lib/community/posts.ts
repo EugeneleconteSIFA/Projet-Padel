@@ -5,7 +5,7 @@
 import { Prisma, ReactionType } from '@prisma/client';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { getPostFeedQuery } from '@/lib/community/visibility';
+import { getPostFeedQuery, type FeedContext } from '@/lib/community/visibility';
 
 export const FEED_PAGE_SIZE = 20;
 
@@ -91,13 +91,13 @@ export async function resolveFeedViewer() {
   };
 }
 
-export async function fetchPublicFeedPosts(cursor?: FeedCursor) {
+async function fetchFeedPosts(context: FeedContext, cursor?: FeedCursor) {
   const { viewerId, viewerPlayerProfileId } = await resolveFeedViewer();
 
   const visibilityWhere = getPostFeedQuery({
     viewerId,
     viewerPlayerProfileId,
-    context: 'public_feed',
+    context,
   });
 
   const cursorFilter: Prisma.PostWhereInput | undefined = cursor
@@ -135,4 +135,12 @@ export async function fetchPublicFeedPosts(cursor?: FeedCursor) {
         : null,
     viewerPlayerProfileId,
   };
+}
+
+export function fetchPublicFeedPosts(cursor?: FeedCursor) {
+  return fetchFeedPosts('public_feed', cursor);
+}
+
+export function fetchPrivateFeedPosts(cursor?: FeedCursor) {
+  return fetchFeedPosts('private_feed', cursor);
 }

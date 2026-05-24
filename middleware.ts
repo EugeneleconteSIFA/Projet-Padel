@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
   '/',
   '/vitrine',
   '/feed',
+  '/matchs-amicaux',
   '/login',
   '/signup',
   '/forgot-password',

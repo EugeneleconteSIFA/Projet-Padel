@@ -52,6 +52,13 @@ export function SiteHeader() {
           >
             Feed
           </Link>
+          <Link
+            href="/matchs-amicaux"
+            className="hidden rounded-md px-3 py-1.5 text-sm font-medium transition hover:opacity-70 md:inline-block"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Matchs
+          </Link>
           <NavUser />
         </nav>
       </div>

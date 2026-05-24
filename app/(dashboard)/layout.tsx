@@ -44,6 +44,7 @@ export default async function DashboardLayout({
           <>
             <BottomNavLink href="/" label="Accueil" icon={<HomeIcon />} />
             <BottomNavLink href="/tournois" label="Tournois" icon={<SearchIcon />} />
+            <BottomNavLink href="/mon-feed" label="Feed" icon={<FeedIcon />} />
             <BottomNavLink href="/profil" label="Profil" icon={<UserIcon />} />
           </>
         )}
@@ -138,6 +139,16 @@ function LayoutIcon() {
       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
       <line x1="3" y1="9" x2="21" y2="9" />
       <line x1="9" y1="21" x2="9" y2="9" />
+    </svg>
+  );
+}
+
+function FeedIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 11a9 9 0 0 1 9 9" />
+      <path d="M4 4a16 16 0 0 1 16 16" />
+      <circle cx="5" cy="19" r="1" />
     </svg>
   );
 }
