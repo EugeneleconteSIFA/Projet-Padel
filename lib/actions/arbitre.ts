@@ -2,6 +2,7 @@
 
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { tryCompleteTournamentEdition } from '@/lib/community/complete-edition';
 import { revalidatePath } from 'next/cache';
 
 /* =============================================================================
@@ -154,16 +155,20 @@ export async function saveMatchScore(matchId: string, sets: { teamA: number; tea
     else if (setsWonB > setsWonA && match.teamBId) winnerTeamId = match.teamBId;
   }
 
-  await db.match.update({
+  const updated = await db.match.update({
     where: { id: matchId },
     data: {
       status:      'completed',
       endedAt:     new Date(),
       winnerTeamId,
     },
+    select: { tournamentEditionId: true },
   });
 
+  await tryCompleteTournamentEdition(updated.tournamentEditionId);
+
   revalidatePath('/arbitre');
+  revalidatePath('/feed');
 }
 
 /* ── Démarrer un match ──────────────────────────────────────────────────────── */
@@ -287,6 +292,33 @@ export async function submitScore(
     }),
   ]);
 
+  await tryCompleteTournamentEdition(match.tournamentEditionId);
+
   revalidatePath(`/arbitre/tournoi/${match.tournamentEditionId}`);
+  revalidatePath('/feed');
+  return { success: true };
+}
+
+/* ── Clôturer manuellement une édition (tous matchs terminés) ─────────────── */
+export async function completeTournamentEdition(
+  editionId: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireReferee();
+
+  const assignment = await db.tournamentReferee.findFirst({
+    where: { tournamentEditionId: editionId },
+  });
+  if (!assignment) return { success: false, error: 'Vous n\'êtes pas assigné à ce tournoi.' };
+
+  const incomplete = await db.match.count({
+    where: { tournamentEditionId: editionId, status: { not: 'completed' } },
+  });
+  if (incomplete > 0) {
+    return { success: false, error: `${incomplete} match(s) encore en cours.` };
+  }
+
+  await tryCompleteTournamentEdition(editionId);
+  revalidatePath(`/arbitre/tournoi/${editionId}`);
+  revalidatePath('/feed');
   return { success: true };
 }

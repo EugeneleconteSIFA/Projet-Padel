@@ -12,6 +12,7 @@ import { NextResponse } from 'next/server';
 const PUBLIC_PATHS = [
   '/',
   '/vitrine',
+  '/feed',
   '/login',
   '/signup',
   '/forgot-password',
@@ -25,6 +26,8 @@ export default auth((req) => {
   const isPublic =
     PUBLIC_PATHS.includes(pathname) ||
     pathname.startsWith('/tournois/') ||
+    pathname.startsWith('/post/') ||
+    pathname.startsWith('/joueur/') ||
     pathname.startsWith('/api/auth/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon');

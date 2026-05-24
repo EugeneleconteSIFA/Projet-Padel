@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 /* =============================================================================
    TournamentsClient — Page /tournois côté client.
@@ -501,6 +501,7 @@ function FilterPanel({ filters, onChange, onReset }: FilterPanelProps) {
 export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }) {
   const [filters, setFilters] = useState<Filters>(INIT_FILTERS);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [mobileMapOpen, setMobileMapOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return tournaments.filter(t => {
@@ -554,25 +555,46 @@ export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }
           )}
         </p>
 
-        {/* Bouton filtres mobile */}
-        <button
-          onClick={() => setMobileFiltersOpen(o => !o)}
+        {/* Boutons mobile */}
+        <div
           style={{
             display: 'none',
             marginTop: 12,
-            padding: '8px 16px',
-            borderRadius: 999,
-            border: '1px solid var(--border-strong)',
-            background: 'var(--bg-surface)',
-            fontSize: 13,
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            cursor: 'pointer',
+            gap: 8,
           }}
           className="show-on-mobile"
         >
-          {mobileFiltersOpen ? 'Masquer les filtres' : 'Filtres'}
-        </button>
+          <button
+            onClick={() => setMobileFiltersOpen(o => !o)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 999,
+              border: '1px solid var(--border-strong)',
+              background: 'var(--bg-surface)',
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+          >
+            {mobileFiltersOpen ? 'Masquer les filtres' : 'Filtres'}
+          </button>
+          <button
+            onClick={() => setMobileMapOpen(o => !o)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 999,
+              border: '1px solid var(--border-strong)',
+              background: 'var(--bg-surface)',
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+          >
+            {mobileMapOpen ? 'Masquer la carte' : 'Afficher la carte'}
+          </button>
+        </div>
       </header>
 
       {/* ── Corps : sidebar + liste + carte ───────────────────────────── */}
@@ -661,7 +683,7 @@ export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }
             height: 'calc(100vh - 100px)',
             minHeight: 400,
           }}
-          className="map-aside"
+          className={`map-aside ${mobileMapOpen ? 'mobile-open' : ''}`}
         >
           <TournamentMap tournaments={filtered} />
         </aside>
@@ -692,6 +714,9 @@ export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }
             display: inline-block !important;
           }
           .map-aside {
+            display: none !important;
+          }
+          .map-aside.mobile-open {
             display: block !important;
             height: 320px !important;
             position: static !important;

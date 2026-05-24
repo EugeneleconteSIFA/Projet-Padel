@@ -59,6 +59,24 @@ export default async function ProfilPage() {
   return (
     <div className="space-y-8">
 
+      {/* ── MESSAGE DE BIENVENUE ───────────────────────────────────────── */}
+      <div>
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(28px, 4vw, 36px)',
+            fontWeight: 500,
+            color: 'var(--text-primary)',
+            marginBottom: 8,
+          }}
+        >
+          Bonjour, {firstName}
+        </h1>
+        <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
+          Bienvenue sur ton espace joueur.
+        </p>
+      </div>
+
       {/* ── EN-TÊTE PROFIL ──────────────────────────────────────────────── */}
       <div
         className="relative overflow-hidden rounded-2xl border p-6 md:p-8"
@@ -168,39 +186,21 @@ export default async function ProfilPage() {
         {/* ── COL PRINCIPALE (stats + historique) ──────────────────────── */}
         <div className="space-y-6 lg:col-span-2">
 
-          {/* Stats tournois */}
-          {(() => {
-            const stats = dashboard?.stats;
-            const total    = stats ? stats.totalConfirmed : MOCK_STATS.tournamentsPlayed;
-            const upcoming = stats ? stats.upcoming       : MOCK_STATS.wins;
-            const past     = stats ? stats.past           : MOCK_STATS.podiums;
-            const waiting  = stats ? stats.waitlisted     : MOCK_STATS.winRate;
-            return (
-              <Card title="Statistiques">
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <StatBlock value={total}    label="Confirmés"       accent />
-                  <StatBlock value={upcoming} label="À venir"         />
-                  <StatBlock value={past}     label="Passés"          />
-                  <StatBlock value={waiting}  label="Liste d'attente" />
-                </div>
-              </Card>
-            );
-          })()}
-
-          {/* Historique */}
+          {/* Mes prochains tournois */}
           {(() => {
             const history = dashboard?.history ?? MOCK_HISTORY;
+            const upcoming = history.filter(t => new Date(t.date) >= new Date());
             return (
-              <Card title="Derniers tournois">
-                {history.length === 0 ? (
+              <Card title="Mes prochains tournois">
+                {upcoming.length === 0 ? (
                   <EmptyState
-                    message="Vous n'avez pas encore de tournoi."
+                    message="Vous n'avez pas de tournoi à venir."
                     cta="Trouver un tournoi"
                     href="/tournois"
                   />
                 ) : (
                   <ul className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-                    {history.map(t => {
+                    {upcoming.map(t => {
                       const statusBadge = (() => {
                         if (t.status === 'CONFIRMED')     return { label: 'Confirmé',       bg: 'rgba(42,130,100,0.12)',   color: 'var(--court-600)' };
                         if (t.status === 'WAITING_LIST') return { label: "Liste d'attente", bg: 'var(--bg-muted)',         color: 'var(--text-muted)' };
@@ -247,13 +247,32 @@ export default async function ProfilPage() {
               </Card>
             );
           })()}
+
+          {/* Mes inscriptions */}
+          {(() => {
+            const stats = dashboard?.stats;
+            const total    = stats ? stats.totalConfirmed : MOCK_STATS.tournamentsPlayed;
+            const upcoming = stats ? stats.upcoming       : MOCK_STATS.wins;
+            const past     = stats ? stats.past           : MOCK_STATS.podiums;
+            const waiting  = stats ? stats.waitlisted     : MOCK_STATS.winRate;
+            return (
+              <Card title="Mes inscriptions">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <StatBlock value={total}    label="Confirmés"       accent />
+                  <StatBlock value={upcoming} label="À venir"         />
+                  <StatBlock value={past}     label="Passés"          />
+                  <StatBlock value={waiting}  label="Liste d'attente" />
+                </div>
+              </Card>
+            );
+          })()}
         </div>
 
         {/* ── SIDEBAR (profil padel + infos) ────────────────────────────── */}
         <div className="space-y-4">
 
-          {/* Profil padel */}
-          <Card title="Profil padel">
+          {/* Mon profil */}
+          <Card title="Mon profil">
             <dl className="space-y-3">
               <InfoRow
                 label="Classement FFT"
@@ -292,32 +311,13 @@ export default async function ProfilPage() {
             )}
           </Card>
 
-          {/* Prochain tournoi */}
-          <Card title="Prochain tournoi">
+          {/* Tournois recommandés */}
+          <Card title="Tournois recommandés">
             <EmptyState
-              message="Aucune inscription en cours."
-              cta="Chercher un tournoi"
-              href="/"
+              message="Recommandations basées sur votre classement et votre localisation."
+              cta="Voir tous les tournois"
+              href="/tournois"
             />
-          </Card>
-
-          {/* Clubs favoris */}
-          <Card title="Clubs favoris">
-            {(playerProfile?.favoriteClubs?.length ?? 0) === 0 ? (
-              <EmptyState message="Aucun club favori." />
-            ) : (
-              <ul className="space-y-2">
-                {playerProfile!.favoriteClubs.map(fc => (
-                  <li
-                    key={fc.clubId}
-                    className="rounded-xl border px-3 py-2.5 text-sm"
-                    style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-primary)' }}
-                  >
-                    {fc.club.name}
-                  </li>
-                ))}
-              </ul>
-            )}
           </Card>
         </div>
       </div>

@@ -137,6 +137,62 @@ enum NotificationKind {
   PAYMENT_RECEIVED
   CLUB_ANNOUNCEMENT
   GENERIC
+  // Module Communauté
+  POST_REACTION
+  POST_COMMENT
+  NEW_FOLLOWER
+  FRIENDLY_MATCH_JOINED
+  FRIENDLY_MATCH_FULL
+  CLUB_PROMOTED_POST
+  FORUM_REPLY_RECEIVED
+}
+
+enum PostVisibility {
+  PUBLIC // visible par tous si hasCompletedTournament = true
+  FRIENDS // visible par les follows mutuels uniquement
+  CLUB // visible par les membres du club uniquement
+}
+
+enum PostMediaType {
+  IMAGE
+  VIDEO // réservé V2 — champ présent, upload bloqué côté frontend en V1
+}
+
+enum ReactionType {
+  LIKE
+  FIRE
+  CLAP
+}
+
+enum ForumCategory {
+  PARTENAIRE
+  MATERIEL
+  TECHNIQUE
+  CLUBS_TERRAINS
+  REGLES_ARBITRAGE
+  PETITES_ANNONCES
+  ORGANISATION
+}
+
+enum FriendlyMatchStatus {
+  OPEN
+  FULL
+  CANCELLED
+  COMPLETED
+}
+
+enum ReportTargetType {
+  POST
+  COMMENT
+  FORUM_THREAD
+  FORUM_REPLY
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+  ACTION_TAKEN
 }
 
 enum ValidationStatus {
@@ -327,6 +383,9 @@ model PlayerProfile {
   availability    Json? // { mon: ["18:00-21:00"], ... } — flexibilité maximale
   premiumSince    DateTime?
 
+  // Communauté — déverrouillage feed public (mis à jour à la fin d'un tournoi joué)
+  hasCompletedTournament Boolean @default(false)
+
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   licenses        PlayerLicense[]
   favoriteClubs   PlayerFavoriteClub[]
@@ -340,6 +399,16 @@ model PlayerProfile {
   friendshipsReceived  Friendship[]  @relation("FriendshipReceiver")
   followsGiven    Follow[]          @relation("Follower")
   followsReceived Follow[]          @relation("Followed")
+
+  // Module Communauté
+  posts              Post[]
+  postReactions      PostReaction[]
+  comments           Comment[]
+  forumThreads       ForumThread[]
+  forumReplies       ForumReply[]
+  friendlyMatches    FriendlyMatch[]            @relation("FriendlyMatchCreator")
+  friendlyMatchParts FriendlyMatchParticipant[]
+  reports            Report[]
 
   @@index([lookingForPartner])
 }
@@ -401,6 +470,11 @@ model Club {
   tournaments     Tournament[]
   reviews         ClubReview[]
   stripeAccount   StripeAccount?
+
+  // Module Communauté
+  posts           Post[]
+  promotedPosts   ClubPromotedPost[]
+  friendlyMatches FriendlyMatch[]
 
   @@index([name])
 }
@@ -804,4 +878,184 @@ model AuditLog {
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+}
+
+// ============================================================================
+// COMMUNAUTÉ — FEED & POSTS
+// ============================================================================
+
+model Post {
+  id           String          @id @default(cuid())
+  authorId     String
+  clubId       String?
+  tournamentId String?
+  content      String          @db.Text
+  mediaUrls    String[]
+  mediaType    PostMediaType   @default(IMAGE)
+  visibility   PostVisibility  @default(PUBLIC)
+  isPromoted   Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  author    PlayerProfile    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  club      Club?            @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  reactions PostReaction[]
+  comments  Comment[]
+  promotion ClubPromotedPost?
+
+  @@index([authorId])
+  @@index([clubId])
+  @@index([visibility, createdAt])
+  @@index([isPromoted])
+}
+
+model PostReaction {
+  id        String       @id @default(cuid())
+  postId    String
+  authorId  String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  post   Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author PlayerProfile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, authorId, type])
+  @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  parentId  String?
+  authorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post    Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent  Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies Comment[]     @relation("CommentReplies")
+  author PlayerProfile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([parentId])
+}
+
+// ============================================================================
+// COMMUNAUTÉ — PROMOTION CLUB
+// ============================================================================
+
+model ClubPromotedPost {
+  id          String   @id @default(cuid())
+  postId      String   @unique
+  clubId      String
+  activeFrom  DateTime @default(now())
+  activeUntil DateTime
+  createdAt   DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@index([clubId, activeUntil])
+}
+
+// ============================================================================
+// COMMUNAUTÉ — FORUM
+// ============================================================================
+
+model ForumThread {
+  id        String        @id @default(cuid())
+  category  ForumCategory
+  title     String
+  authorId  String
+  isPinned  Boolean       @default(false)
+  isLocked  Boolean       @default(false)
+  tags      String[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  author  PlayerProfile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replies ForumReply[]
+
+  @@index([category, createdAt])
+  @@index([isPinned])
+}
+
+model ForumReply {
+  id        String   @id @default(cuid())
+  threadId  String
+  parentId  String?
+  authorId  String
+  content   String   @db.Text
+  votes     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  thread  ForumThread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  parent  ForumReply?   @relation("ReplyReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies ForumReply[]  @relation("ReplyReplies")
+  author PlayerProfile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, votes])
+}
+
+// ============================================================================
+// COMMUNAUTÉ — MATCHS AMICAUX
+// ============================================================================
+
+model FriendlyMatch {
+  id          String              @id @default(cuid())
+  creatorId   String
+  clubId      String?
+  city        String
+  date        DateTime
+  levelMin    String?
+  levelMax    String?
+  spotsTotal  Int
+  spotsLeft   Int
+  description String?             @db.Text
+  status      FriendlyMatchStatus @default(OPEN)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  creator      PlayerProfile              @relation("FriendlyMatchCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  club         Club?                      @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  participants FriendlyMatchParticipant[]
+
+  @@index([city, date])
+  @@index([status, date])
+}
+
+model FriendlyMatchParticipant {
+  id              String   @id @default(cuid())
+  matchId         String
+  playerProfileId String
+  joinedAt        DateTime @default(now())
+
+  match  FriendlyMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, playerProfileId])
+}
+
+// ============================================================================
+// COMMUNAUTÉ — MODÉRATION (a posteriori)
+// ============================================================================
+
+model Report {
+  id         String           @id @default(cuid())
+  reporterId String
+  targetType ReportTargetType
+  targetId   String
+  reason     String           @db.Text
+  status     ReportStatus     @default(PENDING)
+  reviewedAt DateTime?
+  reviewNote String?          @db.Text
+  createdAt  DateTime         @default(now())
+
+  reporter PlayerProfile @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  // Cible polymorphe (targetType + targetId) — pas de FK DB (impossible sur une seule colonne)
+
+  @@index([targetType, status])
+  @@index([reporterId])
 }

@@ -80,204 +80,252 @@ export default async function ArbitrePage() {
   const nextTournoi   = data.upcoming[0] ?? null;
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
+    <div className="mx-auto max-w-3xl px-6 py-8 space-y-8">
 
-      {/* ── En-tête ── */}
-      <div className="mb-8">
+      {/* ── MESSAGE DE BIENVENUE ───────────────────────────────────────── */}
+      <div>
         <h1
-          className="leading-tight"
-          style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, color: 'var(--text-primary)' }}
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(28px, 4vw, 36px)',
+            fontWeight: 500,
+            color: 'var(--text-primary)',
+            marginBottom: 8,
+          }}
         >
-          Espace arbitre
+          Bienvenue, Arbitre
         </h1>
-        <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>
-          {totalUpcoming > 0
-            ? `${totalUpcoming} tournoi${totalUpcoming > 1 ? 's' : ''} à venir — prochain : ${formatDate(nextTournoi.startDate)}`
-            : 'Aucun tournoi assigné pour le moment.'}
+        <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
+          Gérez vos tournois assignés et suivez les inscriptions.
         </p>
       </div>
 
-      {/* ── Prochains tournois ── */}
-      {data.upcoming.length > 0 && (
-        <section className="mb-10">
-          <h2
-            className="mb-4 font-mono text-[11px] font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--court-700)' }}
-          >
-            Tournois à venir
-          </h2>
+      {/* ── GRILLE PRINCIPALE ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
-          <div className="flex flex-col gap-4">
-            {data.upcoming.map(t => {
-              const fillPct   = Math.round((t.teamsConfirmed / t.maxTeams) * 100);
-              const matchPct  = t.totalMatches > 0
-                ? Math.round((t.playedMatches / t.totalMatches) * 100)
-                : 0;
+        {/* ── COL PRINCIPALE : tournois ─────────────────────────────────── */}
+        <div className="space-y-6 lg:col-span-2">
 
-              return (
-                <div
-                  key={t.id}
-                  className="rounded-2xl border p-5"
-                  style={{
-                    background:  'var(--bg-surface)',
-                    borderColor: 'var(--border-subtle)',
-                    boxShadow:   'var(--shadow-xs)',
-                  }}
-                >
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <StatusBadge status={t.status} />
-                        {t.isHead && (
-                          <span
-                            className="rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold"
-                            style={{ background: 'rgba(201,162,74,.15)', color: 'var(--gold-500)' }}
+          {/* Mes tournois */}
+          {data.upcoming.length > 0 && (
+            <section>
+              <h2
+                className="mb-4 font-mono text-[11px] font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--court-700)' }}
+              >
+                Mes tournois
+              </h2>
+
+              <div className="flex flex-col gap-4">
+                {data.upcoming.map(t => {
+                  const fillPct   = Math.round((t.teamsConfirmed / t.maxTeams) * 100);
+                  const matchPct  = t.totalMatches > 0
+                    ? Math.round((t.playedMatches / t.totalMatches) * 100)
+                    : 0;
+
+                  return (
+                    <div
+                      key={t.id}
+                      className="rounded-2xl border p-5"
+                      style={{
+                        background:  'var(--bg-surface)',
+                        borderColor: 'var(--border-subtle)',
+                        boxShadow:   'var(--shadow-xs)',
+                      }}
+                    >
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <StatusBadge status={t.status} />
+                            {t.isHead && (
+                              <span
+                                className="rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold"
+                                style={{ background: 'rgba(201,162,74,.15)', color: 'var(--gold-500)' }}
+                              >
+                                Arbitre principal
+                              </span>
+                            )}
+                          </div>
+                          <h3
+                            className="mt-1.5 truncate"
+                            style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 500, color: 'var(--text-primary)' }}
                           >
-                            Arbitre principal
-                          </span>
-                        )}
+                            {t.tournamentName}
+                          </h3>
+                          <p className="mt-0.5 text-sm" style={{ color: 'var(--text-muted)' }}>
+                            {t.clubName}
+                          </p>
+                        </div>
+
+                        {/* Date */}
+                        <div
+                          className="shrink-0 rounded-xl p-3 text-center"
+                          style={{ background: 'var(--court-100)', minWidth: '72px' }}
+                        >
+                          <div
+                            className="font-mono text-[22px] font-bold leading-none"
+                            style={{ color: 'var(--court-700)' }}
+                          >
+                            {new Date(t.startDate).getDate()}
+                          </div>
+                          <div
+                            className="mt-0.5 font-mono text-[10px] font-semibold uppercase"
+                            style={{ color: 'var(--court-700)' }}
+                          >
+                            {new Date(t.startDate).toLocaleDateString('fr-FR', { month: 'short' })}
+                          </div>
+                        </div>
                       </div>
-                      <h3
-                        className="mt-1.5 truncate"
-                        style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 500, color: 'var(--text-primary)' }}
-                      >
+
+                      {/* Stats */}
+                      <div className="mt-4 grid grid-cols-2 gap-3">
+                        {/* Équipes */}
+                        <div
+                          className="rounded-xl p-3"
+                          style={{ background: 'var(--bg-muted)' }}
+                        >
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Équipes inscrites</span>
+                            <span
+                              className="font-mono text-sm font-semibold"
+                              style={{ color: 'var(--text-primary)' }}
+                            >
+                              {t.teamsConfirmed}/{t.maxTeams}
+                            </span>
+                          </div>
+                          <div
+                            className="mt-2 h-1.5 overflow-hidden rounded-full"
+                            style={{ background: 'var(--border-subtle)' }}
+                          >
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{ width: `${fillPct}%`, background: 'var(--court-700)' }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Matchs */}
+                        <div
+                          className="rounded-xl p-3"
+                          style={{ background: 'var(--bg-muted)' }}
+                        >
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Matchs joués</span>
+                            <span
+                              className="font-mono text-sm font-semibold"
+                              style={{ color: 'var(--text-primary)' }}
+                            >
+                              {t.playedMatches}/{t.totalMatches || '—'}
+                            </span>
+                          </div>
+                          <div
+                            className="mt-2 h-1.5 overflow-hidden rounded-full"
+                            style={{ background: 'var(--border-subtle)' }}
+                          >
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{ width: t.totalMatches > 0 ? `${matchPct}%` : '0%', background: 'var(--gold-500)' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="mt-4 flex gap-2">
+                        <Link
+                          href={`/arbitre/tournoi/${t.id}`}
+                          className="flex-1 rounded-xl py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90"
+                          style={{ background: 'var(--court-700)' }}
+                        >
+                          Gérer le tournoi →
+                        </Link>
+                        <Link
+                          href={`/arbitre/tournoi/${t.id}?tab=matchs`}
+                          className="rounded-xl border px-4 py-2.5 text-sm font-medium transition hover:opacity-70"
+                          style={{ borderColor: 'var(--border-strong)', color: 'var(--text-secondary)' }}
+                        >
+                          Scores
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Historique */}
+          {data.past.length > 0 && (
+            <section>
+              <h2
+                className="mb-4 font-mono text-[11px] font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                Historique
+              </h2>
+              <div
+                className="divide-y overflow-hidden rounded-2xl border"
+                style={{ borderColor: 'var(--border-subtle)', background: 'var(--bg-surface)' }}
+              >
+                {data.past.map(t => (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between px-5 py-3.5"
+                  >
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                         {t.tournamentName}
-                      </h3>
-                      <p className="mt-0.5 text-sm" style={{ color: 'var(--text-muted)' }}>
-                        {t.clubName}
+                      </p>
+                      <p className="mt-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                        {t.clubName} · {formatDate(t.startDate)}
                       </p>
                     </div>
-
-                    {/* Date */}
-                    <div
-                      className="shrink-0 rounded-xl p-3 text-center"
-                      style={{ background: 'var(--court-100)', minWidth: '72px' }}
-                    >
-                      <div
-                        className="font-mono text-[22px] font-bold leading-none"
-                        style={{ color: 'var(--court-700)' }}
-                      >
-                        {new Date(t.startDate).getDate()}
-                      </div>
-                      <div
-                        className="mt-0.5 font-mono text-[10px] font-semibold uppercase"
-                        style={{ color: 'var(--court-700)' }}
-                      >
-                        {new Date(t.startDate).toLocaleDateString('fr-FR', { month: 'short' })}
-                      </div>
-                    </div>
+                    <StatusBadge status={t.status} />
                   </div>
-
-                  {/* Stats */}
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    {/* Équipes */}
-                    <div
-                      className="rounded-xl p-3"
-                      style={{ background: 'var(--bg-muted)' }}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Équipes inscrites</span>
-                        <span
-                          className="font-mono text-sm font-semibold"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {t.teamsConfirmed}/{t.maxTeams}
-                        </span>
-                      </div>
-                      <div
-                        className="mt-2 h-1.5 overflow-hidden rounded-full"
-                        style={{ background: 'var(--border-subtle)' }}
-                      >
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{ width: `${fillPct}%`, background: 'var(--court-700)' }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Matchs */}
-                    <div
-                      className="rounded-xl p-3"
-                      style={{ background: 'var(--bg-muted)' }}
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Matchs joués</span>
-                        <span
-                          className="font-mono text-sm font-semibold"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {t.playedMatches}/{t.totalMatches || '—'}
-                        </span>
-                      </div>
-                      <div
-                        className="mt-2 h-1.5 overflow-hidden rounded-full"
-                        style={{ background: 'var(--border-subtle)' }}
-                      >
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{ width: t.totalMatches > 0 ? `${matchPct}%` : '0%', background: 'var(--gold-500)' }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="mt-4 flex gap-2">
-                    <Link
-                      href={`/arbitre/tournoi/${t.id}`}
-                      className="flex-1 rounded-xl py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90"
-                      style={{ background: 'var(--court-700)' }}
-                    >
-                      Gérer le tournoi →
-                    </Link>
-                    <Link
-                      href={`/arbitre/tournoi/${t.id}?tab=matchs`}
-                      className="rounded-xl border px-4 py-2.5 text-sm font-medium transition hover:opacity-70"
-                      style={{ borderColor: 'var(--border-strong)', color: 'var(--text-secondary)' }}
-                    >
-                      Scores
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* ── Tournois passés ── */}
-      {data.past.length > 0 && (
-        <section>
-          <h2
-            className="mb-4 font-mono text-[11px] font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            Historique
-          </h2>
-          <div
-            className="divide-y overflow-hidden rounded-2xl border"
-            style={{ borderColor: 'var(--border-subtle)', background: 'var(--bg-surface)' }}
-          >
-            {data.past.map(t => (
-              <div
-                key={t.id}
-                className="flex items-center justify-between px-5 py-3.5"
-              >
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                    {t.tournamentName}
-                  </p>
-                  <p className="mt-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                    {t.clubName} · {formatDate(t.startDate)}
-                  </p>
-                </div>
-                <StatusBadge status={t.status} />
+                ))}
               </div>
-            ))}
+            </section>
+          )}
+        </div>
+
+        {/* ── SIDEBAR ─────────────────────────────────────────────────── */}
+        <div className="space-y-4">
+
+          {/* Inscriptions en attente */}
+          <div
+            className="rounded-2xl border p-5"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
+          >
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+              Inscriptions en attente
+            </h2>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              Aucune inscription en attente pour le moment.
+            </p>
           </div>
-        </section>
-      )}
+
+          {/* Statistiques */}
+          <div
+            className="rounded-2xl border p-5"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
+          >
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+              Statistiques
+            </h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Tournois à venir</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{totalUpcoming}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Tournois passés</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{data.past.length}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ── État vide ── */}
       {data.upcoming.length === 0 && data.past.length === 0 && (

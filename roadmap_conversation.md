@@ -237,12 +237,12 @@ FriendlyMatch   — id, creatorId, clubId?, city, date, levelMin, levelMax, spot
 
 ## Questions ouvertes — à trancher ensemble
 
-1. **Qui peut poster dans le feed public ?** Tous les membres, ou seulement les membres "vérifiés" (avec un tournoi joué) ?
-2. **Les clubs peuvent-ils sponsoriser un post** pour qu'il apparaisse dans le feed de joueurs non-membres ? (logique de promotion légère)
-3. **Le forum est-il modéré a priori ou a posteriori ?** Recommandation : a posteriori avec système de signalement.
-4. **Les matchs amicaux** font-ils partie de la V1 ou V2 communauté ?
-5. **Les "moments de tournoi"** (fil de posts sur un tournoi actif) — à construire en même temps que le feed, ou phase séparée ?
-6. **Format vidéo** : on accepte les vidéos courtes dans les posts dès la V1 (15 sec max) ou on commence photo uniquement ?
+1. **Qui peut poster dans le feed public ?** ✅ **Décidé (2026-05-24)** — Troisième voie : tout membre peut poster, mais avec un seuil de visibilité différé. Sans tournoi joué → post visible uniquement dans son cercle (follows mutuels) et son espace de club. Dès qu'il a joué au moins un tournoi → post visible dans le feed public. Évite les comptes fantômes dans le feed public sans bloquer l'onboarding.
+2. **Les clubs peuvent-ils sponsoriser un post** pour qu'il apparaisse dans le feed de joueurs non-membres ? ✅ **Décidé (2026-05-24)** — Oui, dès V1. Logique de promotion légère pour les clubs partenaires. À cadrer : fréquence max (ex. 1 post sponsorisé par semaine par club) et marquage visuel clair "Annonce club" pour ne pas polluer le feed organique.
+3. **Le forum est-il modéré a priori ou a posteriori ?** ✅ **Décidé (2026-05-24)** — A posteriori. Publication immédiate + système de signalement. Rôle modérateur (joueur senior ou équipe The Court) pour traiter les signalements.
+4. **Les matchs amicaux** font-ils partie de la V1 ou V2 communauté ? ✅ **Décidé (2026-05-24)** — V1. À intégrer dans la séquence de travail, probablement en semaine 3 ou 4 avec le format de post "Cherche partenaire".
+5. **Les "moments de tournoi"** (fil de posts sur un tournoi actif) — à construire en même temps que le feed, ou phase séparée ? ✅ **Décidé (2026-05-24)** — Phase séparée. On stabilise le feed et le forum d'abord, les moments de tournoi arrivent après.
+6. **Format vidéo** : ✅ **Décidé (2026-05-24)** — Photo uniquement en V1. Le schéma `Post` inclut dès le départ `mediaUrls[]` + `mediaType` (image | video) pour ne pas bloquer la V2. La restriction vidéo est côté frontend uniquement — aucune migration nécessaire pour l'activer plus tard.
 
 ---
 
@@ -263,6 +263,7 @@ FriendlyMatch   — id, creatorId, clubId?, city, date, levelMin, levelMax, spot
 | Date | Sujets traités | Décisions prises | Fichiers modifiés |
 |---|---|---|---|
 | 2026-05-20 | Cadrage initial, structure du module, idées | — | `roadmap_conversation.md` créé |
+| 2026-05-24 | Toutes les questions ouvertes | (1) Visibilité différée ; (2) Photo V1 ; (3) Promo club dès V1 ; (4) Modération a posteriori ; (5) Matchs amicaux en V1 ; (6) Moments tournoi en phase séparée | `roadmap_conversation.md` mis à jour |
 
 ---
 

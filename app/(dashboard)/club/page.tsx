@@ -141,23 +141,30 @@ export default async function ClubDashboardPage() {
   return (
     <div className="space-y-8">
 
+      {/* ── MESSAGE DE BIENVENUE ───────────────────────────────────────── */}
+      <div>
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(28px, 4vw, 36px)',
+            fontWeight: 500,
+            color: 'var(--text-primary)',
+            marginBottom: 8,
+          }}
+        >
+          Bienvenue, {clubName}
+        </h1>
+        <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
+          Gérez vos tournois et suivez les inscriptions.
+        </p>
+      </div>
+
       {/* ── EN-TÊTE ─────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
             Espace club
           </p>
-          <h1
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(24px, 4vw, 36px)',
-              fontWeight: 500,
-              color: 'var(--text-primary)',
-              lineHeight: 1.1,
-            }}
-          >
-            {clubName}
-          </h1>
         </div>
         <Link
           href="/club/tournoi/nouveau"
@@ -169,46 +176,15 @@ export default async function ClubDashboardPage() {
         </Link>
       </div>
 
-      {/* ── KPIs ────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <KpiCard
-          label="Tournois"
-          value={kpis.totalTournaments}
-          sub={`${kpis.publishedCount} actif${kpis.publishedCount > 1 ? 's' : ''}`}
-          icon={<TrophyIcon />}
-        />
-        <KpiCard
-          label="Inscriptions"
-          value={kpis.totalRegistrations}
-          sub="toutes éditions"
-          icon={<UsersIcon />}
-        />
-        <KpiCard
-          label="Revenus"
-          value={`${(kpis.totalRevenueCents / 100).toFixed(0)} €`}
-          sub="encaissés"
-          icon={<EuroIcon />}
-          accent
-        />
-        <KpiCard
-          label="Taux moyen"
-          value={`${kpis.totalTournaments > 0
-            ? Math.round((kpis.totalRegistrations / (kpis.totalTournaments * 16)) * 100)
-            : 0} %`}
-          sub="de remplissage"
-          icon={<ChartIcon />}
-        />
-      </div>
-
       {/* ── GRILLE PRINCIPALE ───────────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
         {/* ── COL PRINCIPALE : tournois ─────────────────────────────────── */}
         <div className="space-y-6 lg:col-span-2">
 
-          {/* Tournois actifs */}
+          {/* Mes tournois */}
           <Section
-            title="Tournois en cours"
+            title="Mes tournois"
             action={activeTournaments.length > 0 ? undefined : { label: 'Créer un tournoi', href: '/club/tournoi/nouveau' }}
           >
             {activeTournaments.length === 0 ? (
@@ -235,7 +211,9 @@ export default async function ClubDashboardPage() {
 
         {/* ── SIDEBAR : inscriptions ────────────────────────────────────── */}
         <div className="space-y-4">
-          <Section title="Inscriptions récentes">
+
+          {/* Inscriptions en attente */}
+          <Section title="Inscriptions en attente">
             {registrations.length === 0 ? (
               <EmptyState message="Aucune inscription pour le moment." />
             ) : (
@@ -290,6 +268,30 @@ export default async function ClubDashboardPage() {
               </ul>
             )}
           </Section>
+
+          {/* Statistiques */}
+          <div
+            className="rounded-2xl border p-5"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
+          >
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+              Statistiques
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Tournois</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{kpis.totalTournaments}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Inscriptions</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{kpis.totalRegistrations}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Revenus</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{(kpis.totalRevenueCents / 100).toFixed(0)} €</span>
+              </div>
+            </div>
+          </div>
 
           {/* Actions rapides */}
           <div

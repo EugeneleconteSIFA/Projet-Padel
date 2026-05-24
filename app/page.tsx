@@ -1,13 +1,11 @@
-import { listTournaments } from '@/lib/queries/tournaments';
-import HomePageClient from './home-page-client';
+import LandingPageClient from './landing-page-client';
 
 /* =============================================================================
-   The Court — Page d'accueil (server component).
-   Lit les tournois publics depuis Prisma puis délègue le rendu interactif
-   au client component (filtres + carte).
+   The Court — Page d'accueil publique explicative.
+   Présente le concept, les profils utilisateurs et oriente vers les bonnes pages.
+   La recherche de tournois est accessible via /tournois.
    ============================================================================= */
 
-export default async function HomePage() {
-  const tournaments = await listTournaments();
-  return <HomePageClient tournaments={tournaments} />;
+export default function HomePage() {
+  return <LandingPageClient />;
 }
