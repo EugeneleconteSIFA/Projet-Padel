@@ -10,7 +10,7 @@ import { useState, useRef, useEffect } from 'react';
    Quand non connecté : boutons Se connecter / Créer un compte.
    ============================================================================= */
 
-export function NavUser() {
+export function NavUser({ compact = false }: { compact?: boolean }) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -31,6 +31,22 @@ export function NavUser() {
 
   /* Non connecté */
   if (!session?.user) {
+    if (compact) {
+      return (
+        <Link
+          href="/login"
+          className="flex h-9 w-9 items-center justify-center rounded-full border transition hover:bg-[var(--cream-200)]"
+          style={{ borderColor: 'var(--cream-200)', color: 'var(--court-700)' }}
+          title="Se connecter"
+          aria-label="Se connecter"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+        </Link>
+      );
+    }
+
     return (
       <div className="flex items-center gap-2">
         <Link

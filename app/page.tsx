@@ -1,8 +1,8 @@
 import LandingPageClient from './landing-page-client';
 
 /* =============================================================================
-   The Court — Page d'accueil publique explicative.
-   Présente le concept, les profils utilisateurs et oriente vers les bonnes pages.
+   The Court — Page d'accueil publique (hub visuel).
+   Oriente vers les rubriques Joueurs, Clubs, Juge-arbitre et Tarifs.
    La recherche de tournois est accessible via /tournois.
    ============================================================================= */
 

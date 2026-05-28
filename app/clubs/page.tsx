@@ -1,16 +1,30 @@
-import { SiteHeader } from '@/components/site-header';
+import type { Metadata } from 'next';
+import { PublicSectionLayout } from '@/components/public/public-section-layout';
+import { clubFeatures, clubPricingSummary } from '@/lib/public-sections';
 
-/**
- * Page clubs — placeholder POC.
- */
+export const metadata: Metadata = {
+  title: 'Espace club — The Court',
+  description: 'Créez et gérez vos tournois de padel, suivez les inscriptions et encaissez via Stripe Connect.',
+};
+
 export default function ClubsPage() {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
-      <SiteHeader />
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <h1 className="font-display text-3xl font-bold tracking-tight">Clubs</h1>
-        <p className="mt-2 text-sm text-secondary">À implémenter.</p>
-      </main>
-    </div>
+    <PublicSectionLayout
+      badge="Espace club"
+      title={
+        <>
+          Vos tournois remplis,
+          <span className="italic" style={{ color: 'var(--court-700)' }}>
+            {' '}
+            vos joueurs contents.
+          </span>
+        </>
+      }
+      subtitle="Remplacez Excel, les SMS et les relances manuelles. Publiez un tournoi en 5 minutes et suivez inscriptions, paiements et file d'attente en temps réel."
+      features={clubFeatures}
+      pricingSummary={clubPricingSummary}
+      primaryCta={{ label: 'Créer un compte club', href: '/signup' }}
+      secondaryCta={{ label: 'Voir les tarifs détaillés', href: '/tarifs' }}
+    />
   );
 }
