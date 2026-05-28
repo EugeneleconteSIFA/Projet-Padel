@@ -92,11 +92,28 @@ const communityItems: MenuItem[] = [
   },
 ];
 
-export function SiteHeader() {
+type SiteHeaderVariant = 'default' | 'rose';
+
+const headerVariants: Record<
+  SiteHeaderVariant,
+  { background: string; borderColor: string }
+> = {
+  default: {
+    background: 'rgba(241, 237, 229, 0.95)',
+    borderColor: 'var(--paper-200)',
+  },
+  rose: {
+    background: 'rgba(251, 207, 232, 0.95)',
+    borderColor: 'rgba(244, 114, 182, 0.45)',
+  },
+};
+
+export function SiteHeader({ variant = 'default' }: { variant?: SiteHeaderVariant }) {
   const { data: session } = useSession();
   const isPlayer = session?.user?.role === 'PLAYER';
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const headerStyle = headerVariants[variant];
 
   useEffect(() => {
     function onOutside(e: MouseEvent) {
@@ -110,10 +127,10 @@ export function SiteHeader() {
     <header
       className="sticky top-0 z-50 border-b"
       style={{
-        background: 'rgba(241, 237, 229, 0.95)',
+        background: headerStyle.background,
         backdropFilter: 'saturate(140%) blur(12px)',
         WebkitBackdropFilter: 'saturate(140%) blur(12px)',
-        borderColor: 'var(--paper-200)',
+        borderColor: headerStyle.borderColor,
       }}
     >
       <div className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 px-5 py-3 md:px-6">

@@ -13,6 +13,7 @@ type Props = {
   dark?: boolean;
   soft?: boolean;
   accent?: 'court' | 'gold';
+  headerVariant?: 'default' | 'rose';
 };
 
 const tierLabels: Record<FeatureTier, string> = {
@@ -52,6 +53,7 @@ export function PublicSectionLayout({
   dark = false,
   soft = false,
   accent = 'court',
+  headerVariant = 'default',
 }: Props) {
   const sectionBg = dark
     ? 'var(--court-700)'
@@ -71,7 +73,7 @@ export function PublicSectionLayout({
 
   return (
     <div style={{ minHeight: '100vh', background: sectionBg, color: textPrimary }}>
-      <SiteHeader />
+      <SiteHeader variant={headerVariant} />
 
       <section className="relative overflow-hidden">
         <div

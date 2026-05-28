@@ -26,6 +26,7 @@ export default function JoueursPage() {
       primaryCta={{ label: 'Explorer les tournois', href: '/tournois' }}
       secondaryCta={{ label: 'Créer un compte joueur', href: '/signup' }}
       soft
+      headerVariant="rose"
     />
   );
 }
