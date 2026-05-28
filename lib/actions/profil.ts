@@ -157,6 +157,7 @@ export async function getPlayerDashboard() {
       category: (reg.edition.tournament.category ?? 'P100') as string,
       partnerName,
       editionId: reg.edition.id,
+      slug: reg.edition.tournament.slug,
     };
   });
 

@@ -1,7 +1,9 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/site-header';
+import { LandingHeroBackground } from '@/components/public/landing-hero-background';
 import { homeRubrics } from '@/lib/public-sections';
 import { PublicFooter } from '@/components/public/public-section-layout';
 
@@ -49,47 +51,86 @@ export default function LandingPageClient() {
       <SiteHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{
-            background:
-              'radial-gradient(ellipse 80% 60% at 70% 0%, color-mix(in srgb, var(--court-100) 80%, transparent), transparent 70%)',
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-30"
-          style={{
-            backgroundImage:
-              'linear-gradient(var(--cream-200) 1px, transparent 1px), linear-gradient(90deg, var(--cream-200) 1px, transparent 1px)',
-            backgroundSize: '64px 64px',
-          }}
-        />
+      <section className="relative w-full overflow-hidden">
+        <LandingHeroBackground />
 
-        <div className="mx-auto max-w-6xl px-6 pb-12 pt-14 text-center md:px-7 md:pt-20">
-          <h1
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(40px, 7vw, 72px)',
-              fontWeight: 500,
-              lineHeight: 1.05,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Trouve ton prochain
-            <br />
-            <span style={{ color: 'var(--court-700)' }}>tournoi de padel</span>
-            <span style={{ color: 'var(--gold-500)' }}>.</span>
-          </h1>
+        <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-14 text-center md:px-7 md:pb-20 md:pt-20">
+          <div className="relative mx-auto max-w-4xl">
+            <div
+              className="absolute -right-1 -top-1 h-14 w-14 overflow-hidden rounded-xl border-2 md:-right-2 md:-top-2 md:h-16 md:w-16"
+              style={{
+                borderColor: 'color-mix(in srgb, var(--bg-surface) 90%, transparent)',
+                boxShadow: '0 4px 24px color-mix(in srgb, var(--court-700) 12%, transparent)',
+                transform: 'rotate(6deg)',
+              }}
+            >
+              <Image
+                src="/images/hero-padel.jpg"
+                alt="Joueur de padel"
+                width={64}
+                height={64}
+                priority
+                className="h-full w-full object-cover object-[center_20%]"
+              />
+            </div>
 
-          <p
-            className="mx-auto mt-5 max-w-md text-lg"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            Cherche, inscris-toi, joue.
-          </p>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(36px, 6.5vw, 64px)',
+                fontWeight: 500,
+                lineHeight: 1.08,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Trouve ton prochain
+              <br />
+              <span style={{ color: 'var(--court-700)' }}>tournoi de padel</span>
+              <span style={{ color: 'var(--gold-500)' }}>.</span>
+            </h1>
+
+            <div className="mt-6 md:mt-8">
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {['Tournois', 'Matchs', 'Partenaires', 'Clubs', 'Résultats'].map((label) => (
+                  <span
+                    key={label}
+                    className="rounded-full px-3 py-1.5 text-xs font-semibold"
+                    style={{
+                      background: 'color-mix(in srgb, var(--court-100) 85%, var(--bg-surface))',
+                      color: 'var(--court-700)',
+                      border: '1px solid color-mix(in srgb, var(--court-700) 8%, transparent)',
+                    }}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+
+              <p
+                className="mx-auto mt-5 max-w-lg text-lg leading-snug md:max-w-xl md:text-xl md:leading-snug"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 400,
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                <span style={{ color: 'var(--court-700)', fontWeight: 500 }}>The Court</span>
+                {' '}réunit tout votre padel{' '}
+                <span
+                  className="relative inline-block"
+                  style={{ color: 'var(--court-700)', fontWeight: 500 }}
+                >
+                  en quelques clics
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full"
+                    style={{ background: 'var(--gold-300)' }}
+                  />
+                </span>
+                <span style={{ color: 'var(--gold-500)' }}>.</span>
+              </p>
+            </div>
+          </div>
 
           <div className="mx-auto mt-8 flex max-w-sm items-center justify-center gap-6">
             {[
@@ -100,7 +141,10 @@ export default function LandingPageClient() {
               <div key={step.label} className="flex flex-col items-center gap-1.5">
                 <span
                   className="flex h-11 w-11 items-center justify-center rounded-2xl text-lg"
-                  style={{ background: 'var(--court-100)' }}
+                  style={{
+                    background: 'color-mix(in srgb, var(--bg-surface) 88%, transparent)',
+                    border: '1px solid var(--border-subtle)',
+                  }}
                   aria-hidden
                 >
                   {step.icon}
