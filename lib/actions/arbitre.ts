@@ -24,7 +24,7 @@ async function requireReferee() {
 
 /* ── Tableau de bord arbitre ────────────────────────────────────────────────── */
 export async function getArbitreDashboard() {
-  const { profile } = await requireReferee();
+  const { profile, session } = await requireReferee();
 
   const assignments = await db.tournamentReferee.findMany({
     where: { refereeProfileId: profile.id },
@@ -32,8 +32,25 @@ export async function getArbitreDashboard() {
       edition: {
         include: {
           tournament: { include: { club: true } },
-          registrations: { where: { status: 'CONFIRMED' } },
-          matches: { include: { scores: true } },
+          registrations: {
+            include: {
+              team: {
+                include: {
+                  members: {
+                    include: {
+                      player: {
+                        include: {
+                          user: { select: { firstName: true, lastName: true, email: true } },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          matches: true,
+          brackets: { select: { id: true } },
           _count: { select: { matches: true } },
         },
       },
@@ -42,36 +59,106 @@ export async function getArbitreDashboard() {
   });
 
   const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
 
-  const upcoming = assignments
-    .filter(a => new Date(a.edition.startDate) >= now)
-    .map(a => ({
-      id:              a.edition.id,
-      tournamentName:  a.edition.tournament.name,
-      clubName:        a.edition.tournament.club.name,
-      startDate:       a.edition.startDate.toISOString(),
-      endDate:         a.edition.endDate.toISOString(),
-      status:          a.edition.status,
-      isHead:          a.isHead,
-      teamsConfirmed:  a.edition.registrations.length,
-      maxTeams:        a.edition.maxTeams,
-      totalMatches:    a.edition._count.matches,
-      playedMatches:   a.edition.matches.filter(m => m.status === 'completed').length,
-    }));
+  type MappedTournament = {
+    id: string;
+    slug: string;
+    tournamentName: string;
+    clubName: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+    isHead: boolean;
+    teamsConfirmed: number;
+    maxTeams: number;
+    totalMatches: number;
+    playedMatches: number;
+    liveMatches: number;
+    pendingMatches: number;
+    pendingPayment: number;
+    hasBracket: boolean;
+    isToday: boolean;
+    category: string;
+  };
+
+  const mapAssignment = (a: (typeof assignments)[number]): MappedTournament => {
+    const edition = a.edition;
+    const teamsConfirmed = edition.registrations.filter((r) => r.status === 'CONFIRMED').length;
+    const pendingPayment = edition.registrations.filter((r) => r.status === 'PENDING_PAYMENT').length;
+    const playedMatches = edition.matches.filter((m) => m.status === 'completed').length;
+    const liveMatches = edition.matches.filter((m) => m.status === 'live').length;
+    const pendingMatches = edition.matches.filter((m) => m.status !== 'completed').length;
+    const startDateStr = edition.startDate.toISOString().slice(0, 10);
+
+    return {
+      id: edition.id,
+      slug: edition.tournament.slug,
+      tournamentName: edition.tournament.name,
+      clubName: edition.tournament.club.name,
+      startDate: edition.startDate.toISOString(),
+      endDate: edition.endDate.toISOString(),
+      status: edition.status,
+      isHead: a.isHead,
+      teamsConfirmed,
+      maxTeams: edition.maxTeams,
+      totalMatches: edition._count.matches,
+      playedMatches,
+      liveMatches,
+      pendingMatches,
+      pendingPayment,
+      hasBracket: edition.brackets.length > 0,
+      isToday: startDateStr === todayStr || edition.status === 'RUNNING',
+      category: edition.tournament.category ?? 'P100',
+    };
+  };
+
+  const isUpcoming = (a: (typeof assignments)[number]) => {
+    const e = a.edition;
+    if (['RUNNING', 'REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PUBLISHED'].includes(e.status)) {
+      return true;
+    }
+    return new Date(e.startDate) >= now;
+  };
+
+  const upcoming = assignments.filter(isUpcoming).map(mapAssignment);
 
   const past = assignments
-    .filter(a => new Date(a.edition.startDate) < now)
+    .filter((a) => !isUpcoming(a))
     .slice(-5)
     .reverse()
-    .map(a => ({
-      id:             a.edition.id,
-      tournamentName: a.edition.tournament.name,
-      clubName:       a.edition.tournament.club.name,
-      startDate:      a.edition.startDate.toISOString(),
-      status:         a.edition.status,
-    }));
+    .map(mapAssignment);
 
-  return { upcoming, past };
+  const pendingRegistrations = assignments
+    .filter(isUpcoming)
+    .flatMap((a) =>
+      a.edition.registrations
+        .filter((r) => r.status === 'PENDING_PAYMENT')
+        .map((r) => ({
+          id: r.id,
+          editionId: a.edition.id,
+          tournamentName: a.edition.tournament.name,
+          registeredAt: r.registeredAt.toISOString(),
+          players: r.team.members.map((m) => {
+            const u = m.player.user;
+            return `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || u.email;
+          }),
+        })),
+    )
+    .slice(0, 8);
+
+  const kpis = {
+    upcomingCount: upcoming.length,
+    pastCount: past.length,
+    pendingPaymentCount: upcoming.reduce((sum, t) => sum + t.pendingPayment, 0),
+    liveMatchesCount: upcoming.reduce((sum, t) => sum + t.liveMatches, 0),
+    pendingScoreMatches: upcoming.reduce((sum, t) => sum + t.pendingMatches, 0),
+    needsBracketCount: upcoming.filter((t) => !t.hasBracket && t.teamsConfirmed >= 2).length,
+  };
+
+  const firstName = session.user.name?.split(' ')[0] ?? 'Arbitre';
+
+  return { upcoming, past, pendingRegistrations, kpis, firstName };
 }
 
 /* ── Détail tournoi pour l'arbitre ─────────────────────────────────────────── */

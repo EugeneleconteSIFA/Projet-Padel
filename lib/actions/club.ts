@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 
@@ -34,7 +33,7 @@ export async function getClubDashboard() {
   const { club } = await requireClub().catch(() => ({ club: null, clubProfile: null, session: null }));
   if (!club) return null;
 
-  const [tournaments, recentRegistrations] = await Promise.all([
+  const [tournaments, recentRegistrations, waitlistCount, pendingPaymentCount] = await Promise.all([
     db.tournament.findMany({
       where:   { clubId: club.id },
       include: {
@@ -43,6 +42,15 @@ export async function getClubDashboard() {
           take: 1,
           include: {
             _count: { select: { registrations: true } },
+            referees: {
+              include: {
+                referee: {
+                  include: {
+                    user: { select: { firstName: true, lastName: true } },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -62,6 +70,17 @@ export async function getClubDashboard() {
       orderBy: { registeredAt: 'desc' },
       take: 10,
     }),
+
+    db.waitingListEntry.count({
+      where: { edition: { tournament: { clubId: club.id } } },
+    }),
+
+    db.registration.count({
+      where: {
+        edition: { tournament: { clubId: club.id } },
+        status: 'PENDING_PAYMENT',
+      },
+    }),
   ]);
 
   // KPIs
@@ -75,6 +94,24 @@ export async function getClubDashboard() {
     0,
   );
 
+  const activeEditions = tournaments
+    .map((t) => t.editions[0])
+    .filter(
+      (e): e is NonNullable<typeof e> =>
+        !!e && ['PUBLISHED', 'REGISTRATION_OPEN', 'RUNNING'].includes(e.status),
+    );
+
+  const avgFillRate =
+    activeEditions.length > 0
+      ? Math.round(
+          activeEditions.reduce((sum, e) => {
+            const fill =
+              e.maxTeams > 0 ? (e._count.registrations / e.maxTeams) * 100 : 0;
+            return sum + fill;
+          }, 0) / activeEditions.length,
+        )
+      : 0;
+
   return {
     club,
     tournaments,
@@ -83,9 +120,10 @@ export async function getClubDashboard() {
       totalTournaments:    tournaments.length,
       totalRegistrations,
       totalRevenueCents,
-      publishedCount:      tournaments.filter(t =>
-        t.editions[0] && ['PUBLISHED','REGISTRATION_OPEN','RUNNING'].includes(t.editions[0].status)
-      ).length,
+      publishedCount:      activeEditions.length,
+      waitlistCount,
+      pendingPaymentCount,
+      avgFillRate,
     },
   };
 }

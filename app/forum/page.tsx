@@ -19,7 +19,7 @@ export default async function ForumPage() {
   const statsMap = new Map(stats.map(s => [s.category, s]));
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
+    <div className="min-h-screen pb-24 md:pb-0" style={{ background: 'var(--bg-base)' }}>
       <SiteHeader />
       <main className="mx-auto max-w-screen-md px-4 py-8 sm:px-6">
         <header className="mb-6">

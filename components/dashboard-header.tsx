@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { getRoleHomePath } from '@/lib/dispatch';
 import { LogoutButton } from '@/components/logout-button';
 
 /* =============================================================================
@@ -15,6 +16,7 @@ export function DashboardHeader() {
   const { data: session } = useSession();
   const user = session?.user;
   const role = user?.role ?? 'PLAYER';
+  const homeHref = getRoleHomePath(role);
 
   const initials = [user?.name?.split(' ')[0]?.[0], user?.name?.split(' ')[1]?.[0]]
     .filter(Boolean)
@@ -30,42 +32,28 @@ export function DashboardHeader() {
       }}
     >
       <div className="mx-auto flex max-w-screen-xl items-center justify-between px-6 py-3">
-        {/* Logo */}
         <Link
-          href="/"
+          href={homeHref}
           className="shrink-0 transition hover:opacity-70"
           style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: 'var(--text-primary)' }}
         >
           the court<span style={{ color: 'var(--gold-500)' }}>.</span>
         </Link>
 
-        {/* Nav principale — desktop */}
-        <nav className="hidden items-center gap-1 md:flex">
-          {role === 'PLAYER' && (
-            <>
-              <NavLink href="/tournois" label="Tournois" icon={<SearchIcon />} iconOnly />
-              <NavLink href="/mon-feed" label="Feed" icon={<FeedIcon />} iconOnly />
-              <NavLink href="/forum" label="Forum" icon={<ForumIcon />} iconOnly />
-              <NavLink href="/matchs-amicaux" label="Matchs" icon={<UsersIcon />} iconOnly />
-              <NavLink href="/profil" label="Profil" icon={<UserIcon />} iconOnly />
-            </>
-          )}
-          {role === 'CLUB' && (
-            <>
-              <NavLink href="/club" label="Mes tournois" icon={<TrophyIcon />} />
-              <NavLink href="/club/tournoi/nouveau" label="Créer" icon={<PlusIcon />} iconOnly />
-              <NavLink href="/club/stripe" label="Paiements" icon={<CreditCardIcon />} iconOnly />
-            </>
-          )}
-          {role === 'REFEREE' && (
-            <>
-              <NavLink href="/arbitre" label="Mes tournois" icon={<TrophyIcon />} />
-              <NavLink href="/arbitre" label="Tableaux" icon={<LayoutIcon />} iconOnly />
-            </>
-          )}
-        </nav>
+        {role === 'CLUB' && (
+          <nav className="hidden items-center gap-1 md:flex">
+            <NavLink href="/club" label="Mes tournois" icon={<TrophyIcon />} />
+            <NavLink href="/club/tournoi/nouveau" label="Créer" icon={<PlusIcon />} iconOnly />
+            <NavLink href="/club/stripe" label="Paiements" icon={<CreditCardIcon />} iconOnly />
+          </nav>
+        )}
+        {role === 'REFEREE' && (
+          <nav className="hidden items-center gap-1 md:flex">
+            <NavLink href="/arbitre" label="Mes tournois" icon={<TrophyIcon />} />
+            <NavLink href="/arbitre" label="Tableaux" icon={<LayoutIcon />} iconOnly />
+          </nav>
+        )}
 
-        {/* Avatar + déconnexion */}
         <div className="flex items-center gap-3">
           {/* Badge tier */}
           {user?.tier === 'PREMIUM' && (
@@ -119,24 +107,6 @@ function NavLink({ href, label, icon, iconOnly = false }: { href: string; label:
 
 /* ── Icons ───────────────────────────────────────────────────────────────── */
 
-function SearchIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.35-4.35" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-    </svg>
-  );
-}
-
 function TrophyIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -174,35 +144,6 @@ function LayoutIcon() {
       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
       <line x1="3" y1="9" x2="21" y2="9" />
       <line x1="9" y1="21" x2="9" y2="9" />
-    </svg>
-  );
-}
-
-function FeedIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 11a9 9 0 0 1 9 9" />
-      <path d="M4 4a16 16 0 0 1 16 16" />
-      <circle cx="5" cy="19" r="1" />
-    </svg>
-  );
-}
-
-function UsersIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  );
-}
-
-function ForumIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
 }

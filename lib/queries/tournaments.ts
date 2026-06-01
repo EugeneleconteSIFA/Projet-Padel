@@ -21,6 +21,7 @@ import type {
   Surface,
   Tournament,
 } from '@/lib/mock-tournaments';
+import { DEV_MOCK_TOURNAMENTS } from '@/lib/mock-tournaments';
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Constantes
@@ -172,25 +173,33 @@ function toDisplayTournament(row: EditionRow): Tournament | null {
  * Triés par date de début croissante.
  */
 export async function listTournaments(): Promise<Tournament[]> {
-  const rows = await prisma.tournamentEdition.findMany({
-    where: {
-      tournament: { isPublic: true },
-      status: {
-        in: [
-          TournamentStatus.PUBLISHED,
-          TournamentStatus.REGISTRATION_OPEN,
-          TournamentStatus.REGISTRATION_CLOSED,
-          TournamentStatus.RUNNING,
-        ],
-      },
-    },
-    include: editionInclude,
-    orderBy: { startDate: 'asc' },
-  });
+  if (!process.env.DATABASE_URL) {
+    return DEV_MOCK_TOURNAMENTS;
+  }
 
-  return rows
-    .map(toDisplayTournament)
-    .filter((t): t is Tournament => t !== null);
+  try {
+    const rows = await prisma.tournamentEdition.findMany({
+      where: {
+        tournament: { isPublic: true },
+        status: {
+          in: [
+            TournamentStatus.PUBLISHED,
+            TournamentStatus.REGISTRATION_OPEN,
+            TournamentStatus.REGISTRATION_CLOSED,
+            TournamentStatus.RUNNING,
+          ],
+        },
+      },
+      include: editionInclude,
+      orderBy: { startDate: 'asc' },
+    });
+
+    return rows
+      .map(toDisplayTournament)
+      .filter((t): t is Tournament => t !== null);
+  } catch {
+    return DEV_MOCK_TOURNAMENTS;
+  }
 }
 
 /**
@@ -198,25 +207,40 @@ export async function listTournaments(): Promise<Tournament[]> {
  * Retourne l'édition la plus proche / à venir.
  */
 export async function getTournamentBySlug(slug: string): Promise<Tournament | null> {
-  const row = await prisma.tournamentEdition.findFirst({
-    where: {
-      tournament: { slug, isPublic: true },
-    },
-    include: editionInclude,
-    // édition la plus proche dans le futur, sinon la plus récente passée
-    orderBy: { startDate: 'asc' },
-  });
+  if (!process.env.DATABASE_URL) {
+    return DEV_MOCK_TOURNAMENTS.find((t) => t.id === slug) ?? null;
+  }
 
-  return row ? toDisplayTournament(row) : null;
+  try {
+    const row = await prisma.tournamentEdition.findFirst({
+      where: {
+        tournament: { slug, isPublic: true },
+      },
+      include: editionInclude,
+      orderBy: { startDate: 'asc' },
+    });
+
+    return row ? toDisplayTournament(row) : null;
+  } catch {
+    return DEV_MOCK_TOURNAMENTS.find((t) => t.id === slug) ?? null;
+  }
 }
 
 /**
  * Génère la liste des slugs pour `generateStaticParams`.
  */
 export async function listTournamentSlugs(): Promise<string[]> {
-  const rows = await prisma.tournament.findMany({
-    where: { isPublic: true },
-    select: { slug: true },
-  });
-  return rows.map((r) => r.slug);
+  if (!process.env.DATABASE_URL) {
+    return DEV_MOCK_TOURNAMENTS.map((t) => t.id);
+  }
+
+  try {
+    const rows = await prisma.tournament.findMany({
+      where: { isPublic: true },
+      select: { slug: true },
+    });
+    return rows.map((r) => r.slug);
+  } catch {
+    return DEV_MOCK_TOURNAMENTS.map((t) => t.id);
+  }
 }

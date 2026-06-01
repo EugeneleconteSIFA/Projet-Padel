@@ -205,7 +205,7 @@ export default function VitrinePage() {
 
           <div className="mt-11 flex flex-wrap gap-3">
             <Link
-              href="/"
+              href="/tournois"
               className="inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-sm font-medium text-white transition hover:-translate-y-px"
               style={{ background: 'var(--court-700)' }}
             >
@@ -431,7 +431,7 @@ export default function VitrinePage() {
               Rejoindre la bêta
             </a>
             <Link
-              href="/"
+              href="/tournois"
               className="rounded-md border px-6 py-3.5 text-sm font-medium transition"
               style={{
                 borderColor: 'rgba(241, 237, 229, 0.25)',
@@ -471,7 +471,7 @@ export default function VitrinePage() {
                 { label: 'Espace joueur', href: '#joueur' },
                 { label: 'Espace club', href: '#club' },
                 { label: 'Espace juge-arbitre', href: '#arbitre' },
-                { label: 'Trouver un tournoi', href: '/' },
+                { label: 'Trouver un tournoi', href: '/tournois' },
               ]}
             />
             <FooterCol

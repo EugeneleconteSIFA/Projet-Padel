@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
+import { getRoleHomePath } from '@/lib/dispatch';
 import { NavUser } from '@/components/nav-user';
+import { PlayerMobileNav, PlayerPrimaryNav } from '@/components/player/player-primary-nav';
 
 /* =============================================================================
-   SiteHeader — Navigation épurée : logo, CTA Tournois, menu visuel, compte.
+   SiteHeader — Logo, liens principaux visibles, loupe Tournois, menu secondaire.
    ============================================================================= */
 
 type MenuItem = {
@@ -16,48 +19,12 @@ type MenuItem = {
   accent: string;
 };
 
-const discoverItems: MenuItem[] = [
-  {
-    href: '/joueurs',
-    label: 'Joueurs',
-    accent: 'var(--court-700)',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-      </svg>
-    ),
-  },
-  {
-    href: '/clubs',
-    label: 'Clubs',
-    accent: 'var(--gold-700)',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 10h16v10H4z" /><path d="M8 10V6h8v4" />
-      </svg>
-    ),
-  },
-  {
-    href: '/juge-arbitre',
-    label: 'JA',
-    accent: 'var(--gold-700)',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 8h6M9 12h4" />
-      </svg>
-    ),
-  },
-  {
-    href: '/tarifs',
-    label: 'Tarifs',
-    accent: 'var(--gold-500)',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="8" /><path d="M12 8v8M9 10h4a2 2 0 1 1 0 4H9" />
-      </svg>
-    ),
-  },
-];
+const primaryNavLinks = [
+  { href: '/joueurs', label: 'Joueurs', matchPaths: ['/joueurs'] },
+  { href: '/clubs', label: 'Club', matchPaths: ['/clubs', '/club'] },
+  { href: '/juge-arbitre', label: 'JA', matchPaths: ['/juge-arbitre'], goldOnHome: 'dark' as const },
+  { href: '/tarifs', label: 'Tarifs', matchPaths: ['/tarifs'], goldOnHome: 'light' as const },
+] as const;
 
 const communityItems: MenuItem[] = [
   {
@@ -111,9 +78,13 @@ const headerVariants: Record<
 export function SiteHeader({ variant = 'default' }: { variant?: SiteHeaderVariant }) {
   const { data: session } = useSession();
   const isPlayer = session?.user?.role === 'PLAYER';
+  const pathname = usePathname();
+  const logoHref = session?.user ? getRoleHomePath(session.user.role) : '/';
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const headerStyle = headerVariants[variant];
+  const showSecondaryMenu = isPlayer;
+  const isHome = pathname === '/';
 
   useEffect(() => {
     function onOutside(e: MouseEvent) {
@@ -124,86 +95,135 @@ export function SiteHeader({ variant = 'default' }: { variant?: SiteHeaderVarian
   }, []);
 
   return (
-    <header
-      className="sticky top-0 z-50 border-b"
-      style={{
-        background: headerStyle.background,
-        backdropFilter: 'saturate(140%) blur(12px)',
-        WebkitBackdropFilter: 'saturate(140%) blur(12px)',
-        borderColor: headerStyle.borderColor,
-      }}
-    >
-      <div className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 px-5 py-3 md:px-6">
-        <Link
-          href="/"
-          className="shrink-0 transition hover:opacity-80"
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '20px',
-            fontWeight: 500,
-            letterSpacing: '-0.02em',
-            color: 'var(--ink-950)',
-          }}
-        >
-          the court<span style={{ color: 'var(--gold-500)' }}>.</span>
-        </Link>
-
-        <div className="flex items-center gap-2">
+    <>
+      <header
+        className="sticky top-0 z-50 border-b"
+        style={{
+          background: headerStyle.background,
+          backdropFilter: 'saturate(140%) blur(12px)',
+          WebkitBackdropFilter: 'saturate(140%) blur(12px)',
+          borderColor: headerStyle.borderColor,
+        }}
+      >
+        <div className="mx-auto flex max-w-screen-xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-5 sm:py-3 md:px-6">
           <Link
-            href="/tournois"
-            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-px"
-            style={{ background: 'var(--court-700)' }}
+            href={logoHref}
+            className="shrink-0 transition hover:opacity-80"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(17px, 4vw, 20px)',
+              fontWeight: 500,
+              letterSpacing: '-0.02em',
+              color: 'var(--ink-950)',
+            }}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-            </svg>
-            <span className="hidden sm:inline">Tournois</span>
+            the court<span style={{ color: 'var(--gold-500)' }}>.</span>
           </Link>
 
-          <div className="relative" ref={ref}>
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border transition hover:bg-[var(--cream-200)]"
-              style={{ borderColor: 'var(--cream-200)', color: 'var(--text-secondary)' }}
-              aria-expanded={open}
-              aria-label="Menu"
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-2">
+            <nav
+              aria-label="Navigation principale"
+              className="flex min-w-0 items-center gap-0.5 overflow-x-auto sm:gap-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                <path d="M4 7h16M4 12h16M4 17h16" />
+              {primaryNavLinks.map((link) => {
+                const active = link.matchPaths.some(
+                  (path) => pathname === path || pathname.startsWith(`${path}/`),
+                );
+                const homeGold =
+                  isHome && 'goldOnHome' in link
+                    ? link.goldOnHome === 'dark'
+                      ? { accent: 'var(--gold-700)', accentSoft: 'var(--gold-100)' }
+                      : { accent: 'var(--gold-500)', accentSoft: 'var(--gold-100)' }
+                    : null;
+                const color = homeGold
+                  ? homeGold.accent
+                  : active
+                    ? 'var(--court-700)'
+                    : 'var(--text-secondary)';
+                const background = active
+                  ? (homeGold?.accentSoft ?? 'var(--court-100)')
+                  : 'var(--bg-surface)';
+                const borderColor = homeGold
+                  ? active
+                    ? `color-mix(in srgb, ${homeGold.accent} 30%, transparent)`
+                    : `color-mix(in srgb, ${homeGold.accent} 18%, var(--border-subtle))`
+                  : active
+                    ? 'color-mix(in srgb, var(--court-700) 25%, transparent)'
+                    : 'var(--border-subtle)';
+
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    aria-current={active ? 'page' : undefined}
+                    className="shrink-0 rounded-lg border px-1.5 py-1 text-[10px] font-semibold transition hover:bg-[var(--cream-100)] sm:px-2.5 sm:py-1.5 sm:text-xs"
+                    style={{
+                      color,
+                      borderColor,
+                      background,
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <Link
+              href="/tournois"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold text-white transition hover:-translate-y-px sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm"
+              style={{ background: 'var(--court-700)' }}
+              aria-label="Tournois"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="sm:h-[15px] sm:w-[15px]">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
-            </button>
+              <span className="hidden min-[400px]:inline">Tournois</span>
+            </Link>
 
-            {open && (
-              <div
-                className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border p-3 shadow-lg"
-                style={{
-                  background: 'var(--bg-surface)',
-                  borderColor: 'var(--border-subtle)',
-                  boxShadow: 'var(--shadow-lg)',
-                }}
-              >
-                <MenuGrid items={discoverItems} onNavigate={() => setOpen(false)} />
+            {showSecondaryMenu && (
+              <div className="relative shrink-0" ref={ref}>
+                <button
+                  type="button"
+                  onClick={() => setOpen((v) => !v)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border transition hover:bg-[var(--cream-200)] sm:h-9 sm:w-9"
+                  style={{ borderColor: 'var(--cream-200)', color: 'var(--text-secondary)' }}
+                  aria-expanded={open}
+                  aria-label="Menu communauté"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden className="sm:h-[18px] sm:w-[18px]">
+                    <path d="M4 7h16M4 12h16M4 17h16" />
+                  </svg>
+                </button>
 
-                {isPlayer && (
-                  <>
+                {open && (
+                  <div
+                    className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border p-3 shadow-lg"
+                    style={{
+                      background: 'var(--bg-surface)',
+                      borderColor: 'var(--border-subtle)',
+                      boxShadow: 'var(--shadow-lg)',
+                    }}
+                  >
                     <p
-                      className="mb-2 mt-3 px-1 font-mono text-[10px] uppercase tracking-[0.12em]"
+                      className="mb-2 px-1 font-mono text-[10px] uppercase tracking-[0.12em]"
                       style={{ color: 'var(--text-muted)' }}
                     >
                       Communauté
                     </p>
                     <MenuGrid items={communityItems} onNavigate={() => setOpen(false)} cols={3} />
-                  </>
+                  </div>
                 )}
               </div>
             )}
-          </div>
 
-          <NavUser compact />
+            <NavUser compact />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      {isPlayer && <PlayerPrimaryNav />}
+      {isPlayer && <PlayerMobileNav />}
+    </>
   );
 }
 

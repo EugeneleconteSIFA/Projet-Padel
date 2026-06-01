@@ -8,7 +8,7 @@ import type { Session } from 'next-auth';
 
 export type DispatchResult =
   | { destination: '/'; reason: 'public' }
-  | { destination: '/'; reason: 'player' }
+  | { destination: '/joueur'; reason: 'player' }
   | { destination: '/club'; reason: 'club-approved' }
   | { destination: '/club/attente'; reason: 'club-pending' }
   | { destination: '/arbitre'; reason: 'referee-approved' }
@@ -27,9 +27,9 @@ export async function getDispatchDestination(session: Session | null): Promise<D
   const userId = session.user.id;
   const role = session.user.role;
 
-  // Rôle PLAYER → accueil connecté
+  // Rôle PLAYER → espace joueur
   if (role === 'PLAYER') {
-    return { destination: '/', reason: 'player' };
+    return { destination: '/joueur', reason: 'player' };
   }
 
   // Rôle CLUB → vérifier le statut de validation
@@ -68,4 +68,12 @@ export async function getDispatchDestination(session: Session | null): Promise<D
 
   // Fallback → accueil public
   return { destination: '/', reason: 'public' };
+}
+
+/** Chemin d'accueil connecté selon le rôle (sans requête DB). */
+export function getRoleHomePath(role?: string | null): string {
+  if (role === 'CLUB') return '/club';
+  if (role === 'REFEREE') return '/arbitre';
+  if (role === 'PLAYER') return '/joueur';
+  return '/';
 }

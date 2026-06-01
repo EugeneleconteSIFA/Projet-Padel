@@ -42,7 +42,7 @@ export default function TarifsPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-16 md:px-7">
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {pricingPlans.map((plan) => (
             <article
               key={plan.plan}

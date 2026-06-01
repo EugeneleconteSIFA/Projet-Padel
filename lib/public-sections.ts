@@ -194,7 +194,7 @@ export const playerPricingSummary: PricingSummary = {
   label: 'Compte joueur',
   price: '0 € / mois',
   description:
-    'Gratuit pour chercher, s\'inscrire et jouer. Premium (4,90 €/mois) pour les fonctionnalités avancées. L\'inscription à un tournoi reste payée au club, pas à The Court.',
+    'Gratuit pour chercher, s\'inscrire et jouer. Premium (4,99 €/mois) pour les fonctionnalités avancées. L\'inscription à un tournoi reste payée au club, pas à The Court.',
 };
 
 export const clubPricingSummary: PricingSummary = {
@@ -211,7 +211,118 @@ export const refereePricingSummary: PricingSummary = {
     'Accès complet aux outils d\'arbitrage après validation de votre compte. Aucun abonnement requis pour les juges-arbitres.',
 };
 
-export const pricingPlans: PricingPlan[] = [
+export type LandingPersonaSection = {
+  id: string;
+  kicker: string;
+  title: string;
+  subtitle: string;
+  features: string[];
+  premiumFeatures?: string[];
+  href: string;
+  cta: string;
+  accent: 'court' | 'gold';
+};
+
+export type LandingBenefit = {
+  persona: string;
+  title: string;
+  items: string[];
+};
+
+/** Sections persona pour la landing publique (sans emoji). */
+export const landingPersonaSections: LandingPersonaSection[] = [
+  {
+    id: 'joueurs',
+    kicker: 'Pour les joueurs',
+    title: 'Trouve, inscris-toi, joue.',
+    subtitle:
+      'Recherche par ville et date, inscription seule ou en duo, suivi des résultats et historique — le tout depuis votre mobile.',
+    features: [
+      'Trouver des tournois proches',
+      'Filtrer par ville, date, catégorie et prix',
+      'S\'inscrire seul ou avec un partenaire',
+      'Suivre résultats et historique',
+      'Profil joueur gratuit',
+      'Communauté de base (feed, forum, matchs)',
+    ],
+    premiumFeatures: [
+      'Priorité d\'inscription aux tournois complets',
+      'Statistiques avancées et badge Premium',
+      'Pas de publicité',
+      'Matchmaking partenaire (à venir)',
+    ],
+    href: '/joueurs',
+    cta: 'Découvrir l\'espace joueur',
+    accent: 'court',
+  },
+  {
+    id: 'clubs',
+    kicker: 'Pour les clubs',
+    title: 'Remplissez vos tournois, encaissez proprement.',
+    subtitle:
+      'Créez, publiez et suivez vos tournois depuis un back-office pensé pour les responsables de club.',
+    features: [
+      'Créer et publier des tournois',
+      'Suivre les inscriptions en temps réel',
+      'Gérer les paiements (simulation, Stripe plus tard)',
+      'Voir et activer la liste d\'attente',
+      'Assigner un juge-arbitre',
+      'Statistiques de remplissage',
+    ],
+    href: '/clubs',
+    cta: 'Découvrir l\'espace club',
+    accent: 'gold',
+  },
+  {
+    id: 'arbitres',
+    kicker: 'Pour les juges-arbitres',
+    title: 'Le tournoi se gère depuis votre téléphone.',
+    subtitle:
+      'Validation des inscrits, tableaux, scores et résultats — un cockpit mobile-first, gratuit après validation du compte.',
+    features: [
+      'Voir les tournois assignés',
+      'Valider les inscrits et gérer les forfaits',
+      'Générer les tableaux',
+      'Saisir les scores match par match',
+      'Publier les résultats en direct',
+    ],
+    href: '/juge-arbitre',
+    cta: 'Découvrir l\'espace juge-arbitre',
+    accent: 'gold',
+  },
+];
+
+export const landingBenefits: LandingBenefit[] = [
+  {
+    persona: 'Joueur',
+    title: 'Gagnez du temps, jouez plus',
+    items: [
+      'Trouvez un tournoi en quelques clics',
+      'Suivez votre progression sur la saison',
+      'Centralisez inscriptions et résultats',
+    ],
+  },
+  {
+    persona: 'Club',
+    title: 'Remplissez mieux, encaissez plus proprement',
+    items: [
+      'Taux de remplissage plus élevé',
+      'Moins de no-shows grâce aux relances',
+      'Paiements centralisés et traçables',
+    ],
+  },
+  {
+    persona: 'Juge-arbitre',
+    title: 'Moins de tableaux manuels',
+    items: [
+      'Gagnez du temps le jour J',
+      'Scores centralisés, plus de WhatsApp',
+      'Résultats publiés automatiquement',
+    ],
+  },
+];
+
+export const landingPricingPlans: PricingPlan[] = [
   {
     plan: 'Joueur',
     name: 'Gratuit',
@@ -231,39 +342,71 @@ export const pricingPlans: PricingPlan[] = [
   {
     plan: 'Joueur Premium',
     name: 'Premium',
-    price: '4,90 €',
+    price: '4,99 €',
     priceSuffix: '/ mois',
     description: 'Pour les compétiteurs réguliers.',
     features: [
       'Inscription prioritaire',
       'Statistiques avancées',
-      'Partenaires favoris',
-      'Matchmaking IA (V2)',
+      'Badge Premium',
+      'Recommandations personnalisées',
       'Sans publicité',
-      'Badge premium',
     ],
     cta: 'Passer Premium',
     href: '/signup',
     featured: true,
   },
   {
-    plan: 'Club',
-    name: 'Club',
+    plan: 'Club Starter',
+    name: 'Starter',
     price: '29 €',
     priceSuffix: '/ mois',
-    description: 'Pour les clubs qui organisent des tournois.',
+    description: 'Gestion simple des tournois et inscriptions.',
     features: [
-      'Tournois illimités',
-      'Encaissement Stripe Connect',
-      'CRM joueurs (V2)',
-      'Communication ciblée',
-      'Statistiques de remplissage',
-      'Support prioritaire',
+      'Création de tournois',
+      'Gestion des inscriptions',
+      'Liste d\'attente',
+      'Dashboard club',
+      'Paiements simulés (Stripe plus tard)',
     ],
     cta: 'Créer un compte club',
     href: '/signup',
   },
+  {
+    plan: 'Club Pro',
+    name: 'Pro',
+    price: '79 €',
+    priceSuffix: '/ mois',
+    description: 'Pour les clubs qui veulent optimiser leur remplissage.',
+    features: [
+      'Statistiques avancées',
+      'CRM joueurs',
+      'Relances automatiques',
+      'Remplissage optimisé',
+      'Options événements',
+    ],
+    cta: 'Contacter l\'équipe',
+    href: '/signup',
+  },
+  {
+    plan: 'Juge-arbitre',
+    name: 'Gratuit',
+    price: '0 €',
+    priceSuffix: '',
+    description: 'Accès complet après validation du compte.',
+    features: [
+      'Tournois assignés',
+      'Tableaux et scores',
+      'Publication des résultats',
+      'Historique d\'arbitrage',
+    ],
+    cta: 'Créer un compte juge-arbitre',
+    href: '/signup',
+  },
 ];
+
+/** Alias complet — 5 plans (joueur, premium, club starter, club pro, JA). */
+export const pricingPlans: PricingPlan[] = landingPricingPlans;
 
 export const homeRubrics = [
   {

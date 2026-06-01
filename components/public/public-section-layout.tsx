@@ -195,6 +195,39 @@ export function PublicSectionLayout({
   );
 }
 
+function FeatureGlyph({ tier, dark }: { tier: FeatureTier; dark: boolean }) {
+  const color =
+    tier === 'premium' || tier === 'club'
+      ? 'var(--gold-700)'
+      : tier === 'bientot'
+        ? 'var(--text-muted)'
+        : 'var(--court-700)';
+  const bg = dark
+    ? 'rgba(241,237,229,0.12)'
+    : tier === 'premium' || tier === 'club'
+      ? 'var(--gold-100)'
+      : 'var(--court-100)';
+
+  return (
+    <span
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+      style={{ background: bg, color }}
+      aria-hidden
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        {tier === 'bientot' ? (
+          <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" />
+          </>
+        ) : (
+          <path d="M5 12l4 4L20 6" />
+        )}
+      </svg>
+    </span>
+  );
+}
+
 function FeatureSection({
   title,
   features,
@@ -247,9 +280,7 @@ function FeatureSection({
               }}
             >
               <div className="flex items-start justify-between gap-3">
-                <span className="text-2xl" aria-hidden>
-                  {feature.icon}
-                </span>
+                <FeatureGlyph tier={feature.tier} dark={dark} />
                 <TierBadge tier={feature.tier} />
               </div>
               <h3

@@ -5,9 +5,10 @@
    Panel filtres + liste de cards + carte Leaflet lazy-loadée.
    ============================================================================= */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   type Tournament,
   CATEGORIES,
@@ -499,9 +500,22 @@ function FilterPanel({ filters, onChange, onReset }: FilterPanelProps) {
 /* ── Composant principal ──────────────────────────────────────────────────── */
 
 export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }) {
-  const [filters, setFilters] = useState<Filters>(INIT_FILTERS);
+  const searchParams = useSearchParams();
+  const initialVille = searchParams.get('ville') ?? '';
+
+  const [filters, setFilters] = useState<Filters>(() => ({
+    ...INIT_FILTERS,
+    ville: initialVille,
+  }));
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
+
+  useEffect(() => {
+    const ville = searchParams.get('ville') ?? '';
+    if (ville) {
+      setFilters((prev) => ({ ...prev, ville }));
+    }
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
     return tournaments.filter(t => {
@@ -520,7 +534,7 @@ export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }
   const handleReset = useCallback(() => setFilters(INIT_FILTERS), []);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
+    <div className="min-h-screen pb-24 md:pb-0" style={{ background: 'var(--bg-page)' }}>
 
       {/* ── Navigation ─────────────────────────────────────────────────── */}
       <SiteHeader />

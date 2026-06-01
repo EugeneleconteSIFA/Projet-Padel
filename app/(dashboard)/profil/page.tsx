@@ -61,6 +61,13 @@ export default async function ProfilPage() {
 
       {/* ── MESSAGE DE BIENVENUE ───────────────────────────────────────── */}
       <div>
+        <Link
+          href="/joueur"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium transition hover:opacity-70"
+          style={{ color: 'var(--court-700)' }}
+        >
+          ← Espace joueur
+        </Link>
         <h1
           style={{
             fontFamily: 'var(--font-display)',
@@ -73,7 +80,7 @@ export default async function ProfilPage() {
           Bonjour, {firstName}
         </h1>
         <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
-          Bienvenue sur ton espace joueur.
+          Ton profil détaillé — stats, historique et préférences padel.
         </p>
       </div>
 

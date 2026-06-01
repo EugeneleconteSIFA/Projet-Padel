@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
   '/feed',
   '/matchs-amicaux',
   '/joueurs',
+  '/clubs',
   '/juge-arbitre',
   '/tarifs',
   '/login',
@@ -30,13 +31,22 @@ export default auth((req) => {
     pathname.startsWith('/forum') ||
     pathname.startsWith('/joueur/') ||
     pathname.startsWith('/post/') ||
-    pathname === '/clubs' ||
     /^\/club\/[^/]+\/communaute$/.test(pathname) ||
     pathname.startsWith('/api/auth/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon');
 
   if (session && (pathname === '/login' || pathname === '/signup')) {
+    const role = session.user?.role;
+    if (role === 'PLAYER') {
+      return NextResponse.redirect(new URL('/joueur', req.url));
+    }
+    if (role === 'CLUB') {
+      return NextResponse.redirect(new URL('/club', req.url));
+    }
+    if (role === 'REFEREE') {
+      return NextResponse.redirect(new URL('/arbitre', req.url));
+    }
     return NextResponse.redirect(new URL('/', req.url));
   }
 

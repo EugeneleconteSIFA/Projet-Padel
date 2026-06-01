@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { getRoleHomePath } from '@/lib/dispatch';
 
 /* =============================================================================
    NavUser — menu utilisateur connecté dans la barre de navigation publique.
@@ -77,15 +78,12 @@ export function NavUser({ compact = false }: { compact?: boolean }) {
     .join('')
     .toUpperCase();
 
-  const dashboardHref =
-    role === 'CLUB'    ? '/club' :
-    role === 'REFEREE' ? '/arbitre' :
-    '/profil';
+  const dashboardHref = getRoleHomePath(role);
 
   const dashboardLabel =
     role === 'CLUB'    ? 'Mon club' :
     role === 'REFEREE' ? 'Mon espace arbitre' :
-    'Mon profil';
+    'Mon espace joueur';
 
   return (
     <div className="relative" ref={ref}>

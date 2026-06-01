@@ -192,7 +192,8 @@ export default async function ArbitreTournoiPage({
 
       {/* ── Tableaux + Matchs (composant client pour saisie scores) ── */}
       {edition.brackets.length > 0 && (
-        <MatchListClient
+        <div id="matchs">
+          <MatchListClient
           brackets={edition.brackets.map(b => ({
             id:    b.id,
             label: b.label,
@@ -207,6 +208,7 @@ export default async function ArbitreTournoiPage({
             })),
           }))}
         />
+        </div>
       )}
     </div>
   );

@@ -140,26 +140,29 @@ Détails et trade-offs : [SPEC.md §7](./SPEC.md#7-hosting--recommandation).
 
 ---
 
-## État actuel du site (mise à jour 24/05/2026)
+## État actuel du site (mise à jour mai 2026)
 
 POC implémenté et déployé (VPS + PM2, `thecourt.fr`).
 
 **Implémenté**
-- **Auth.js v5** : connexion email/mot de passe (bcrypt) + magic link (Resend) ; inscription 3 étapes (identité → profil padel → type de compte) ; création automatique du profil selon le rôle.
-- **Espaces** : joueur (`/profil`, `/profil/modifier`, `/mon-feed`), club (`/club`, `/club/tournoi/nouveau`, `/club/parametres`, `/club/stripe`), arbitre (`/arbitre`, `/arbitre/tournoi/[id]`), admin (`/admin/moderation`).
-- **Validation** : pages d'attente club/arbitre (`/club/attente`, `/arbitre/attente`).
-- **Tournois** : recherche + carte Leaflet (`/tournois`), fiche (`/tournois/[id]`), annuaire clubs (`/clubs`).
-- **Communauté** : feed public/privé, posts (`/post/[id]`), forum (`/forum/**`), matchs amicaux (`/matchs-amicaux`), follow, réactions, signalement + modération (club + admin), espaces communauté de club (`/club/[slug]/communaute`).
-- **UI** : headers partagés (public + connecté par rôle), thème clair/sombre.
+- **Auth.js v5** : connexion email/mot de passe (bcrypt) + magic link (Resend) ; inscription 3 étapes ; dispatch par rôle (`lib/dispatch.ts`).
+- **Accueil public** : landing vitrine `/` (hero, 3 personas, 5 tarifs, bénéfices).
+- **Espaces connectés** :
+  - Joueur : `/joueur` (hub), `/profil`, `/profil/modifier`, `/mon-feed`
+  - Club : `/club`, `/club/tournoi/nouveau`, `/club/parametres`, `/club/stripe`
+  - Arbitre : `/arbitre`, `/arbitre/tournoi/[id]`
+  - Admin : `/admin/moderation`
+- **Marketing** : `/joueurs`, `/clubs`, `/juge-arbitre`, `/tarifs`, `/vitrine`
+- **Validation** : `/club/attente`, `/arbitre/attente` (gardes serveur `lib/auth-guards.ts`)
+- **Tournois** : recherche + carte Leaflet (`/tournois`), fiche (`/tournois/[id]`)
+- **Communauté** : feed, forum, matchs amicaux, modération, espaces club
+- **UI** : headers public + connecté, nav joueur mobile/desktop, tokens branding
 
-**Points ouverts — connexion & connectivité** — détail et corrections dans **[DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md)** :
-- 🔴 Statut de validation figé dans le JWT → redirections d'attente incohérentes après approbation admin.
-- 🔴 Failles de protection : sous-routes club/arbitre non gardées côté serveur.
-- 🔴 Pages publiques `/tournois` et `/clubs` qui renvoient vers `/login` pour les visiteurs déconnectés (`PUBLIC_PATHS` incomplet).
-- 🔴 `trustHost` à activer pour NextAuth v5 sur VPS (sessions parfois non reconnues).
-- 🟠 Lien « mot de passe oublié » cassé (`/forgot-password` ≠ `/mot-de-passe-oublie`).
-- 🟠 `newUser: '/onboarding'` → route inexistante.
-- 🟡 Réinitialisation de mot de passe encore en mock.
+**Points ouverts** — voir [DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md](./DIAGNOSTIC-AUTH-ET-CONNECTIVITE.md) :
+- 🟡 Validation VPS prod (checklist §7) à confirmer manuellement
+- 🟡 Stripe Connect réel non branché (`/club/stripe` = simulation)
+- 🟡 Assignation juge-arbitre côté club (affichée, pas encore d'UI d'assignation)
+- 🟡 Matchmaking IA, CRM club avancé → roadmap V2
 
 ## Prochaines étapes
 
