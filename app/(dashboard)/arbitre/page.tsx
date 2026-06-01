@@ -128,6 +128,13 @@ const MOCK_DASHBOARD = {
   },
 };
 
+const ARBITRE_MAIN_ACTIONS = [
+  { key: 'manage', label: 'Gérer le tournoi', icon: 'manage' as const, primary: true },
+  { key: 'bracket', label: 'Générer les tableaux', icon: 'bracket' as const },
+  { key: 'scores', label: 'Saisir les scores', icon: 'scores' as const },
+  { key: 'publish', label: 'Publier les résultats', icon: 'publish' as const },
+] as const;
+
 const STATUS_LABEL: Record<string, string> = {
   DRAFT: 'Brouillon',
   PUBLISHED: 'Publié',
@@ -154,7 +161,6 @@ export default async function ArbitrePage() {
   await requireApprovedReferee();
   const raw = await getArbitreDashboard().catch(() => null);
 
-  const firstName = raw?.firstName ?? MOCK_DASHBOARD.firstName;
   const upcoming = raw?.upcoming ?? MOCK_DASHBOARD.upcoming;
   const past = raw?.past ?? MOCK_DASHBOARD.past;
   const pendingRegistrations = raw?.pendingRegistrations ?? MOCK_DASHBOARD.pendingRegistrations;
@@ -167,121 +173,129 @@ export default async function ArbitrePage() {
     upcoming[0] ??
     null;
 
+  const bracketTarget =
+    upcoming.find((t) => !t.hasBracket && t.teamsConfirmed >= 2) ?? focusTournament;
+  const scoresTarget =
+    upcoming.find((t) => t.liveMatches > 0 || t.pendingMatches > 0) ?? focusTournament;
+
+  const actionHrefs: Record<(typeof ARBITRE_MAIN_ACTIONS)[number]['key'], string> = {
+    manage: focusTournament ? `/arbitre/tournoi/${focusTournament.id}` : '#assignes',
+    bracket: bracketTarget ? `/arbitre/tournoi/${bracketTarget.id}` : '#assignes',
+    scores: scoresTarget ? `/arbitre/tournoi/${scoresTarget.id}#matchs` : '#assignes',
+    publish: focusTournament ? `/arbitre/tournoi/${focusTournament.id}#matchs` : '#assignes',
+  };
+
+  const teamsToValidate = pendingRegistrations.length;
+  const scoresToEnter = kpis.pendingScoreMatches + kpis.liveMatchesCount;
+
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-5xl space-y-7 pb-4">
       {/* En-tête */}
       <header>
-        <p
-          className="font-mono text-[11px] uppercase tracking-[0.14em]"
-          style={{ color: 'var(--gold-700)' }}
-        >
-          Espace juge-arbitre
-        </p>
         <h1
-          className="mt-2 leading-tight tracking-tight"
+          className="leading-tight tracking-tight"
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(28px, 4vw, 36px)',
+            fontSize: 'clamp(26px, 4vw, 34px)',
             fontWeight: 500,
           }}
         >
-          Bonjour, {firstName}
+          Bienvenue dans votre espace juge-arbitre
         </h1>
-        <p className="mt-2 text-base" style={{ color: 'var(--text-secondary)' }}>
-          Validez les inscrits, générez les tableaux et saisissez les scores depuis votre mobile.
-        </p>
       </header>
 
       {/* KPIs */}
       <section aria-label="Indicateurs">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <KpiCard label="Tournois à venir" value={kpis.upcomingCount} sub="assignés" accent />
-          <KpiCard label="Matchs à saisir" value={kpis.pendingScoreMatches} sub="scores en attente" />
-          <KpiCard label="Inscriptions" value={kpis.pendingPaymentCount} sub="paiement en attente" />
-          <KpiCard label="Officiés" value={kpis.pastCount} sub="tournois passés" />
+        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+          <KpiCard label="Tournois assignés" value={kpis.upcomingCount} accent />
+          <KpiCard label="Équipes à valider" value={teamsToValidate} />
+          <KpiCard label="Tableaux à générer" value={kpis.needsBracketCount} />
+          <KpiCard label="Scores à saisir" value={scoresToEnter} />
         </div>
       </section>
 
-      {/* Alertes */}
-      {(kpis.liveMatchesCount > 0 || kpis.needsBracketCount > 0 || kpis.pendingPaymentCount > 0) && (
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Alertes">
+      {/* Actions principales */}
+      <section aria-label="Actions principales">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+          {ARBITRE_MAIN_ACTIONS.map((action) => (
+            <MainActionLink
+              key={action.key}
+              href={actionHrefs[action.key]}
+              label={action.label}
+              icon={action.icon}
+              primary={'primary' in action && action.primary}
+              disabled={!focusTournament && action.key !== 'manage'}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Alertes opérationnelles */}
+      {(kpis.liveMatchesCount > 0 || kpis.needsBracketCount > 0 || teamsToValidate > 0) && (
+        <section className="flex flex-wrap gap-2" aria-label="Alertes">
           {kpis.liveMatchesCount > 0 && (
-            <AlertCard
-              title={`${kpis.liveMatchesCount} match${kpis.liveMatchesCount > 1 ? 's' : ''} en cours`}
-              body="Des scores sont à saisir en direct."
-              tone="court"
+            <AlertPill
+              text={`${kpis.liveMatchesCount} match${kpis.liveMatchesCount > 1 ? 's' : ''} en direct`}
             />
           )}
           {kpis.needsBracketCount > 0 && (
-            <AlertCard
-              title={`${kpis.needsBracketCount} tableau${kpis.needsBracketCount > 1 ? 'x' : ''} à générer`}
-              body="Assez d'équipes confirmées — vous pouvez lancer le tirage."
-              tone="gold"
-            />
+            <AlertPill text={`${kpis.needsBracketCount} tableau${kpis.needsBracketCount > 1 ? 'x' : ''} à générer`} tone="gold" />
           )}
-          {kpis.pendingPaymentCount > 0 && (
-            <AlertCard
-              title={`${kpis.pendingPaymentCount} inscription${kpis.pendingPaymentCount > 1 ? 's' : ''} en attente`}
-              body="Paiements non finalisés avant validation."
-              tone="gold"
-            />
+          {teamsToValidate > 0 && (
+            <AlertPill text={`${teamsToValidate} équipe${teamsToValidate > 1 ? 's' : ''} à valider`} tone="gold" />
           )}
         </section>
       )}
 
-      {/* Focus */}
-      {focusTournament && (
+      {/* Focus jour J */}
+      {focusTournament && (focusTournament.isToday || focusTournament.liveMatches > 0) && (
         <section
-          className="rounded-2xl border p-5"
+          className="rounded-xl border px-4 py-3"
           style={{
-            background: 'color-mix(in srgb, var(--gold-100) 35%, var(--bg-surface))',
-            borderColor: 'color-mix(in srgb, var(--gold-500) 20%, transparent)',
+            background: 'color-mix(in srgb, var(--gold-100) 30%, var(--bg-surface))',
+            borderColor: 'color-mix(in srgb, var(--gold-500) 18%, transparent)',
           }}
-          aria-label="Priorité du moment"
+          aria-label="Tournoi du jour"
         >
-          <p
-            className="font-mono text-[10px] uppercase tracking-[0.12em]"
-            style={{ color: 'var(--gold-700)' }}
-          >
-            {focusTournament.isToday ? "Aujourd'hui" : 'Prochain tournoi'}
-          </p>
-          <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="font-semibold">{focusTournament.tournamentName}</p>
-              <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                {focusTournament.clubName} · {focusTournament.teamsConfirmed}/{focusTournament.maxTeams}{' '}
-                équipes
-                {focusTournament.liveMatches > 0 && ` · ${focusTournament.liveMatches} match en direct`}
-              </p>
-            </div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm">
+              <span className="font-semibold">{focusTournament.tournamentName}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>
+                {' '}
+                — {focusTournament.clubName} · {focusTournament.playedMatches}/
+                {focusTournament.totalMatches || '—'} matchs
+              </span>
+            </p>
             <Link
               href={`/arbitre/tournoi/${focusTournament.id}`}
-              className="text-sm font-semibold hover:underline"
+              className="text-xs font-semibold hover:underline"
               style={{ color: 'var(--court-700)' }}
             >
-              Ouvrir le cockpit →
+              Cockpit →
             </Link>
           </div>
-          <MatchProgress played={focusTournament.playedMatches} total={focusTournament.totalMatches} className="mt-4" />
+          <MatchProgress played={focusTournament.playedMatches} total={focusTournament.totalMatches} className="mt-2" />
         </section>
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Colonne principale */}
-        <div className="space-y-6 lg:col-span-2">
-          <Section title="Tournois assignés">
-            {upcoming.length === 0 ? (
-              <EmptyState message="Aucun tournoi assigné pour le moment." />
-            ) : (
-              <ul className="space-y-2">
-                {upcoming.map((t) => (
-                  <li key={t.id}>
-                    <CompactTournamentCard tournament={t} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Section>
+        {/* Tournois assignés */}
+        <div className="space-y-5 lg:col-span-2">
+          <div id="assignes">
+            <Section title="Tournois assignés">
+              {upcoming.length === 0 ? (
+                <EmptyState message="Aucun tournoi assigné. Un club vous ajoutera depuis son espace." />
+              ) : (
+                <ul className="space-y-2">
+                  {upcoming.map((t) => (
+                    <li key={t.id}>
+                      <CompactTournamentCard tournament={t} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Section>
+          </div>
 
           {past.length > 0 && (
             <Section title="Historique">
@@ -294,7 +308,7 @@ export default async function ArbitrePage() {
                         {t.clubName} ·{' '}
                         {new Date(t.startDate).toLocaleDateString('fr-FR', {
                           day: 'numeric',
-                          month: 'long',
+                          month: 'short',
                           year: 'numeric',
                         })}
                       </p>
@@ -307,11 +321,11 @@ export default async function ArbitrePage() {
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-4">
-          <Section title="Inscriptions à valider">
+        {/* Équipes à valider */}
+        <div id="validations">
+          <Section title="Équipes à valider">
             {pendingRegistrations.length === 0 ? (
-              <EmptyState message="Aucune inscription en attente de paiement." />
+              <EmptyState message="Aucune équipe en attente de validation." />
             ) : (
               <ul className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
                 {pendingRegistrations.map((r) => (
@@ -325,76 +339,15 @@ export default async function ArbitrePage() {
                       className="mt-1 inline-block text-xs font-semibold hover:underline"
                       style={{ color: 'var(--court-700)' }}
                     >
-                      Voir le tournoi →
+                      Valider →
                     </Link>
                   </li>
                 ))}
               </ul>
             )}
           </Section>
-
-          <div
-            className="rounded-2xl border p-5"
-            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
-          >
-            <p
-              className="mb-3 text-xs font-semibold uppercase tracking-wider"
-              style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}
-            >
-              Actions rapides
-            </p>
-            <div className="space-y-2">
-              {focusTournament && (
-                <QuickAction
-                  href={`/arbitre/tournoi/${focusTournament.id}`}
-                  label="Cockpit du tournoi prioritaire"
-                  primary
-                />
-              )}
-              {upcoming.find((t) => !t.hasBracket && t.teamsConfirmed >= 2) && (
-                <QuickAction
-                  href={`/arbitre/tournoi/${upcoming.find((t) => !t.hasBracket && t.teamsConfirmed >= 2)!.id}`}
-                  label="Générer un tableau"
-                />
-              )}
-              <QuickAction href="/juge-arbitre" label="Découvrir les fonctionnalités JA" />
-            </div>
-          </div>
-
-          <div
-            className="rounded-2xl border p-5"
-            style={{
-              background: 'color-mix(in srgb, var(--court-100) 40%, var(--bg-surface))',
-              borderColor: 'color-mix(in srgb, var(--court-700) 10%, transparent)',
-            }}
-          >
-            <p className="text-sm font-semibold" style={{ color: 'var(--court-800)' }}>
-              Mobile-first
-            </p>
-            <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              Saisie tactile set par set, publication instantanée des résultats côté joueurs.
-            </p>
-          </div>
         </div>
       </div>
-
-      {upcoming.length === 0 && past.length === 0 && (
-        <div
-          className="rounded-2xl border py-16 text-center"
-          style={{ borderColor: 'var(--border-subtle)' }}
-        >
-          <WhistleIcon />
-          <p
-            className="mt-4"
-            style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--text-secondary)' }}
-          >
-            Aucun tournoi assigné
-          </p>
-          <p className="mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-            Les clubs vous assigneront depuis leur espace tournoi.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
@@ -404,17 +357,15 @@ export default async function ArbitrePage() {
 function KpiCard({
   label,
   value,
-  sub,
   accent,
 }: {
   label: string;
   value: number;
-  sub: string;
   accent?: boolean;
 }) {
   return (
     <div
-      className="rounded-2xl border p-4"
+      className="rounded-xl border px-3 py-3"
       style={{
         background: accent ? 'var(--gold-100)' : 'var(--bg-surface)',
         borderColor: accent
@@ -422,14 +373,10 @@ function KpiCard({
           : 'var(--border-subtle)',
       }}
     >
-      <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
-        {label}
-      </p>
       <p
-        className="mt-2"
         style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '26px',
+          fontSize: '24px',
           fontWeight: 500,
           lineHeight: 1,
           color: accent ? 'var(--gold-800)' : 'var(--text-primary)',
@@ -437,53 +384,107 @@ function KpiCard({
       >
         {value}
       </p>
-      <p className="mt-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-        {sub}
+      <p className="mt-1.5 text-[10px] font-medium leading-tight" style={{ color: 'var(--text-muted)' }}>
+        {label}
       </p>
     </div>
   );
 }
 
-function AlertCard({
-  title,
-  body,
-  tone,
+function MainActionLink({
+  href,
+  label,
+  icon,
+  primary = false,
+  disabled = false,
 }: {
-  title: string;
-  body: string;
-  tone: 'gold' | 'court';
+  href: string;
+  label: string;
+  icon: (typeof ARBITRE_MAIN_ACTIONS)[number]['icon'];
+  primary?: boolean;
+  disabled?: boolean;
 }) {
+  const className =
+    'flex flex-col items-center gap-2 rounded-xl border px-2 py-3 text-center transition hover:-translate-y-px';
+  const style = {
+    background: primary ? 'var(--court-700)' : 'var(--bg-surface)',
+    borderColor: primary ? 'var(--court-600)' : 'var(--border-subtle)',
+    color: primary ? 'var(--cream-50)' : 'var(--text-primary)',
+    opacity: disabled ? 0.45 : 1,
+    pointerEvents: disabled ? ('none' as const) : ('auto' as const),
+  };
+
+  return (
+    <Link href={href} className={className} style={style} aria-disabled={disabled}>
+      <span
+        className="flex h-8 w-8 items-center justify-center rounded-lg"
+        style={{
+          background: primary ? 'rgba(241,237,229,0.15)' : 'var(--court-100)',
+          color: primary ? 'var(--cream-50)' : 'var(--court-700)',
+        }}
+      >
+        <MainActionIcon type={icon} />
+      </span>
+      <span className="text-[11px] font-semibold leading-tight">{label}</span>
+    </Link>
+  );
+}
+
+function MainActionIcon({ type }: { type: (typeof ARBITRE_MAIN_ACTIONS)[number]['icon'] }) {
+  const stroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  switch (type) {
+    case 'manage':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+          <rect x="3" y="3" width="18" height="18" rx="2" {...stroke} />
+          <path d="M3 9h18M9 21V9" {...stroke} />
+        </svg>
+      );
+    case 'bracket':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+          <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M6 21v-4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4" {...stroke} />
+          <path d="M12 11V3" {...stroke} />
+        </svg>
+      );
+    case 'scores':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" {...stroke} />
+          <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" {...stroke} />
+        </svg>
+      );
+    case 'publish':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" {...stroke} />
+        </svg>
+      );
+  }
+}
+
+function AlertPill({ text, tone = 'court' }: { text: string; tone?: 'court' | 'gold' }) {
   const isGold = tone === 'gold';
   return (
-    <div
-      className="rounded-2xl border p-4"
+    <span
+      className="rounded-full px-3 py-1 text-xs font-semibold"
       style={{
         background: isGold ? 'var(--gold-100)' : 'var(--court-100)',
-        borderColor: isGold
-          ? 'color-mix(in srgb, var(--gold-500) 25%, transparent)'
-          : 'color-mix(in srgb, var(--court-700) 12%, transparent)',
+        color: isGold ? 'var(--gold-800)' : 'var(--court-800)',
       }}
     >
-      <p className="text-sm font-semibold" style={{ color: isGold ? 'var(--gold-800)' : 'var(--court-800)' }}>
-        {title}
-      </p>
-      <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
-        {body}
-      </p>
-    </div>
+      {text}
+    </span>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border p-5"
+      className="rounded-xl border p-4"
       style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
     >
-      <h2
-        className="mb-4 text-xs font-semibold uppercase tracking-wider"
-        style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}
-      >
+      <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h2>
       {children}
@@ -625,60 +626,10 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function QuickAction({
-  href,
-  label,
-  primary = false,
-}: {
-  href: string;
-  label: string;
-  primary?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block rounded-xl border px-4 py-3 text-sm font-medium transition hover:opacity-80"
-      style={{
-        borderColor: primary ? 'var(--court-600)' : 'var(--border-subtle)',
-        background: primary ? 'rgba(42,130,100,0.08)' : 'transparent',
-        color: primary ? 'var(--court-700)' : 'var(--text-secondary)',
-      }}
-    >
-      {label}
-    </Link>
-  );
-}
-
 function EmptyState({ message }: { message: string }) {
   return (
     <p className="py-2 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
       {message}
     </p>
-  );
-}
-
-function WhistleIcon() {
-  return (
-    <div
-      className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl"
-      style={{ background: 'var(--bg-muted)' }}
-    >
-      <svg
-        width="28"
-        height="28"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{ color: 'var(--text-muted)' }}
-        aria-hidden
-      >
-        <path d="m4 4 4.5 4.5" />
-        <circle cx="14" cy="14" r="6" />
-        <path d="m20 8-6 6" />
-      </svg>
-    </div>
   );
 }

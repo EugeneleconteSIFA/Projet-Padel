@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PLAYER_HOME_ACTIONS } from '@/components/player/player-nav-config';
 import {
+  CATEGORIES,
   formatDate,
   spotsLabel,
   type Tournament,
@@ -35,6 +36,52 @@ const MOCK_STATS: Stats = {
   waitlisted: 1,
 };
 
+const stroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+
+function QuickActionIcon({ type }: { type: (typeof PLAYER_HOME_ACTIONS)[number]['icon'] }) {
+  const icons = {
+    search: (
+      <>
+        <circle cx="11" cy="11" r="6" {...stroke} />
+        <path d="M16 16l4 4" {...stroke} />
+      </>
+    ),
+    partner: (
+      <>
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" {...stroke} />
+        <circle cx="9" cy="7" r="3" {...stroke} />
+        <path d="M19 8v6M22 11h-6" {...stroke} />
+      </>
+    ),
+    registrations: (
+      <>
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" {...stroke} />
+        <rect x="9" y="3" width="6" height="4" rx="1" {...stroke} />
+        <path d="M9 12h6M9 16h4" {...stroke} />
+      </>
+    ),
+    profile: (
+      <>
+        <circle cx="12" cy="8" r="3" {...stroke} />
+        <path d="M5 20v-1a5 5 0 0 1 10 0v1" {...stroke} />
+      </>
+    ),
+  };
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
+      {icons[type]}
+    </svg>
+  );
+}
+
+function MetaIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+      {children}
+    </span>
+  );
+}
+
 export default function JoueurClient({
   firstName,
   isPremium,
@@ -49,152 +96,167 @@ export default function JoueurClient({
   suggestedTournaments: Tournament[];
 }) {
   const router = useRouter();
-  const [search, setSearch] = useState('');
+  const [ville, setVille] = useState('');
+  const [date, setDate] = useState('');
+  const [category, setCategory] = useState('');
 
   const displayStats = stats ?? MOCK_STATS;
 
   const filteredTournaments = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return suggestedTournaments.slice(0, 3);
     return suggestedTournaments
-      .filter(
-        (t) =>
-          t.city.toLowerCase().includes(q) ||
-          t.name.toLowerCase().includes(q) ||
-          t.club.toLowerCase().includes(q),
-      )
-      .slice(0, 3);
-  }, [search, suggestedTournaments]);
+      .filter((t) => {
+        if (ville.trim() && !t.city.toLowerCase().includes(ville.trim().toLowerCase())) return false;
+        if (date && t.date < date) return false;
+        if (category && t.category !== category) return false;
+        return true;
+      })
+      .slice(0, 5);
+  }, [ville, date, category, suggestedTournaments]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    const q = search.trim();
-    if (q) {
-      router.push(`/tournois?ville=${encodeURIComponent(q)}`);
-    } else {
-      router.push('/tournois');
-    }
+    const params = new URLSearchParams();
+    const v = ville.trim();
+    if (v) params.set('ville', v);
+    if (date) params.set('date', date);
+    if (category) params.set('categorie', category);
+    const qs = params.toString();
+    router.push(qs ? `/tournois?${qs}` : '/tournois');
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-3xl space-y-7 pb-4">
       {/* En-tête */}
-      <header className="space-y-3">
-        <p
-          className="font-mono text-[11px] uppercase tracking-[0.14em]"
-          style={{ color: 'var(--court-600)' }}
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(26px, 4vw, 36px)',
+            fontWeight: 500,
+            lineHeight: 1.1,
+            letterSpacing: '-0.02em',
+          }}
         >
-          Espace joueur
-        </p>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(28px, 4.5vw, 40px)',
-              fontWeight: 500,
-              lineHeight: 1.1,
-              letterSpacing: '-0.02em',
-            }}
+          Bonjour{firstName !== 'Joueur' ? `, ${firstName}` : ''}
+        </h1>
+        {isPremium && (
+          <span
+            className="rounded-full px-3 py-1 text-xs font-semibold"
+            style={{ background: 'var(--gold-100)', color: 'var(--gold-700)' }}
           >
-            Bonjour{firstName !== 'Joueur' ? ` ${firstName}` : ''}
-          </h1>
-          {isPremium && (
-            <span
-              className="rounded-full px-3 py-1 text-xs font-semibold"
-              style={{ background: 'var(--gold-100)', color: 'var(--gold-700)' }}
-            >
-              Premium
-            </span>
-          )}
-        </div>
-        <p className="text-base" style={{ color: 'var(--text-secondary)' }}>
-          Trouve un tournoi, suis tes inscriptions et accède à ton padel en un coup d&apos;œil.
-        </p>
+            Premium
+          </span>
+        )}
       </header>
 
-      {/* Stats compactes */}
+      {/* Stats */}
       <section aria-label="Statistiques">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-2.5">
+          <StatCard value={displayStats.past} label="Tournois joués" />
           <StatCard value={displayStats.upcoming} label="À venir" accent />
-          <StatCard value={displayStats.totalConfirmed} label="Confirmés" />
-          <StatCard value={displayStats.past} label="Passés" />
-          <StatCard value={displayStats.waitlisted} label="En attente" />
+          {displayStats.waitlisted > 0 ? (
+            <StatCard value={displayStats.waitlisted} label="En attente" warn />
+          ) : (
+            <StatCard value={displayStats.totalConfirmed} label="Confirmés" />
+          )}
         </div>
       </section>
 
-      {/* Recherche tournois */}
+      {/* Recherche */}
       <section
-        className="rounded-2xl border p-5"
-        style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
+        className="rounded-2xl border p-4 md:p-5"
+        style={{ background: 'var(--court-700)', borderColor: 'var(--court-600)' }}
         aria-label="Rechercher un tournoi"
       >
-        <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-          Trouver un tournoi
-        </h2>
-        <form onSubmit={handleSearch} className="mt-3 flex gap-2">
-          <label htmlFor="joueur-search" className="sr-only">
-            Ville ou nom du tournoi
-          </label>
-          <input
-            id="joueur-search"
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Ville, club ou tournoi…"
-            className="min-w-0 flex-1 rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-2"
-            style={{
-              borderColor: 'var(--border-subtle)',
-              background: 'var(--bg-page)',
-              color: 'var(--text-primary)',
-            }}
-          />
+        <form onSubmit={handleSearch} className="space-y-3">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-medium" style={{ color: 'rgba(241,237,229,0.75)' }}>
+                Ville
+              </span>
+              <input
+                type="search"
+                value={ville}
+                onChange={(e) => setVille(e.target.value)}
+                placeholder="Lille, Loos…"
+                className="w-full rounded-xl border-0 px-3.5 py-2.5 text-sm outline-none focus:ring-2"
+                style={{
+                  background: 'rgba(241,237,229,0.95)',
+                  color: 'var(--ink-950)',
+                }}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-medium" style={{ color: 'rgba(241,237,229,0.75)' }}>
+                Date
+              </span>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-xl border-0 px-3.5 py-2.5 text-sm outline-none focus:ring-2"
+                style={{
+                  background: 'rgba(241,237,229,0.95)',
+                  color: 'var(--ink-950)',
+                }}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-medium" style={{ color: 'rgba(241,237,229,0.75)' }}>
+                Catégorie
+              </span>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-xl border-0 px-3.5 py-2.5 text-sm outline-none focus:ring-2"
+                style={{
+                  background: 'rgba(241,237,229,0.95)',
+                  color: 'var(--ink-950)',
+                }}
+              >
+                <option value="">Toutes</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <button
             type="submit"
-            className="shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-            style={{ background: 'var(--court-700)' }}
+            className="w-full rounded-xl py-3 text-sm font-semibold transition hover:opacity-90 sm:w-auto sm:px-8"
+            style={{ background: 'var(--gold-500)', color: 'var(--court-900)' }}
           >
             Rechercher
           </button>
         </form>
-        <Link
-          href="/tournois"
-          className="mt-3 inline-block text-sm font-medium hover:underline"
-          style={{ color: 'var(--court-700)' }}
-        >
-          Voir tous les tournois avec carte et filtres →
-        </Link>
       </section>
 
       {/* Mes prochains tournois */}
       {upcomingRegistrations.length > 0 && (
         <section aria-label="Mes prochains tournois">
-          <SectionHeader title="Mes prochains tournois" href="/profil" linkLabel="Mon profil" />
+          <SectionHeader title="Mes prochains tournois" href="/profil" linkLabel="Mes inscriptions" />
           <ul className="space-y-2">
             {upcomingRegistrations.map((reg) => (
               <li key={reg.id}>
                 <Link
                   href={`/tournois/${reg.slug}`}
                   className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-px"
-                  style={{
-                    background: 'var(--bg-surface)',
-                    borderColor: 'var(--border-subtle)',
-                  }}
+                  style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{reg.tournamentName}</p>
                     <p className="mt-0.5 truncate text-xs" style={{ color: 'var(--text-muted)' }}>
                       {reg.clubName}
-                      {reg.partnerName ? ` · avec ${reg.partnerName}` : ''}
+                      {reg.partnerName ? ` · ${reg.partnerName}` : ''}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-xs font-medium" style={{ color: 'var(--court-700)' }}>
                       {formatDate(reg.date, { day: 'numeric', month: 'short' })}
                     </p>
-                    <p
-                      className="mt-0.5 font-mono text-[10px]"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
+                    <p className="mt-0.5 font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>
                       {reg.category}
                     </p>
                   </div>
@@ -205,15 +267,18 @@ export default function JoueurClient({
         </section>
       )}
 
-      {/* Suggestions tournois */}
-      <section aria-label="Tournois disponibles">
-        <SectionHeader title="Tournois à découvrir" href="/tournois" linkLabel="Tout voir" />
+      {/* Tournois recommandés */}
+      <section aria-label="Tournois recommandés">
+        <SectionHeader title="Proches de toi" href="/tournois" linkLabel="Tout voir" />
         {filteredTournaments.length === 0 ? (
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Aucun tournoi ne correspond à votre recherche.
+          <p className="rounded-xl border px-4 py-6 text-center text-sm" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-muted)' }}>
+            Aucun tournoi ne correspond.{' '}
+            <Link href="/tournois" className="font-medium hover:underline" style={{ color: 'var(--court-700)' }}>
+              Voir tous les tournois
+            </Link>
           </p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {filteredTournaments.map((t) => (
               <li key={t.editionId}>
                 <CompactTournamentCard t={t} />
@@ -223,31 +288,27 @@ export default function JoueurClient({
         )}
       </section>
 
-      {/* Accès rapides */}
-      <section aria-label="Accès rapides">
+      {/* Actions rapides */}
+      <section aria-label="Actions rapides">
         <p
-          className="mb-3 font-mono text-[11px] uppercase tracking-[0.14em]"
-          style={{ color: 'var(--court-600)' }}
+          className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.14em]"
+          style={{ color: 'var(--text-muted)' }}
         >
-          Accès rapides
+          Actions rapides
         </p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2">
           {PLAYER_HOME_ACTIONS.map((action) => (
             <Link
-              key={action.href}
+              key={action.title}
               href={action.href}
-              className="flex flex-col gap-2 rounded-xl border p-3.5 transition hover:-translate-y-px"
-              style={{
-                background: 'var(--bg-surface)',
-                borderColor: 'var(--border-subtle)',
-              }}
+              className="flex items-center gap-3 rounded-xl border px-3.5 py-3 transition hover:-translate-y-px"
+              style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
             >
               <span
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
                 style={{ background: action.accentSoft, color: action.accent }}
-                aria-hidden
               >
-                →
+                <QuickActionIcon type={action.icon} />
               </span>
               <span className="text-sm font-semibold leading-tight">{action.title}</span>
             </Link>
@@ -268,7 +329,7 @@ function SectionHeader({
   linkLabel: string;
 }) {
   return (
-    <div className="mb-3 flex items-center justify-between gap-2">
+    <div className="mb-2.5 flex items-center justify-between gap-2">
       <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h2>
@@ -283,31 +344,37 @@ function StatCard({
   value,
   label,
   accent,
+  warn,
 }: {
   value: number;
   label: string;
   accent?: boolean;
+  warn?: boolean;
 }) {
   return (
     <div
       className="rounded-xl border px-3 py-3 text-center"
       style={{
-        background: accent ? 'var(--court-100)' : 'var(--bg-surface)',
-        borderColor: accent ? 'color-mix(in srgb, var(--court-700) 12%, transparent)' : 'var(--border-subtle)',
+        background: accent ? 'var(--court-100)' : warn ? 'var(--gold-100)' : 'var(--bg-surface)',
+        borderColor: accent
+          ? 'color-mix(in srgb, var(--court-700) 12%, transparent)'
+          : warn
+            ? 'color-mix(in srgb, var(--gold-500) 20%, transparent)'
+            : 'var(--border-subtle)',
       }}
     >
       <p
         style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '28px',
+          fontSize: '26px',
           fontWeight: 500,
-          color: accent ? 'var(--court-700)' : 'var(--text-primary)',
+          color: accent ? 'var(--court-700)' : warn ? 'var(--gold-700)' : 'var(--text-primary)',
           lineHeight: 1,
         }}
       >
         {value}
       </p>
-      <p className="mt-1 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+      <p className="mt-1 text-[10px] font-medium leading-tight" style={{ color: 'var(--text-muted)' }}>
         {label}
       </p>
     </div>
@@ -315,36 +382,66 @@ function StatCard({
 }
 
 function CompactTournamentCard({ t }: { t: Tournament }) {
+  const surfaceLabel = t.surface === 'indoor' ? 'Indoor' : 'Outdoor';
+
   return (
     <Link
       href={`/tournois/${t.id}`}
-      className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-px"
-      style={{
-        background: 'var(--bg-surface)',
-        borderColor: 'var(--border-subtle)',
-      }}
+      className="block rounded-xl border p-3.5 transition hover:-translate-y-px"
+      style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
     >
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span
-            className="rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold"
-            style={{ background: 'var(--court-100)', color: 'var(--court-700)' }}
-          >
-            {t.category}
-          </span>
-          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-            {t.city} · {t.distance} km
-          </span>
-        </div>
-        <p className="mt-1 truncate text-sm font-semibold">{t.name}</p>
-        <p className="mt-0.5 truncate text-xs" style={{ color: 'var(--text-muted)' }}>
-          {formatDate(t.date, { weekday: 'short', day: 'numeric', month: 'short' })} · {t.price} € ·{' '}
+      <p className="truncate text-sm font-semibold">{t.name}</p>
+      <p className="mt-0.5 truncate text-xs" style={{ color: 'var(--text-muted)' }}>
+        {t.club}
+      </p>
+
+      <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5">
+        <MetaIcon>
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+            <rect x="3" y="4" width="18" height="18" rx="2" {...stroke} />
+            <path d="M16 2v4M8 2v4M3 10h18" {...stroke} />
+          </svg>
+          {formatDate(t.date, { day: 'numeric', month: 'short' })}
+        </MetaIcon>
+        <MetaIcon>
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+            <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10" {...stroke} />
+            <circle cx="12" cy="11" r="2" {...stroke} />
+          </svg>
+          {t.city}
+        </MetaIcon>
+        <MetaIcon>
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18" {...stroke} />
+            <path d="M4 22h16M10 14v8M14 14v8M8 9h8v5H8z" {...stroke} />
+          </svg>
+          {t.category}
+        </MetaIcon>
+        <MetaIcon>
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6" {...stroke} />
+          </svg>
+          {t.price} €
+        </MetaIcon>
+        <MetaIcon>
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" {...stroke} />
+            <circle cx="9" cy="7" r="4" {...stroke} />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" {...stroke} />
+          </svg>
           {spotsLabel(t)}
-        </p>
+        </MetaIcon>
+        <MetaIcon>
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+            {t.surface === 'indoor' ? (
+              <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6" {...stroke} />
+            ) : (
+              <path d="M12 3v18M4 12h16M6 6l12 12M18 6L6 18" {...stroke} />
+            )}
+          </svg>
+          {surfaceLabel}
+        </MetaIcon>
       </div>
-      <span className="shrink-0 text-lg" style={{ color: 'var(--court-600)' }} aria-hidden>
-        →
-      </span>
     </Link>
   );
 }

@@ -24,33 +24,33 @@ export function isPlayerHome(pathname: string): boolean {
   return pathname === '/joueur';
 }
 
-/** Raccourcis accueil joueur */
+/** Raccourcis accueil joueur — orientés action, pas marketing. */
 export const PLAYER_HOME_ACTIONS = [
   {
     href: '/tournois',
-    title: 'Trouver un tournoi',
-    description: 'Carte, filtres et inscriptions',
+    title: 'Chercher un tournoi',
+    icon: 'search' as const,
     accent: 'var(--court-700)',
     accentSoft: 'var(--court-100)',
   },
   {
     href: '/matchs-amicaux',
-    title: 'Rejoindre ou créer un match',
-    description: 'Matchs amicaux près de chez toi',
+    title: 'Trouver un partenaire',
+    icon: 'partner' as const,
     accent: 'var(--gold-700)',
     accentSoft: 'var(--gold-100)',
   },
   {
-    href: '/mon-feed',
-    title: 'Voir le feed',
-    description: 'Actualités de ton cercle padel',
+    href: '/profil',
+    title: 'Mes inscriptions',
+    icon: 'registrations' as const,
     accent: 'var(--court-600)',
     accentSoft: 'var(--court-50)',
   },
   {
-    href: '/profil/modifier',
-    title: 'Compléter mon profil',
-    description: 'Niveau, bio et préférences',
+    href: '/profil',
+    title: 'Mon profil',
+    icon: 'profile' as const,
     accent: 'var(--ink-700)',
     accentSoft: 'var(--cream-200)',
   },

@@ -501,21 +501,28 @@ function FilterPanel({ filters, onChange, onReset }: FilterPanelProps) {
 
 export function TournamentsClient({ tournaments }: { tournaments: Tournament[] }) {
   const searchParams = useSearchParams();
-  const initialVille = searchParams.get('ville') ?? '';
 
-  const [filters, setFilters] = useState<Filters>(() => ({
-    ...INIT_FILTERS,
-    ville: initialVille,
-  }));
+  const readFiltersFromParams = useCallback((): Filters => {
+    const ville = searchParams.get('ville') ?? '';
+    const date = searchParams.get('date') ?? '';
+    const categorie = searchParams.get('categorie') ?? '';
+    return {
+      ...INIT_FILTERS,
+      ville,
+      dateMin: date,
+      categories: categorie && CATEGORIES.includes(categorie as (typeof CATEGORIES)[number])
+        ? [categorie]
+        : [],
+    };
+  }, [searchParams]);
+
+  const [filters, setFilters] = useState<Filters>(() => readFiltersFromParams());
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
 
   useEffect(() => {
-    const ville = searchParams.get('ville') ?? '';
-    if (ville) {
-      setFilters((prev) => ({ ...prev, ville }));
-    }
-  }, [searchParams]);
+    setFilters(readFiltersFromParams());
+  }, [readFiltersFromParams]);
 
   const filtered = useMemo(() => {
     return tournaments.filter(t => {

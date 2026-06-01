@@ -309,16 +309,35 @@ function FeatureSection({
 }
 
 export function PublicFooter() {
+  const links = [
+    { label: 'Tournois', href: '/tournois' },
+    { label: 'Clubs', href: '/clubs' },
+    { label: 'Connexion', href: '/login' },
+    { label: 'Créer un compte', href: '/signup' },
+  ] as const;
+
   return (
     <footer
-      className="border-t py-10 text-center text-sm"
+      className="border-t py-10 text-sm"
       style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-muted)' }}
     >
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center">
         <span style={{ fontFamily: 'var(--font-display)', fontSize: 17, color: 'var(--text-primary)' }}>
           the court<span style={{ color: 'var(--gold-500)' }}>.</span>
         </span>
-        <p className="mt-2">© {new Date().getFullYear()} The Court · Tout se joue ici. Conçu en France.</p>
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="font-medium transition hover:underline"
+              style={{ color: 'var(--court-700)' }}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <p className="text-xs">© {new Date().getFullYear()} The Court · Conçu en France.</p>
       </div>
     </footer>
   );

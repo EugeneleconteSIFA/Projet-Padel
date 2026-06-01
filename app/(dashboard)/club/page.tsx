@@ -121,11 +121,19 @@ const MOCK_KPIS = {
   totalTournaments: 3,
   totalRegistrations: 12,
   totalRevenueCents: 48000,
-  publishedCount: 1,
+  publishedCount: 2,
   waitlistCount: 2,
   pendingPaymentCount: 1,
   avgFillRate: 75,
 };
+
+const CLUB_MAIN_ACTIONS = [
+  { href: '/club/tournoi/nouveau', label: 'Créer un tournoi', icon: 'plus' as const, primary: true },
+  { href: '#inscriptions', label: 'Gérer les inscriptions', icon: 'list' as const },
+  { href: '#waitlist', label: "Liste d'attente", icon: 'wait' as const },
+  { href: '/club/stripe', label: 'Configurer les paiements', icon: 'euro' as const },
+  { href: '#actifs', label: 'Assigner un juge-arbitre', icon: 'referee' as const },
+] as const;
 
 /* ── Libellés ────────────────────────────────────────────────────────────── */
 
@@ -238,87 +246,78 @@ export default async function ClubDashboardPage() {
       : null;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-5xl space-y-7 pb-4">
       {/* En-tête */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p
-            className="font-mono text-[11px] uppercase tracking-[0.14em]"
-            style={{ color: 'var(--gold-700)' }}
-          >
-            Espace club
-          </p>
           <h1
-            className="mt-2 leading-tight tracking-tight"
+            className="leading-tight tracking-tight"
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(28px, 4vw, 36px)',
+              fontSize: 'clamp(26px, 4vw, 34px)',
               fontWeight: 500,
             }}
           >
-            {clubName}
+            Bienvenue, {clubName}
           </h1>
-          <p className="mt-2 text-base" style={{ color: 'var(--text-secondary)' }}>
-            Suivez vos tournois, inscriptions et remplissage en temps réel.
-          </p>
           {clubSlug && (
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               <Link
                 href={`/club/${clubSlug}/communaute`}
-                className="rounded-xl px-3 py-2 text-xs font-semibold"
-                style={{ background: 'var(--bg-muted)', color: 'var(--court-800)' }}
+                className="rounded-lg px-2.5 py-1.5 text-[11px] font-semibold"
+                style={{ background: 'var(--bg-muted)', color: 'var(--court-700)' }}
               >
                 Communauté
               </Link>
               <Link
                 href={`/club/${clubSlug}/dashboard/communaute`}
-                className="rounded-xl px-3 py-2 text-xs font-semibold"
-                style={{ background: 'var(--gold-100)', color: 'var(--gold-800)' }}
+                className="rounded-lg px-2.5 py-1.5 text-[11px] font-semibold"
+                style={{ background: 'var(--gold-100)', color: 'var(--gold-700)' }}
               >
                 Modération
               </Link>
             </div>
           )}
         </div>
-        <Link
-          href="/club/tournoi/nouveau"
-          className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-          style={{ background: 'var(--court-700)' }}
-        >
-          <PlusIcon />
-          Nouveau tournoi
-        </Link>
       </header>
 
       {/* KPIs */}
       <section aria-label="Indicateurs">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           <KpiCard
             label="Tournois actifs"
             value={kpis.publishedCount}
-            sub="publiés ou en cours"
             icon={<TrophyIcon />}
             accent
           />
           <KpiCard
-            label="Inscriptions"
+            label="Inscriptions reçues"
             value={kpis.totalRegistrations}
-            sub="toutes éditions"
             icon={<UsersIcon />}
           />
           <KpiCard
-            label="Revenus"
-            value={`${(kpis.totalRevenueCents / 100).toFixed(0)} €`}
-            sub="paiements confirmés"
-            icon={<EuroIcon />}
-          />
-          <KpiCard
-            label="Remplissage moyen"
+            label="Taux de remplissage"
             value={`${kpis.avgFillRate} %`}
-            sub="tournois actifs"
             icon={<ChartIcon />}
           />
+          <KpiCard
+            label="Revenus estimés"
+            value={`${(kpis.totalRevenueCents / 100).toFixed(0)} €`}
+            icon={<EuroIcon />}
+          />
         </div>
+      </section>
+
+      {/* Actions principales */}
+      <section aria-label="Actions principales">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          {CLUB_MAIN_ACTIONS.map((action) => (
+            <MainActionLink key={action.label} {...action} />
+          ))}
+        </div>
+        <p className="mt-2 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+          Paiements simulés — Stripe Connect à brancher plus tard.
+        </p>
       </section>
 
       {/* Alertes */}
@@ -343,55 +342,49 @@ export default async function ClubDashboardPage() {
         </section>
       )}
 
-      {/* Focus tournoi */}
-      {focusTournament && (
+      {/* Focus tournoi — remplissage faible */}
+      {focusTournament && focusTournament.teams / focusTournament.maxTeams < 0.85 && (
         <section
-          className="rounded-2xl border p-5"
+          className="rounded-xl border px-4 py-3"
           style={{
-            background: 'color-mix(in srgb, var(--court-100) 40%, var(--bg-surface))',
-            borderColor: 'color-mix(in srgb, var(--court-700) 12%, transparent)',
+            background: 'color-mix(in srgb, var(--court-100) 35%, var(--bg-surface))',
+            borderColor: 'color-mix(in srgb, var(--court-700) 10%, transparent)',
           }}
-          aria-label="Priorité du moment"
+          aria-label="Alerte remplissage"
         >
-          <p
-            className="font-mono text-[10px] uppercase tracking-[0.12em]"
-            style={{ color: 'var(--court-600)' }}
-          >
-            Priorité du moment
-          </p>
-          <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="font-semibold">{focusTournament.name}</p>
-              <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                {focusTournament.teams}/{focusTournament.maxTeams} équipes ·{' '}
-                {focusTournament.refereeNames.length > 0
-                  ? `JA : ${focusTournament.refereeNames.join(', ')}`
-                  : 'Aucun juge-arbitre assigné'}
-              </p>
-            </div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm">
+              <span className="font-semibold">{focusTournament.name}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>
+                {' '}
+                — {focusTournament.teams}/{focusTournament.maxTeams} équipes
+                {focusTournament.refereeNames.length === 0 && ' · JA non assigné'}
+              </span>
+            </p>
             <Link
               href={`/tournois/${focusTournament.slug}`}
-              className="text-sm font-semibold hover:underline"
+              className="text-xs font-semibold hover:underline"
               style={{ color: 'var(--court-700)' }}
             >
-              Voir la fiche →
+              Ouvrir →
             </Link>
           </div>
-          <FillBar teams={focusTournament.teams} maxTeams={focusTournament.maxTeams} className="mt-4" />
+          <FillBar teams={focusTournament.teams} maxTeams={focusTournament.maxTeams} className="mt-2" />
         </section>
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Colonne principale */}
-        <div className="space-y-6 lg:col-span-2">
-          <Section
-            title="Tournois actifs"
-            action={
-              activeTournaments.length === 0
-                ? { label: 'Créer un tournoi', href: '/club/tournoi/nouveau' }
-                : undefined
-            }
-          >
+        <div className="space-y-5 lg:col-span-2">
+          <div id="actifs">
+            <Section
+              title="Tournois actifs"
+              action={
+                activeTournaments.length === 0
+                  ? { label: 'Créer', href: '/club/tournoi/nouveau' }
+                  : undefined
+              }
+            >
             {activeTournaments.length === 0 ? (
               <EmptyState message="Aucun tournoi actif. Créez votre premier événement." />
             ) : (
@@ -404,6 +397,7 @@ export default async function ClubDashboardPage() {
               </ul>
             )}
           </Section>
+          </div>
 
           {draftTournaments.length > 0 && (
             <Section title="Brouillons">
@@ -430,67 +424,29 @@ export default async function ClubDashboardPage() {
           )}
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar inscriptions */}
         <div className="space-y-4">
-          {pendingRegs.length > 0 && (
-            <Section title="Paiements à traiter">
-              <RegistrationList items={pendingRegs} />
+          <div id="inscriptions">
+            <Section title="Inscriptions récentes">
+              {recentConfirmed.length === 0 && pendingRegs.length === 0 ? (
+                <EmptyState message="Aucune inscription pour le moment." />
+              ) : (
+                <RegistrationList items={[...pendingRegs, ...recentConfirmed].slice(0, 6)} />
+              )}
             </Section>
-          )}
+          </div>
 
-          {waitlistRegs.length > 0 && (
-            <Section title="Liste d'attente">
-              <RegistrationList items={waitlistRegs} />
-            </Section>
-          )}
-
-          <Section title="Dernières inscriptions">
-            {recentConfirmed.length === 0 ? (
-              <EmptyState message="Aucune inscription confirmée récente." />
-            ) : (
-              <RegistrationList items={recentConfirmed} />
-            )}
-          </Section>
-
-          <div
-            className="rounded-2xl border p-5"
-            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
-          >
-            <p
-              className="mb-3 text-xs font-semibold uppercase tracking-wider"
-              style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}
-            >
-              Actions rapides
-            </p>
-            <div className="space-y-2">
-              <QuickAction href="/club/tournoi/nouveau" label="Créer un tournoi" icon={<PlusIcon />} primary />
-              <QuickAction href="/club/parametres" label="Paramètres du club" icon={<SettingsIcon />} />
-              <QuickAction href="/club/stripe" label="Configurer les paiements" icon={<EuroIcon />} />
+          {(waitlistRegs.length > 0 || kpis.waitlistCount > 0) && (
+            <div id="waitlist">
+              <Section title="Liste d'attente">
+                {waitlistRegs.length === 0 ? (
+                  <EmptyState message={`${kpis.waitlistCount} joueur(s) en attente sur vos tournois.`} />
+                ) : (
+                  <RegistrationList items={waitlistRegs} />
+                )}
+              </Section>
             </div>
-          </div>
-
-          <div
-            className="rounded-2xl border p-5"
-            style={{
-              background: 'color-mix(in srgb, var(--gold-100) 35%, var(--bg-surface))',
-              borderColor: 'color-mix(in srgb, var(--gold-500) 20%, transparent)',
-            }}
-          >
-            <p className="text-sm font-semibold" style={{ color: 'var(--gold-800)' }}>
-              Paiements simulés
-            </p>
-            <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              Stripe Connect arrive bientôt. Les inscriptions et statuts de paiement sont déjà
-              suivis dans le dashboard.
-            </p>
-            <Link
-              href="/club/stripe"
-              className="mt-3 inline-block text-xs font-semibold hover:underline"
-              style={{ color: 'var(--gold-700)' }}
-            >
-              En savoir plus →
-            </Link>
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -504,19 +460,17 @@ export default async function ClubDashboardPage() {
 function KpiCard({
   label,
   value,
-  sub,
   icon,
   accent = false,
 }: {
   label: string;
   value: string | number;
-  sub: string;
   icon: React.ReactNode;
   accent?: boolean;
 }) {
   return (
     <div
-      className="rounded-2xl border p-4"
+      className="rounded-xl border px-3 py-3"
       style={{
         background: accent ? 'var(--court-100)' : 'var(--bg-surface)',
         borderColor: accent
@@ -524,28 +478,90 @@ function KpiCard({
           : 'var(--border-subtle)',
       }}
     >
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
-          {label}
-        </span>
+      <div className="flex items-center justify-between gap-2">
+        <p
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '24px',
+            fontWeight: 500,
+            lineHeight: 1,
+            color: accent ? 'var(--court-700)' : 'var(--text-primary)',
+          }}
+        >
+          {value}
+        </p>
         <span style={{ color: accent ? 'var(--court-600)' : 'var(--text-muted)' }}>{icon}</span>
       </div>
-      <p
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '26px',
-          fontWeight: 500,
-          lineHeight: 1,
-          color: accent ? 'var(--court-700)' : 'var(--text-primary)',
-        }}
-      >
-        {value}
-      </p>
-      <p className="mt-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-        {sub}
+      <p className="mt-1.5 text-[10px] font-medium leading-tight" style={{ color: 'var(--text-muted)' }}>
+        {label}
       </p>
     </div>
   );
+}
+
+function MainActionLink({
+  href,
+  label,
+  icon,
+  primary = false,
+}: {
+  href: string;
+  label: string;
+  icon: (typeof CLUB_MAIN_ACTIONS)[number]['icon'];
+  primary?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col items-center gap-2 rounded-xl border px-2 py-3 text-center transition hover:-translate-y-px"
+      style={{
+        background: primary ? 'var(--court-700)' : 'var(--bg-surface)',
+        borderColor: primary ? 'var(--court-600)' : 'var(--border-subtle)',
+        color: primary ? 'var(--cream-50)' : 'var(--text-primary)',
+      }}
+    >
+      <span
+        className="flex h-8 w-8 items-center justify-center rounded-lg"
+        style={{
+          background: primary ? 'rgba(241,237,229,0.15)' : 'var(--court-100)',
+          color: primary ? 'var(--cream-50)' : 'var(--court-700)',
+        }}
+      >
+        <MainActionIcon type={icon} />
+      </span>
+      <span className="text-[11px] font-semibold leading-tight">{label}</span>
+    </Link>
+  );
+}
+
+function MainActionIcon({ type }: { type: (typeof CLUB_MAIN_ACTIONS)[number]['icon'] }) {
+  switch (type) {
+    case 'plus':
+      return <PlusIcon />;
+    case 'list':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+          <rect x="9" y="3" width="6" height="4" rx="1" />
+          <path d="M9 12h6M9 16h4" />
+        </svg>
+      );
+    case 'wait':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </svg>
+      );
+    case 'euro':
+      return <EuroIcon />;
+    case 'referee':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+          <path d="M12 3v18M8 7h8M6 11h12M8 15h8" />
+        </svg>
+      );
+  }
 }
 
 function AlertCard({
@@ -602,14 +618,11 @@ function Section({
 }) {
   return (
     <div
-      className="rounded-2xl border p-5"
+      className="rounded-xl border p-4"
       style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
     >
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <h2
-          className="text-xs font-semibold uppercase tracking-wider"
-          style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}
-        >
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
           {title}
         </h2>
         {action && (
@@ -752,33 +765,6 @@ function RegistrationList({ items }: { items: RegistrationRow[] }) {
   );
 }
 
-function QuickAction({
-  href,
-  label,
-  icon,
-  primary = false,
-}: {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  primary?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition hover:opacity-80"
-      style={{
-        borderColor: primary ? 'var(--court-600)' : 'var(--border-subtle)',
-        background: primary ? 'rgba(42,130,100,0.08)' : 'transparent',
-        color: primary ? 'var(--court-600)' : 'var(--text-secondary)',
-      }}
-    >
-      {icon}
-      {label}
-    </Link>
-  );
-}
-
 function EmptyState({ message }: { message: string }) {
   return (
     <p className="py-2 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
@@ -828,14 +814,6 @@ function ChartIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 3v18h18" />
       <path d="m19 9-5 5-4-4-3 3" />
-    </svg>
-  );
-}
-function SettingsIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   );
 }
