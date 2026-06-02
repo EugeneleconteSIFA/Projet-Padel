@@ -50,43 +50,38 @@ export async function getMyConversations(playerProfileId: string): Promise<Seria
 
   const now = new Date();
 
-  return participations.map((p) => {
-    const conv = p.conversation;
-    const lastMessage = conv.messages[0];
-    const unreadCount = conv.participants.find((part) => part.playerId === playerProfileId)?.lastReadAt
-      ? await prisma.message.count({
-          where: {
-            conversationId: conv.id,
-            createdAt: { gt: p.lastReadAt || new Date(0) },
-            deletedAt: null,
-            authorId: { not: playerProfileId },
-          },
-        })
-      : await prisma.message.count({
-          where: {
-            conversationId: conv.id,
-            deletedAt: null,
-            authorId: { not: playerProfileId },
-          },
-        });
+  return Promise.all(
+    participations.map(async (p) => {
+      const conv = p.conversation;
+      const lastMessage = conv.messages[0];
 
-    return {
-      id: conv.id,
-      kind: conv.kind,
-      title: conv.title,
-      clubName: conv.club?.name || null,
-      participants: conv.participants.map((part) => ({
-        id: part.player.id,
-        firstName: part.player.user.firstName,
-        lastName: part.player.user.lastName,
-        avatarUrl: part.player.user.avatarUrl,
-      })),
-      lastMessagePreview: lastMessage?.content || null,
-      lastMessageAt: conv.lastMessageAt?.toISOString() || null,
-      unreadCount,
-      muted: p.mutedUntil ? p.mutedUntil > now : false,
-    };
-  });
+      const unreadCount = await prisma.message.count({
+        where: {
+          conversationId: conv.id,
+          createdAt: { gt: p.lastReadAt ?? new Date(0) },
+          deletedAt: null,
+          authorId: { not: playerProfileId },
+        },
+      });
+
+      return {
+        id: conv.id,
+        kind: conv.kind,
+        title: conv.title,
+        clubName: conv.club?.name || null,
+        participants: conv.participants.map((part) => ({
+          id: part.player.id,
+          firstName: part.player.user.firstName,
+          lastName: part.player.user.lastName,
+          avatarUrl: part.player.user.avatarUrl,
+        })),
+        lastMessagePreview: lastMessage?.content || null,
+        lastMessageAt: conv.lastMessageAt?.toISOString() || null,
+        unreadCount,
+        muted: p.mutedUntil ? p.mutedUntil > now : false,
+      };
+    }),
+  );
 }
 
 export async function getConversationMessages(
