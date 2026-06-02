@@ -42,6 +42,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await db.user.findUnique({
           where: { email: credentials.email as string },
+          include: { playerProfile: { select: { id: true } } },
         });
 
         if (!user || !user.passwordHash) return null;
@@ -64,6 +65,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name:  `${user.firstName} ${user.lastName}`,
           role:  user.role,
           tier:  user.tier,
+          playerProfileId: user.playerProfile?.id ?? null,
         };
       },
     }),
@@ -75,12 +77,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id   = user.id;
         token.role = user.role;
         token.tier = user.tier;
+        token.playerProfileId = (user as any).playerProfileId ?? null;
       }
+
+      // Si le token n'a pas encore de playerProfileId mais a un user id,
+      // on tente de le charger (cas magic link, ou sessions créées avant ce fix).
+      if (token.id && token.playerProfileId === undefined) {
+        const pp = await db.playerProfile.findUnique({
+          where: { userId: token.id as string },
+          select: { id: true },
+        });
+        token.playerProfileId = pp?.id ?? null;
+      }
+
       return token;
     },
 
@@ -89,6 +103,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id   = token.id as string;
         session.user.role = token.role as 'PLAYER' | 'CLUB' | 'REFEREE' | 'ADMIN';
         session.user.tier = token.tier as 'FREE' | 'PREMIUM';
+        session.user.playerProfileId = (token.playerProfileId as string | null | undefined) ?? null;
       }
       return session;
     },

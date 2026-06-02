@@ -11,12 +11,14 @@ declare module 'next-auth' {
       id:   string;
       role: 'PLAYER' | 'CLUB' | 'REFEREE' | 'ADMIN';
       tier: 'FREE' | 'PREMIUM';
+      playerProfileId?: string | null;
     } & DefaultSession['user'];
   }
 
   interface User {
     role?: 'PLAYER' | 'CLUB' | 'REFEREE' | 'ADMIN';
     tier?: 'FREE' | 'PREMIUM';
+    playerProfileId?: string | null;
   }
 }
 
@@ -25,5 +27,6 @@ declare module 'next-auth/jwt' {
     id?:   string;
     role?: string;
     tier?: string;
+    playerProfileId?: string | null;
   }
 }
