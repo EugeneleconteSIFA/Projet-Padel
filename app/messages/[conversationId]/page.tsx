@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { listMyConversations } from '@/lib/actions/messaging';
-import { ConversationKind } from '@prisma/client';
-import { ArrowLeft } from 'lucide-react';
+import { listMyConversations, markConversationRead } from '@/lib/actions/messaging';
 import { ConversationHeader } from '@/components/community/messaging/ConversationHeader';
 import { MessageThread } from '@/components/community/messaging/MessageThread';
 
@@ -14,24 +12,25 @@ export default function ConversationPage({ params }: { params: { conversationId:
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadConversation();
-    markConversationRead(params.conversationId);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const result = await listMyConversations();
+      if (cancelled) return;
+      if (result.ok && result.data) {
+        const conv = (result.data as any[]).find((c) => c.id === params.conversationId);
+        setConversation(conv ?? null);
+      }
+      setLoading(false);
+      // marquer lue (best effort, on ignore l'erreur)
+      try {
+        await markConversationRead(params.conversationId);
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [params.conversationId]);
-
-  const loadConversation = async () => {
-    setLoading(true);
-    const result = await listMyConversations();
-    if (result.ok && result.data) {
-      const conv = result.data.find((c) => c.id === params.conversationId);
-      setConversation(conv);
-    }
-    setLoading(false);
-  };
-
-  const markConversationRead = async (conversationId: string) => {
-    // Call markConversationRead server action
-    // This will be implemented when we have the action
-  };
 
   if (loading) {
     return (
@@ -50,8 +49,7 @@ export default function ConversationPage({ params }: { params: { conversationId:
   }
 
   return (
-    <div className="flex h-full flex-col md:hidden">
-      {/* Mobile View */}
+    <div className="flex h-full flex-col">
       <ConversationHeader
         kind={conversation.kind}
         title={conversation.title}

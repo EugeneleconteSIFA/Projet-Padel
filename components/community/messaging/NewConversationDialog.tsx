@@ -57,7 +57,7 @@ export function NewConversationDialog({ open, onClose }: NewConversationDialogPr
     const result = await getOrCreateDirectConversation(playerId);
     setLoading(false);
 
-    if (result.ok) {
+    if (result.ok && result.data) {
       router.push(`/messages/${result.data.conversationId}`);
       onClose();
     }
@@ -74,7 +74,7 @@ export function NewConversationDialog({ open, onClose }: NewConversationDialogPr
     });
     setLoading(false);
 
-    if (result.ok) {
+    if (result.ok && result.data) {
       router.push(`/messages/${result.data.conversationId}`);
       onClose();
     }

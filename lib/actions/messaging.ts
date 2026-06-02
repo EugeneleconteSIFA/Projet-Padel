@@ -367,9 +367,10 @@ export async function sendMessage(
         conversationId: validated.conversationId,
         playerProfileId: { not: session.user.playerProfileId },
         leftAt: null,
-        mutedUntil: {
-          or: [{ isSet: false }, { gt: new Date() }],
-        },
+        OR: [
+          { mutedUntil: null },
+          { mutedUntil: { lt: new Date() } },
+        ],
       },
       include: {
         player: {

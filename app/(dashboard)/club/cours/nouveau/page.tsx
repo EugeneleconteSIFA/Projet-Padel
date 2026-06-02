@@ -16,8 +16,8 @@ export default async function NouveauCoursPage() {
     
     const data = {
       name: formData.get('name') as string,
-      audience: formData.get('audience') as string,
-      level: formData.get('level') as string,
+      audience: formData.get('audience') as 'MIXED' | 'MINI' | 'JUNIOR' | 'TEEN' | 'ADULT' | 'SENIOR',
+      level: formData.get('level') as 'INITIATION' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'COMPETITION',
       capacity: parseInt(formData.get('capacity') as string) || 4,
       weekday: parseInt(formData.get('weekday') as string),
       startTime: formData.get('startTime') as string,
@@ -26,8 +26,8 @@ export default async function NouveauCoursPage() {
       seasonEnd: formData.get('seasonEnd') as string,
       priceCents: parseInt(formData.get('priceCents') as string) || 0,
       coachId: formData.get('coachId') as string,
-      courtId: formData.get('courtId') as string || undefined,
-      description: formData.get('description') as string || undefined,
+      courtId: (formData.get('courtId') as string) || undefined,
+      description: (formData.get('description') as string) || undefined,
     };
 
     const result = await createLessonGroup(data);
