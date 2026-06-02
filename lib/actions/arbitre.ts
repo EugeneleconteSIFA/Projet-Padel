@@ -80,6 +80,8 @@ export async function getArbitreDashboard() {
     hasBracket: boolean;
     isToday: boolean;
     category: string;
+    assignmentStatus: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+    assignmentId: string;
   };
 
   const mapAssignment = (a: (typeof assignments)[number]): MappedTournament => {
@@ -110,6 +112,8 @@ export async function getArbitreDashboard() {
       hasBracket: edition.brackets.length > 0,
       isToday: startDateStr === todayStr || edition.status === 'RUNNING',
       category: edition.tournament.category ?? 'P100',
+      assignmentStatus: a.status,
+      assignmentId: a.id,
     };
   };
 

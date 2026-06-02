@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { requireApprovedReferee } from '@/lib/auth-guards';
 import { getArbitreDashboard } from '@/lib/actions/arbitre';
+import { AssignmentButtons } from './assignment-buttons';
 
 export const metadata: Metadata = { title: 'Espace juge-arbitre — The Court' };
 
@@ -24,6 +25,8 @@ type UpcomingTournament = {
   hasBracket: boolean;
   isToday: boolean;
   category: string;
+  assignmentStatus: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+  assignmentId: string;
 };
 
 type PastTournament = UpcomingTournament;
@@ -166,17 +169,20 @@ export default async function ArbitrePage() {
   const pendingRegistrations = raw?.pendingRegistrations ?? MOCK_DASHBOARD.pendingRegistrations;
   const kpis = raw?.kpis ?? MOCK_DASHBOARD.kpis;
 
+  const pendingAssignments = upcoming.filter((t) => t.assignmentStatus === 'PENDING');
+  const acceptedAssignments = upcoming.filter((t) => t.assignmentStatus === 'ACCEPTED');
+
   const focusTournament =
-    upcoming.find((t) => t.liveMatches > 0) ??
-    upcoming.find((t) => t.isToday) ??
-    upcoming.find((t) => !t.hasBracket && t.teamsConfirmed >= 2) ??
-    upcoming[0] ??
+    acceptedAssignments.find((t) => t.liveMatches > 0) ??
+    acceptedAssignments.find((t) => t.isToday) ??
+    acceptedAssignments.find((t) => !t.hasBracket && t.teamsConfirmed >= 2) ??
+    acceptedAssignments[0] ??
     null;
 
   const bracketTarget =
-    upcoming.find((t) => !t.hasBracket && t.teamsConfirmed >= 2) ?? focusTournament;
+    acceptedAssignments.find((t) => !t.hasBracket && t.teamsConfirmed >= 2) ?? focusTournament;
   const scoresTarget =
-    upcoming.find((t) => t.liveMatches > 0 || t.pendingMatches > 0) ?? focusTournament;
+    acceptedAssignments.find((t) => t.liveMatches > 0 || t.pendingMatches > 0) ?? focusTournament;
 
   const actionHrefs: Record<(typeof ARBITRE_MAIN_ACTIONS)[number]['key'], string> = {
     manage: focusTournament ? `/arbitre/tournoi/${focusTournament.id}` : '#assignes',
@@ -281,13 +287,29 @@ export default async function ArbitrePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Tournois assignés */}
         <div className="space-y-5 lg:col-span-2">
-          <div id="assignes">
-            <Section title="Tournois assignés">
-              {upcoming.length === 0 ? (
-                <EmptyState message="Aucun tournoi assigné. Un club vous ajoutera depuis son espace." />
+          <div id="en-attente">
+            <Section title="En attente de réponse">
+              {pendingAssignments.length === 0 ? (
+                <EmptyState message="Aucune assignation en attente." />
               ) : (
                 <ul className="space-y-2">
-                  {upcoming.map((t) => (
+                  {pendingAssignments.map((t) => (
+                    <li key={t.id}>
+                      <PendingAssignmentCard tournament={t} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Section>
+          </div>
+
+          <div id="mes-tournois">
+            <Section title="Mes tournois">
+              {acceptedAssignments.length === 0 ? (
+                <EmptyState message="Aucun tournoi accepté." />
+              ) : (
+                <ul className="space-y-2">
+                  {acceptedAssignments.map((t) => (
                     <li key={t.id}>
                       <CompactTournamentCard tournament={t} />
                     </li>
@@ -353,6 +375,53 @@ export default async function ArbitrePage() {
 }
 
 /* ── Composants locaux ───────────────────────────────────────────────────── */
+
+function PendingAssignmentCard({ tournament: t }: { tournament: UpcomingTournament }) {
+  return (
+    <div
+      className="rounded-xl border p-4"
+      style={{ background: 'var(--bg-page)', borderColor: 'var(--border-subtle)' }}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            {t.isHead && (
+              <span
+                className="rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold"
+                style={{ background: 'rgba(201,162,74,0.15)', color: 'var(--gold-700)' }}
+              >
+                Principal
+              </span>
+            )}
+          </div>
+          <p className="mt-2 truncate text-sm font-semibold">{t.tournamentName}</p>
+          <p className="mt-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+            {t.clubName} · {t.category} ·{' '}
+            {new Date(t.startDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+          </p>
+        </div>
+        <div
+          className="shrink-0 rounded-xl px-3 py-2 text-center"
+          style={{ background: 'var(--court-100)', minWidth: '56px' }}
+        >
+          <p className="font-mono text-lg font-bold leading-none" style={{ color: 'var(--court-700)' }}>
+            {new Date(t.startDate).getDate()}
+          </p>
+          <p
+            className="mt-0.5 font-mono text-[9px] font-semibold uppercase"
+            style={{ color: 'var(--court-700)' }}
+          >
+            {new Date(t.startDate).toLocaleDateString('fr-FR', { month: 'short' })}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex gap-2">
+        <AssignmentButtons assignmentId={t.assignmentId} />
+      </div>
+    </div>
+  );
+}
 
 function KpiCard({
   label,
