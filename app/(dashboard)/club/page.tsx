@@ -226,8 +226,11 @@ export default async function ClubDashboardPage() {
       ? realRegistrations
       : MOCK_REGISTRATIONS;
 
-  const kpis = {
-    ...data?.kpis,
+  // MOCK_KPIS sert de base pour garantir que TOUS les champs sont définis (TS strict).
+  // data?.kpis ne fait que surcharger sélectivement.
+  const kpis: typeof MOCK_KPIS = {
+    ...MOCK_KPIS,
+    ...(data?.kpis ?? {}),
     activeLessonGroups: (data?.kpis as any)?.activeLessonGroups ?? MOCK_KPIS.activeLessonGroups,
     enrolledStudents: (data?.kpis as any)?.enrolledStudents ?? MOCK_KPIS.enrolledStudents,
     sessionsThisWeek: (data?.kpis as any)?.sessionsThisWeek ?? MOCK_KPIS.sessionsThisWeek,
