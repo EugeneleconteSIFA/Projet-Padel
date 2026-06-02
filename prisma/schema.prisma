@@ -137,6 +137,7 @@ enum NotificationKind {
   PAYMENT_RECEIVED
   CLUB_ANNOUNCEMENT
   GENERIC
+  REFEREE_ASSIGNED
   // Module Communauté
   POST_REACTION
   POST_COMMENT
@@ -145,6 +146,9 @@ enum NotificationKind {
   FRIENDLY_MATCH_FULL
   CLUB_PROMOTED_POST
   FORUM_REPLY_RECEIVED
+  // Module Messagerie
+  NEW_MESSAGE
+  MENTION_IN_MESSAGE
 }
 
 enum PostVisibility {
@@ -201,6 +205,12 @@ enum ValidationStatus {
   REJECTED
 }
 
+enum AssignmentStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
 enum AuditAction {
   USER_CREATED
   USER_LOGGED_IN
@@ -214,6 +224,52 @@ enum AuditAction {
   PAYMENT_REFUNDED
   ROLE_GRANTED
   ROLE_REVOKED
+}
+
+enum LessonAudience {
+  MINI
+  JUNIOR
+  TEEN
+  ADULT
+  SENIOR
+  MIXED
+}
+
+enum LessonLevel {
+  INITIATION
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  COMPETITION
+}
+
+enum LessonGroupStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LessonSessionStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+enum LessonEnrollmentStatus {
+  ACTIVE
+  WAITING_LIST
+  CANCELLED
+}
+
+enum ConversationKind {
+  DIRECT
+  GROUP
+  CLUB
+}
+
+enum ConversationRole {
+  MEMBER
+  ADMIN
 }
 
 // ============================================================================
@@ -410,6 +466,14 @@ model PlayerProfile {
   friendlyMatchParts FriendlyMatchParticipant[]
   reports            Report[]
 
+  // Module Cours
+  lessonEnrollments  LessonEnrollment[]
+  lessonAttendances  LessonAttendance[]
+
+  // Module Messagerie
+  conversationParticipations ConversationParticipant[]
+  messages                   Message[]
+
   @@index([lookingForPartner])
 }
 
@@ -476,6 +540,13 @@ model Club {
   promotedPosts   ClubPromotedPost[]
   friendlyMatches FriendlyMatch[]
 
+  // Module Cours
+  coaches         Coach[]
+  lessonGroups    LessonGroup[]
+
+  // Module Messagerie
+  conversation Conversation?
+
   @@index([name])
 }
 
@@ -493,6 +564,8 @@ model Court {
   club    Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
   sport   Sport   @relation(fields: [sportId], references: [id])
   matches Match[]
+  lessonGroups LessonGroup[]
+  lessonSessions LessonSession[]
 
   @@unique([clubId, name])
 }
@@ -595,11 +668,13 @@ model TournamentEdition {
 }
 
 model TournamentReferee {
-  id                  String   @id @default(cuid())
+  id                  String           @id @default(cuid())
   tournamentEditionId String
   refereeProfileId    String
-  isHead              Boolean  @default(false)
-  assignedAt          DateTime @default(now())
+  isHead              Boolean          @default(false)
+  assignedAt          DateTime         @default(now())
+  status              AssignmentStatus @default(PENDING)
+  respondedAt         DateTime?
 
   edition TournamentEdition @relation(fields: [tournamentEditionId], references: [id], onDelete: Cascade)
   referee RefereeProfile    @relation(fields: [refereeProfileId], references: [id], onDelete: Cascade)
@@ -1058,4 +1133,165 @@ model Report {
 
   @@index([targetType, status])
   @@index([reporterId])
+}
+
+// ============================================================================
+// COURS — Gestion des cours de padel (coachs, groupes, sessions, inscriptions)
+// ============================================================================
+
+model Coach {
+  id        String   @id @default(cuid())
+  clubId    String
+  userId    String?  @unique
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  bio       String?  @db.Text
+  avatarUrl String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club    Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  groups  LessonGroup[]
+
+  @@index([clubId, isActive])
+}
+
+model LessonGroup {
+  id              String              @id @default(cuid())
+  clubId          String
+  coachId         String
+  courtId         String?
+  name            String
+  audience        LessonAudience
+  level           LessonLevel
+  capacity        Int                 @default(4)
+  weekday         Int
+  startTime       String
+  durationMinutes Int                 @default(60)
+  seasonStart     DateTime
+  seasonEnd       DateTime
+  priceCents      Int                 @default(0)
+  currency        String              @default("EUR")
+  description     String?             @db.Text
+  status          LessonGroupStatus   @default(DRAFT)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  club        Club                @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  coach       Coach               @relation(fields: [coachId], references: [id])
+  court       Court?              @relation(fields: [courtId], references: [id], onDelete: SetNull)
+  sessions    LessonSession[]
+  enrollments LessonEnrollment[]
+
+  @@index([clubId, status])
+  @@index([weekday])
+}
+
+model LessonSession {
+  id            String              @id @default(cuid())
+  groupId       String
+  courtId       String?
+  date          DateTime
+  durationMinutes Int               @default(60)
+  status        LessonSessionStatus @default(SCHEDULED)
+  cancelReason  String?
+  notes         String?             @db.Text
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  group        LessonGroup     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  court        Court?          @relation(fields: [courtId], references: [id], onDelete: SetNull)
+  attendances  LessonAttendance[]
+
+  @@index([groupId, date])
+  @@index([date, status])
+}
+
+model LessonEnrollment {
+  id              String                  @id @default(cuid())
+  groupId         String
+  playerProfileId String
+  status          LessonEnrollmentStatus  @default(ACTIVE)
+  enrolledAt      DateTime                @default(now())
+  cancelledAt     DateTime?
+
+  group  LessonGroup   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  player PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, playerProfileId])
+  @@index([groupId, status])
+}
+
+model LessonAttendance {
+  id              String   @id @default(cuid())
+  sessionId       String
+  playerProfileId String
+  present         Boolean  @default(true)
+  notedAt         DateTime @default(now())
+
+  session LessonSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  player  PlayerProfile  @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, playerProfileId])
+}
+
+// ============================================================================
+// MESSAGERIE — Conversations, messages, participants
+// ============================================================================
+
+model Conversation {
+  id            String           @id @default(cuid())
+  kind          ConversationKind
+  clubId        String?          @unique
+  title         String?
+  createdById   String?
+  createdAt     DateTime         @default(now())
+  lastMessageAt DateTime?
+  updatedAt     DateTime         @updatedAt
+
+  club         Club?                     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([kind, lastMessageAt])
+}
+
+model ConversationParticipant {
+  id              String           @id @default(cuid())
+  conversationId  String
+  playerProfileId String
+  role            ConversationRole @default(MEMBER)
+  joinedAt        DateTime         @default(now())
+  lastReadAt      DateTime?
+  mutedUntil      DateTime?
+  leftAt          DateTime?
+
+  conversation Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  player       PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, playerProfileId])
+  @@index([playerProfileId, lastReadAt])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  authorId       String
+  content        String   @db.Text
+  mediaUrls      String[]
+  replyToId      String?
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime @default(now())
+
+  conversation Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  author       PlayerProfile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replyTo      Message?      @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies      Message[]     @relation("MessageReplies")
+
+  @@index([conversationId, createdAt])
+  @@index([authorId])
 }

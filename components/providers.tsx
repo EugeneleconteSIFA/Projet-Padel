@@ -2,6 +2,7 @@
 
 import { SessionProvider } from 'next-auth/react';
 import type { Session } from 'next-auth';
+import { ChatBubbleProvider } from '@/components/community/ChatBubbleProvider';
 
 /* Wrapper client pour SessionProvider.
    On passe la session depuis le layout serveur pour éviter un flash
@@ -13,5 +14,9 @@ export function Providers({
   children: React.ReactNode;
   session:  Session | null;
 }) {
-  return <SessionProvider session={session}>{children}</SessionProvider>;
+  return (
+    <SessionProvider session={session}>
+      <ChatBubbleProvider>{children}</ChatBubbleProvider>
+    </SessionProvider>
+  );
 }

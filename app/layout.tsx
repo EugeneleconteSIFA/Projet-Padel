@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import { Providers } from '@/components/providers';
+import { ChatBubble } from '@/components/community/ChatBubble';
 import { auth } from '@/lib/auth';
 import './globals.css';
 
@@ -86,7 +87,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-screen bg-page text-primary antialiased">
-        <Providers session={session}>{children}</Providers>
+        <Providers session={session}>
+          {children}
+          <ChatBubble />
+        </Providers>
       </body>
     </html>
   );
