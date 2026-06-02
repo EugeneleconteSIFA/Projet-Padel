@@ -125,10 +125,14 @@ const MOCK_KPIS = {
   waitlistCount: 2,
   pendingPaymentCount: 1,
   avgFillRate: 75,
+  activeLessonGroups: 5,
+  enrolledStudents: 42,
+  sessionsThisWeek: 12,
 };
 
 const CLUB_MAIN_ACTIONS = [
   { href: '/club/tournoi/nouveau', label: 'Créer un tournoi', icon: 'plus' as const, primary: true },
+  { href: '/club/cours/nouveau', label: 'Créer un cours', icon: 'calendar' as const },
   { href: '#inscriptions', label: 'Gérer les inscriptions', icon: 'list' as const },
   { href: '#waitlist', label: "Liste d'attente", icon: 'wait' as const },
   { href: '/club/stripe', label: 'Configurer les paiements', icon: 'euro' as const },
@@ -222,7 +226,12 @@ export default async function ClubDashboardPage() {
       ? realRegistrations
       : MOCK_REGISTRATIONS;
 
-  const kpis = data?.kpis ?? MOCK_KPIS;
+  const kpis = {
+    ...data?.kpis,
+    activeLessonGroups: (data?.kpis as any)?.activeLessonGroups ?? MOCK_KPIS.activeLessonGroups,
+    enrolledStudents: (data?.kpis as any)?.enrolledStudents ?? MOCK_KPIS.enrolledStudents,
+    sessionsThisWeek: (data?.kpis as any)?.sessionsThisWeek ?? MOCK_KPIS.sessionsThisWeek,
+  };
 
   const activeTournaments = tournaments.filter((t) =>
     ['REGISTRATION_OPEN', 'RUNNING', 'PUBLISHED'].includes(t.status),
@@ -304,6 +313,21 @@ export default async function ClubDashboardPage() {
             label="Revenus estimés"
             value={`${(kpis.totalRevenueCents / 100).toFixed(0)} €`}
             icon={<EuroIcon />}
+          />
+          <KpiCard
+            label="Groupes de cours"
+            value={kpis.activeLessonGroups}
+            icon={<CalendarIcon />}
+          />
+          <KpiCard
+            label="Élèves inscrits"
+            value={kpis.enrolledStudents}
+            icon={<UsersIcon />}
+          />
+          <KpiCard
+            label="Sessions cette semaine"
+            value={kpis.sessionsThisWeek}
+            icon={<ClockIcon />}
           />
         </div>
       </section>
@@ -538,6 +562,15 @@ function MainActionIcon({ type }: { type: (typeof CLUB_MAIN_ACTIONS)[number]['ic
   switch (type) {
     case 'plus':
       return <PlusIcon />;
+    case 'calendar':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      );
     case 'list':
       return (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
@@ -814,6 +847,26 @@ function ChartIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 3v18h18" />
       <path d="m19 9-5 5-4-4-3 3" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <polyline points="12 6 12 12 16 14" />
     </svg>
   );
 }
