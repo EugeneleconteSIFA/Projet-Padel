@@ -295,38 +295,38 @@ export default async function ClubDashboardPage() {
         <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           <KpiCard
             label="Tournois actifs"
-            value={kpis.publishedCount}
+            value={kpis.publishedCount ?? 0}
             icon={<TrophyIcon />}
             accent
           />
           <KpiCard
             label="Inscriptions reçues"
-            value={kpis.totalRegistrations}
+            value={kpis.totalRegistrations ?? 0}
             icon={<UsersIcon />}
           />
           <KpiCard
             label="Taux de remplissage"
-            value={`${kpis.avgFillRate} %`}
+            value={`${kpis.avgFillRate ?? 0} %`}
             icon={<ChartIcon />}
           />
           <KpiCard
             label="Revenus estimés"
-            value={`${(kpis.totalRevenueCents / 100).toFixed(0)} €`}
+            value={`${((kpis.totalRevenueCents ?? 0) / 100).toFixed(0)} €`}
             icon={<EuroIcon />}
           />
           <KpiCard
             label="Groupes de cours"
-            value={kpis.activeLessonGroups}
+            value={kpis.activeLessonGroups ?? 0}
             icon={<CalendarIcon />}
           />
           <KpiCard
             label="Élèves inscrits"
-            value={kpis.enrolledStudents}
+            value={kpis.enrolledStudents ?? 0}
             icon={<UsersIcon />}
           />
           <KpiCard
             label="Sessions cette semaine"
-            value={kpis.sessionsThisWeek}
+            value={kpis.sessionsThisWeek ?? 0}
             icon={<ClockIcon />}
           />
         </div>
